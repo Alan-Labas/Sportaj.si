@@ -1,224 +1,230 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15" version="27.0.4">
   <diagram name="Page-1" id="Z8O6EqbNowQE9yQUFC_v">
-    <mxGraphModel dx="1829" dy="680" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2068" dy="714" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="pgdtRU3VHqToedC9biU4-1" value="" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-1" value="" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
           <mxGeometry x="80" y="40" width="680" height="680" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-2" value="ADMINISTRATOR&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-2" value="ADMINISTRATOR&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
           <mxGeometry x="-50" y="150" width="40" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-4" value="Obiskovalec" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-4" value="Obiskovalec" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
           <mxGeometry x="810" y="120" width="60" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-5" value="Urejanje komentarjov" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-5" value="Urejanje komentarjov" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="80" y="40" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-6" value="Brisanje komentarjev" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-6" value="Brisanje komentarjev" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="95" y="110" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-7" value="Vnos novega trenerja" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-7" value="Vnos novega trenerja" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="170" y="140" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-8" value="Brisanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-8" value="Brisanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="150" y="210" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-9" value="Urejanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-9" value="Urejanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="90" y="300" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-10" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-10" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint y="140" as="sourcePoint" />
             <mxPoint x="80" y="70" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-11" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-11" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="5" y="205" as="sourcePoint" />
             <mxPoint x="95" y="255" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-12" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-12" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint y="190" as="sourcePoint" />
             <mxPoint x="140" y="230" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-13" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-13" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="10" y="150" as="sourcePoint" />
             <mxPoint x="90" y="130" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-14" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-14" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="10" y="160" as="sourcePoint" />
             <mxPoint x="160" y="160" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-15" value="Iskanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-15" value="Iskanje trenerjev" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="580" y="125" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-16" value="Pregled profila trenerja" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-16" value="Pregled profila trenerja" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="610" y="630" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-17" value="Ocenjevanje trenerja" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-17" value="Ocenjevanje trenerja" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="650" y="680" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-18" value="Komentiranje trenerja" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-18" value="Komentiranje trenerja" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="530" y="480" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-19" value="registracija" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-19" value="registracija" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="580" y="260" width="100" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-20" value="Registriran uporabnik" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-20" value="Registriran uporabnik" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
           <mxGeometry x="860" y="440" width="60" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-21" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&amp;nbsp; Iskanje športnih &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;aktivnosti&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-21" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&amp;nbsp; Iskanje športnih &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;aktivnosti&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="520" y="550" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-22" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font&gt;Iskanje trenerjev&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-22" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font&gt;Iskanje trenerjev&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;" parent="1" vertex="1">
           <mxGeometry x="600" y="580" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-24" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&amp;nbsp; Iskanje športnih &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;aktivnosti&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-24" value="&lt;div style=&quot;text-align: start;&quot;&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;&amp;nbsp; Iskanje športnih &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;aktivnosti&lt;/font&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="580" y="190" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-25" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-25" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="690" y="260" as="sourcePoint" />
             <mxPoint x="780" y="200" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-26" value="" style="endArrow=none;html=1;rounded=0;entryX=0.422;entryY=0.375;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-26" value="" style="endArrow=none;html=1;rounded=0;entryX=0.422;entryY=0.375;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="780" y="160" as="sourcePoint" />
             <mxPoint x="690" y="150" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-27" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-27" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="690" y="210" as="sourcePoint" />
             <mxPoint x="780" y="180" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-28" value="Prijava" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-28" value="Prijava" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="610" y="520" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-29" value="Vnos novega trenerja" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-29" value="Vnos novega trenerja" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="520" y="400" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-30" value="Vnos nove športne aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-30" value="Vnos nove športne aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="610" y="440" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-31" value="Urejanje lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-31" value="Urejanje lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="600" y="350" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-32" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-32" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="720" y="660" as="sourcePoint" />
             <mxPoint x="820" y="590" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-33" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-33" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="700" y="370" as="sourcePoint" />
             <mxPoint x="840" y="440" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-34" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-34" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="620" y="420" as="sourcePoint" />
             <mxPoint x="830" y="450" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-35" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-35" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="710" y="460" as="sourcePoint" />
             <mxPoint x="830" y="470" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-36" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-36" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="640" y="500" as="sourcePoint" />
             <mxPoint x="840" y="490" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-37" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-37" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="830" y="510" as="sourcePoint" />
             <mxPoint x="710" y="530" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-38" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-38" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="620" y="570" as="sourcePoint" />
             <mxPoint x="830" y="540" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-39" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-39" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="700" y="600" as="sourcePoint" />
             <mxPoint x="830" y="550" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-40" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-40" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="700" y="636" as="sourcePoint" />
             <mxPoint x="820" y="570" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-41" value="Trener" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
-          <mxGeometry x="-30" y="460" width="50" height="120" as="geometry" />
+        <mxCell id="pgdtRU3VHqToedC9biU4-41" value="Trener" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="-60" y="460" width="50" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-42" value="Vnos nove aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-42" value="Vnos nove aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="80" y="170" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-43" value="Urejanje aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-43" value="Urejanje aktivnosti" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="95" y="250" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-44" value="Brisanje aktivnost" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-44" value="Brisanje aktivnost" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="180" y="40" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-45" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-45" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint y="230" as="sourcePoint" />
             <mxPoint x="90" y="300" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-46" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-46" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="10" y="180" as="sourcePoint" />
             <mxPoint x="70" y="190" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-47" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-47" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint y="150" as="sourcePoint" />
             <mxPoint x="180" y="70" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-48" value="Vnos lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-48" value="Vnos lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="95" y="440" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-49" value="Urejanje lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-49" value="Urejanje lastnega profila" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="95" y="510" width="90" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-50" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-50" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="30" y="470" as="sourcePoint" />
             <mxPoint x="90" y="460" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-51" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-51" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="30" y="520" as="sourcePoint" />
             <mxPoint x="90" y="530" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="pgdtRU3VHqToedC9biU4-52" value="Sistem Sportaj.si" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+        <mxCell id="pgdtRU3VHqToedC9biU4-52" value="Sistem Sportaj.si" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
           <mxGeometry x="590" y="20" width="170" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="PPvmZhDszwO7wWRnnw1U-1" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-40" y="450" as="sourcePoint" />
+            <mxPoint x="-40" y="280" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>
