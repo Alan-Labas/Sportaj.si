@@ -43,7 +43,7 @@
         <mxCell id="Lu04RH-zzImk3okpoFFc-31" value="OcenaTrenerja" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="690" y="10" width="160" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="Lu04RH-zzImk3okpoFFc-32" value="ID_Ocena&lt;div&gt;Komentar&lt;/div&gt;&lt;div&gt;Zvezdice&lt;/div&gt;&lt;div&gt;TK_Trener&lt;/div&gt;&lt;div&gt;TK_Uporabnik&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="Lu04RH-zzImk3okpoFFc-31" vertex="1">
+        <mxCell id="Lu04RH-zzImk3okpoFFc-32" value="ID_Ocena (int)&lt;div&gt;Komentar&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Zvezdice (int)&lt;/div&gt;&lt;div&gt;TK_Trener (int)&lt;/div&gt;&lt;div&gt;TK_Uporabnik (int)&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="Lu04RH-zzImk3okpoFFc-31" vertex="1">
           <mxGeometry y="50" width="160" height="80" as="geometry" />
         </mxCell>
         <mxCell id="Lu04RH-zzImk3okpoFFc-36" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;startSize=8;endSize=8;curved=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=-0.014;entryY=0.841;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="Lu04RH-zzImk3okpoFFc-25" target="Lu04RH-zzImk3okpoFFc-19" edge="1">
