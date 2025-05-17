@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.17 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.17">
   <diagram id="R2lEEEUBdFMjLlhIrx00" name="Page-1">
-    <mxGraphModel dx="894" dy="529" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
+    <mxGraphModel dx="1142" dy="676" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -26,10 +26,10 @@
           <mxGeometry y="50" width="160" height="70" as="geometry" />
         </mxCell>
         <mxCell id="Lu04RH-zzImk3okpoFFc-29" value="Trener" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="720" y="240" width="160" height="180" as="geometry" />
+          <mxGeometry x="720" y="240" width="160" height="190" as="geometry" />
         </mxCell>
-        <mxCell id="Lu04RH-zzImk3okpoFFc-30" value="ID_Trener (int)&lt;div&gt;TK_Uporabnik (int)&lt;br&gt;&lt;div&gt;Ime&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Priimek&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Kontakt&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Urnik&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;OpisProfila&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Slika (Varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="Lu04RH-zzImk3okpoFFc-29" vertex="1">
-          <mxGeometry y="50" width="160" height="130" as="geometry" />
+        <mxCell id="Lu04RH-zzImk3okpoFFc-30" value="ID_Trener (int)&lt;div&gt;TK_Uporabnik (int)&lt;br&gt;&lt;div&gt;Ime&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Priimek&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Telefon (int)&lt;/div&gt;&lt;div&gt;email (varchar)&lt;/div&gt;&lt;div&gt;Urnik&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;OpisProfila&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Slika (Varchar)&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" parent="Lu04RH-zzImk3okpoFFc-29" vertex="1">
+          <mxGeometry y="50" width="160" height="140" as="geometry" />
         </mxCell>
         <mxCell id="Lu04RH-zzImk3okpoFFc-31" value="Ocena_Trenerja" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="690" y="10" width="160" height="150" as="geometry" />
@@ -86,7 +86,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="P3O7LEDbC1XbL-qgzDXC-1" value="Ocena_Sporta" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="P3O7LEDbC1XbL-qgzDXC-1" value="Ocena_Sporta (neobvezno)" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="140" y="52.5" width="160" height="150" as="geometry" />
         </mxCell>
         <mxCell id="P3O7LEDbC1XbL-qgzDXC-2" value="ID_Ocena (int)&lt;div&gt;- Komentar&amp;nbsp;&lt;span style=&quot;background-color: initial;&quot;&gt;(varchar)&amp;nbsp;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;+ Ocena (int)&lt;/div&gt;&lt;div&gt;datum (date)&lt;/div&gt;&lt;div&gt;TK_Sportna_Aktivnost (int)&lt;/div&gt;&lt;div&gt;TK_Uporabnik (int)&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;" vertex="1" parent="P3O7LEDbC1XbL-qgzDXC-1">
