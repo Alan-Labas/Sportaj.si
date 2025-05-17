@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function(){
             sessionStorage.setItem("activeButtonId", JSON.stringify({activeButtonID : activeButton.id}))
         }
     }
+
     const eventList = JSON.parse(sessionStorage.getItem("events"));
     console.log(JSON.parse(sessionStorage.getItem('welcomeMsgRead')))
     if(JSON.parse(sessionStorage.getItem('welcomeMsgRead')) === null){
@@ -84,6 +85,42 @@ document.addEventListener("DOMContentLoaded", function(){
             swich(activeButton)
         })
     })
+
+
+    document.getElementById("showLogin").addEventListener('click', ()=>{
+        
+
+        const loginOverlay = document.getElementById("loginOverlay")
+        loginOverlay.style.display = "flex";
+
+        loginOverlay.addEventListener('click', (e) => {
+            if (e.target.id === 'loginOverlay') {
+                loginOverlay.style.display = 'none';
+                
+            }
+        });
+    })
+
+
+    document.getElementById('showAllBtn').addEventListener('click', ()=>{
+        if(document.querySelector('#vseContainer').classList.contains('d-none')){
+            document.getElementById('objavi').classList.add('d-none')
+            document.getElementById('showAllBtn').innerHTML = "Nazaj"
+            document.getElementById('prihajajociContainer').classList.add('d-none')
+            document.getElementById('vOkoliciContainer').classList.add('d-none')
+            document.getElementById('vseContainer').classList.remove('d-none')
+        }else{
+            document.getElementById('objavi').classList.remove('d-none')
+            document.getElementById('showAllBtn').innerHTML = "Prikaži vse"
+            document.getElementById('prihajajociContainer').classList.remove('d-none')
+            document.getElementById('vOkoliciContainer').classList.remove('d-none')
+            document.getElementById('vseContainer').classList.add('d-none')
+        }
+        
+
+    })
+
+    
     
     
 })
@@ -97,6 +134,9 @@ function swich(activeButton){
                 document.getElementById('searchDate').type = "date";
                 document.getElementById('searchDate').classList.add('d-none')
                 document.getElementById('prihajajoci').innerHTML = "Najpopularnejši športi"
+                document.getElementById('vsi').innerHTML = "Vsi Sporti"
+                document.getElementById('dodajBttn').classList.add('d-none')
+                
                 
                 
                 break;
@@ -108,6 +148,10 @@ function swich(activeButton){
                 document.getElementById('searchDate').classList.remove('d-none');
                 document.getElementById('vokolici').innerHTML = "Dejavnosti v bližini"
                 document.getElementById('prihajajoci').innerHTML = "Prihajajoči dogodki"
+                document.getElementById('objavi').innerHTML = "Dodaj dejavnost"
+                document.getElementById('vsi').innerHTML = "Vse dejavnosti"
+                document.getElementById('dodajBttn').innerHTML = "Dodaj dejavnost"
+                document.getElementById('dodajBttn').classList.remove('d-none')
                 loadEventsPrihajajoci()
                 loadEventsVBlizini()
                 break;
@@ -119,6 +163,10 @@ function swich(activeButton){
                 document.getElementById('searchDate').classList.remove('d-none');
                 document.getElementById('prihajajoci').innerHTML = "Popularna združenja"
                 document.getElementById('vokolici').innerHTML = "Zdruzenja v bližini"
+                document.getElementById('vsi').innerHTML = "Vsa zdruzenja"
+                document.getElementById('dodajBttn').classList.add('d-none')
+                
+                
                 break;
 
             case "trenerjiBtn":
@@ -129,6 +177,10 @@ function swich(activeButton){
                 document.getElementById('searchDate').classList.remove('d-none');
                 document.getElementById('vokolici').innerHTML = "Trenerji v bližini"
                 document.getElementById('prihajajoci').innerHTML = "Najbolj 'lajkani' trenerji"
+                document.getElementById('objavi').innerHTML = "Postani trener"
+                document.getElementById('vsi').innerHTML = "Vsi trenerji"
+                document.getElementById('dodajBttn').innerHTML = "Postani trener"
+                document.getElementById('dodajBttn').classList.remove('d-none')
                 loadTrenerjiMostLiked();
                 loadTrenerjiVBlizini();
         }
@@ -166,7 +218,7 @@ function loadEventsPrihajajoci(){
         console.log(event.id)
         return `
             <div class=" col-md-6 col-lg-6 col-xl-4 col-xxl-3">
-                <div class="card border  m-3 p-1" style="min-width;300px;object-fit:contain;">
+                <div class="card border bg-transparent border-0  m-3 p-1" style="min-width;300px;object-fit:contain;">
                     <div class="d-flex justify-content-center" style="object-fit:contain;">
                         <img class="card-img-top" style="max-height:150px;object-fit:contain;" src="${event.slika}"  alt="slika">
                     </div>
@@ -197,7 +249,7 @@ function loadEventsVBlizini(){
         if(event.location.includes("Maribor")){
             return `
             <div class=" col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                <div class="card border  m-3 p-1" style="min-width;300px;object-fit:contain;">
+                <div class="card border bg-transparent border-0 m-3 p-1" style="min-width;300px;object-fit:contain;">
                     <div class="d-flex justify-content-center" style="object-fit:contain;">
                         <img class="card-img-top" style="max-height:150px;object-fit:contain;" src="${event.slika}"  alt="slika">
                     </div>
@@ -226,7 +278,7 @@ function loadTrenerjiVBlizini(){
         if(trener.location.includes("Maribor")){
             return `
             <div class=" col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                <div class="card border  m-3 p-1" style="min-width;300px;object-fit:contain;">
+                <div class="card border bg-transparent border-0 m-3 p-1" style="min-width;300px;object-fit:contain;">
                     <div class="d-flex justify-content-center" style="object-fit:contain;">
                         <img class="card-img-top" style="max-height:150px;object-fit:contain;" src="${trener.slika}"  alt="slika">
                     </div>
@@ -257,7 +309,7 @@ function loadTrenerjiMostLiked(){
         
             return `
             <div class=" col-sm-6 col-md-6 col-lg-4 col-xl-3">
-                <div class="card border  m-3 p-1" style="min-width;300px;object-fit:contain;">
+                <div class="card border bg-transparent border-0 m-3 p-1" style="min-width;300px;object-fit:contain;">
                     <div class="d-flex justify-content-center" style="object-fit:contain;">
                         <img class="card-img-top" style="max-height:150px;object-fit:contain;" src="${trener.slika}"  alt="slika">
                     </div>
