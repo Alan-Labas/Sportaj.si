@@ -15,6 +15,17 @@
         <script src="../js/script.js" defer></script>
         <script src="../js/login.js" defer></script>
 
+        <!--flatpickr (da se pri vnosu datuma namesto dd/mm/yyyy lahko uporabi poljuben "placeholder")-->
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+        <!-- Flatpickr JS -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+        <!-- Slovenska lokalizacija datuma -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/sl.js"></script>
+
+
     </head>
     <body class="justify-content-center d-flex flex-column" style="background-color:rgba(238, 234, 234, 0.534);margin:1%;">
         <div id="loginOverlay" class="overlay" >
@@ -28,7 +39,7 @@
                         <img src="../slike/sportLifeicon.png" style="max-height:40px">
                     </div>
                     <div class="d-flex justify-content-center">
-                        <h4>Log in</h4>
+                        <h4>Prijava</h4>
                     </div>
                     <div class="d-flex justify-content-center"><p>Še niste registrirani?  <a href="#">Registriraj se</a></p></div>
 
@@ -70,7 +81,7 @@
         </div>
         <nav class=" mb-3 d-flex p-2 justify-content-center" style="min-height:fit-content;">
             <div class="d-flex flex-fill">
-                <img src="../slike/sportLifeicon.png" style="max-height: 50px;">
+                <a href="index.html"><img src="../slike/sportLifeicon.png" style="max-height: 50px;"></a>
             </div>
             <div class="d-flex flex-fill justify-content-center  ">
                 <div id="buttonGroup" class="border-0" >
@@ -99,6 +110,7 @@
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="btn dropdown-item">Prijava</a>
                         <a class="btn dropdown-item">Postani Trener</a>
+                        <a class="btn dropdown-item">Dodaj dejavnost</a>
                         <a class="btn dropdown-item">Profil</a>
                     </div>
                 </div>
@@ -106,8 +118,8 @@
             </div>
 
             <div class="d-flex  flex-fill align-items-center flex-row-reverse" id="loginSignUpButtons">
-                <button class="btn btn-primary h-75" style="margin-left:5px">Sign Up</button>
-                <button class="btn btn-secondary h-75" id="showLogin" style="margin-right:5px;">Log In</button>
+                <button class="btn btn-primary h-75" style="margin-left:5px">Registracija</button>
+                <button class="btn btn-secondary h-75" id="showLogin" style="margin-right:5px;">Prijava</button>
             </div>
         </nav>
         <div class="d-flex flex-column justify-content-center">
@@ -115,18 +127,18 @@
                 <form class="  input-group w-50 shadow"  id="searchInputGroup" style=" min-height:65px;background-color:white; border-radius:30px">
                     <input class="form-control border-0 AAA" type="text" id="searchComp" placeholder="Išči dejavnosti" style="background-color:white;border-radius:30px;">
                     
-                    <input class="form-control border-0 d-flex AAA" type="date" id="searchDate" style="background-color:white;border-radius:30px;">
+                    <input class="form-control border-0 AAA" type="text" id="searchSport" placeholder="Šport" style="background-color:white;border-radius:30px;">
+
+                    <input class="form-control border-0 AAA" type="text" id="searchDate" placeholder="Datum" style="background-color:white;border-radius:30px;">
+
                     <input class="form-control border-0 AAA" type="text" id="searchLoc" placeholder="Lokacija"  style="background-color:white;border-radius:30px;">
                     
-                    <button class=" btn btn-success h-100" type="submit" id="searchButton" style="border-radius: 30px;">Search</button>
+                    <button class=" btn btn-success h-100" type="submit" id="searchButton" style="border-radius: 30px;">Išči</button>
                         
                     
                     
                 </form>
-                <button class="btn btn-success" id="showAllBtn" style="border-radius:30px;">Prikaži vse</button>
-            </div>
-            <div class="w-100 d-flex justify-content-center">
-                <h5 ><a href="#" id="objavi"></a></h5>
+                <button class="btn btn-success" id="showAllBtn" style="border-radius:30px; margin-left: 5px;">Prikaži vse</button>
             </div>
         </div>
         <main class="container w-75  d-flex flex-column align-items-center" style=" min-height:50vh">
@@ -135,16 +147,16 @@
                 <div class="d-flex flex-row-reverse"><button onclick="document.getElementById('welcomemsg').style.display = 'none'; sessionStorage.setItem('welcomeMsgRead', JSON.stringify({read:true}))" class=" bg-transparent border-0" >x</button></div>
                 <div class=" mb-5 w-100 p-5 d-flex flex-row  " >
                 
-                <div class="welcome w-xl-75 w-lg-100 d-flex flex-column "  >
+                <div class="welcome w-xl-75 w-lg-100 d-flex flex-column"  >
                     <h1>Dobrodošli na Sportaj.si</h1>
-                    <p>Iščeš svojo naslednjo športno avanturo? <br>Na <b>sportaj.si</b> ti ponujamo enostanev način za iskanje športnih dejavnosti, dogodkov ter trenerjev po vsej Sloveniji.</p>
+                    <p>Iščeš svojo naslednjo športno avanturo? <br>Na <b>sportaj.si</b> ti ponujamo enostaven način za iskanje športnih dejavnosti, dogodkov ter trenerjev po vsej Sloveniji.</p>
                     <ul>
                         <li>🔍 Prebrskaj različne športe in dogodke</li>
                         <li>💬 Preberi ocene in komentarje drugih uporabnikov</li>
                         <li>👥 Poveži se s preverjenimi trenerji</li>
                         <li>📅 Prijavi se na treninge, turnirje in druge športne aktivnosti</li>
                     </ul>
-                    <p>Naša platforma je ustvarjena za vse - od začetnikov do profesionalcev - ki želijo ostati aktivni,<br> raziskovati nove športe in biti del športne skupnosti </p>
+                    <p>Naša platforma je ustvarjena za vse - od začetnikov do profesionalcev - ki želijo ostati aktivni, raziskovati nove športe in biti del športne skupnosti </p>
                 </div>
                 <div class="w-25 d-flex justify-content-center " >
                     <img src="../slike/sportLife.png" class="d-lg-none d-xl-flex" alt="all about that sports life" style="margin-left: 10%;">
@@ -159,7 +171,7 @@
                         <h3 id="prihajajoci">Prihajajoči dogodki</h3>
                     </div>
                     <div class="d-flex w-50 flex-row-reverse m-auto">
-                        <a class="btn btn-secondary">Pokazi vse</a>
+                        <a class="btn btn-secondary">Prikaži vse</a>
                     </div>
                 </div>
                 
@@ -171,10 +183,10 @@
              <div class="d-flex flex-column w-100 " id="vOkoliciContainer" style="margin-top:10%;">
                 <div class="d-flex ">
                     <div class="w-50 d-flex flex-row">
-                        <h3 id="vokolici">V okolici vas</h3>
+                        <h3 id="vokolici">V vaši bližini</h3>
                     </div>
                     <div class="d-flex w-50 flex-row-reverse m-auto">
-                        <a class="btn btn-secondary">Pokazi vse</a>
+                        <a class="btn btn-secondary">Prikaži vse</a>
                     </div>
                 </div>
                 
@@ -188,9 +200,6 @@
                     <div class="d-flex">
                         <div class="w-50 d-flex">
                             <h3 id="vsi"></h3>
-                        </div>
-                        <div class="w-50 d-flex flex-row-reverse">
-                            <a id="dodajBttn" class="btn btn-secondary"></a>
                         </div>
                     </div>
 

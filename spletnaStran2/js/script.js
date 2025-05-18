@@ -104,13 +104,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.getElementById('showAllBtn').addEventListener('click', ()=>{
         if(document.querySelector('#vseContainer').classList.contains('d-none')){
-            document.getElementById('objavi').classList.add('d-none')
             document.getElementById('showAllBtn').innerHTML = "Nazaj"
             document.getElementById('prihajajociContainer').classList.add('d-none')
             document.getElementById('vOkoliciContainer').classList.add('d-none')
             document.getElementById('vseContainer').classList.remove('d-none')
         }else{
-            document.getElementById('objavi').classList.remove('d-none')
             document.getElementById('showAllBtn').innerHTML = "Prikaži vse"
             document.getElementById('prihajajociContainer').classList.remove('d-none')
             document.getElementById('vOkoliciContainer').classList.remove('d-none')
@@ -131,11 +129,11 @@ function swich(activeButton){
             case "sportiBtn":
                 sessionStorage.setItem('activeButton', JSON.stringify({activeBtn: activeButton.id}))
                 document.getElementById('searchComp').placeholder = "Išči Šport"
-                document.getElementById('searchDate').type = "date";
+                document.getElementById('searchDate').type = "text";
                 document.getElementById('searchDate').classList.add('d-none')
                 document.getElementById('prihajajoci').innerHTML = "Najpopularnejši športi"
                 document.getElementById('vsi').innerHTML = "Vsi Sporti"
-                document.getElementById('dodajBttn').classList.add('d-none')
+                document.getElementById('searchSport').classList.add('d-none');
                 
                 
                 
@@ -144,14 +142,12 @@ function swich(activeButton){
             case "dejavnostiBtn":
                 sessionStorage.setItem('activeButton', JSON.stringify({activeBtn: activeButton.id}))
                 document.getElementById('searchComp').placeholder = "Išči dejavnosti"
-                document.getElementById('searchDate').type = "date";
+                document.getElementById('searchDate').type = "text";
                 document.getElementById('searchDate').classList.remove('d-none');
                 document.getElementById('vokolici').innerHTML = "Dejavnosti v bližini"
                 document.getElementById('prihajajoci').innerHTML = "Prihajajoči dogodki"
-                document.getElementById('objavi').innerHTML = "Dodaj dejavnost"
                 document.getElementById('vsi').innerHTML = "Vse dejavnosti"
-                document.getElementById('dodajBttn').innerHTML = "Dodaj dejavnost"
-                document.getElementById('dodajBttn').classList.remove('d-none')
+                document.getElementById('searchSport').classList.add('d-none');
                 loadEventsPrihajajoci()
                 loadEventsVBlizini()
                 break;
@@ -159,12 +155,12 @@ function swich(activeButton){
             case "zdruzenjeBtn":
                 sessionStorage.setItem('activeButton', JSON.stringify({activeBtn: activeButton.id}))
                 document.getElementById('searchComp').placeholder = "Išči združenja"
-                document.getElementById('searchDate').type = "date";
+                document.getElementById('searchDate').type = "text";
                 document.getElementById('searchDate').classList.remove('d-none');
                 document.getElementById('prihajajoci').innerHTML = "Popularna združenja"
                 document.getElementById('vokolici').innerHTML = "Zdruzenja v bližini"
                 document.getElementById('vsi').innerHTML = "Vsa zdruzenja"
-                document.getElementById('dodajBttn').classList.add('d-none')
+                document.getElementById('searchSport').classList.add('d-none');
                 
                 
                 break;
@@ -172,15 +168,13 @@ function swich(activeButton){
             case "trenerjiBtn":
                 sessionStorage.setItem('activeButton', JSON.stringify({activeBtn: activeButton.id}))
                 document.getElementById('searchComp').placeholder = "Poišči Trenerja"
-                document.getElementById('searchDate').type = "text";
-                document.getElementById('searchDate').placeholder = "Šport";
-                document.getElementById('searchDate').classList.remove('d-none');
+                document.getElementById('searchSport').type = "text";
+                document.getElementById('searchSport').placeholder = "Šport";
+                document.getElementById('searchSport').classList.remove('d-none');
                 document.getElementById('vokolici').innerHTML = "Trenerji v bližini"
                 document.getElementById('prihajajoci').innerHTML = "Najbolj 'lajkani' trenerji"
-                document.getElementById('objavi').innerHTML = "Postani trener"
                 document.getElementById('vsi').innerHTML = "Vsi trenerji"
-                document.getElementById('dodajBttn').innerHTML = "Postani trener"
-                document.getElementById('dodajBttn').classList.remove('d-none')
+                document.getElementById('searchDate').classList.add('d-none')
                 loadTrenerjiMostLiked();
                 loadTrenerjiVBlizini();
         }
@@ -330,3 +324,11 @@ function loadTrenerjiMostLiked(){
         
     }).join('');
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    flatpickr("#searchDate", {
+        locale: "sl", // slovenski jezik
+        dateFormat: "d. F Y", // npr. 18. maj 2025
+        allowInput: true
+    });
+});

@@ -20,3 +20,11 @@
     align-items:center;
     z-index:1000;
 }
+
+main {
+    margin-top: 5vh;
+}
+
+#searchButton {
+    min-width: 20%;
+}
