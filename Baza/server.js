@@ -3,18 +3,26 @@ const knex = require('knex')({
     client: 'mysql2',
     connection: {
         host: '127.0.0.1',
-        user: 'root',
-        password: 'Smetar245',
+        user: 'root', // Prilagodite po potrebi
+        password: 'Smetar245', // Prilagodite po potrebi
         database: 'sportaj_si',
     }
 });
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+
+app.use(express.static(path.join(__dirname, '../spletnaStran2')));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../spletnaStran2/html/index.html'));
+});
 
 app.post('/api/prijava', async (req, res) => {
     const { email, geslo } = req.body;
@@ -43,7 +51,7 @@ app.post('/api/prijava', async (req, res) => {
 });
 
 app.post('/api/registracija', async (req, res) => {
-    const { ime, priimek, email, geslo } = req.body; // 'priimek' trenutno ni uporabljen v tabeli Uporabniki
+    const { ime, priimek, email, geslo } = req.body;
 
     if (!ime || !email || !geslo) {
         return res.status(400).json({ message: 'Ime, email in geslo so obvezni.' });
