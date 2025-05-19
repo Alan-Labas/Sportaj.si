@@ -53,7 +53,7 @@ async function prijavaUporabnika() {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('navRight').classList.remove('d-none');
             document.getElementById('loginSignUpButtons').classList.add('d-none');
-            window.location.href = 'index.html';
+            window.location.href = '/';
         } else {
             alert(`Napaka pri prijavi: ${data.message || 'Neznana napaka.'}`);
         }
