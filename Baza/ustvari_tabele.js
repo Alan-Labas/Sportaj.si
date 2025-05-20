@@ -225,7 +225,7 @@ async function napolniBazo() {
         console.log("Napaka", error);
         throw error;
     } finally {
-        knex.destroy();
+        await knex.destroy();
     }
     
 } 
