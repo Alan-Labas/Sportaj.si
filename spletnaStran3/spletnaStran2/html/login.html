@@ -1,0 +1,40 @@
+
+<div >
+    <div class="d-flex flex-column p-3 ">
+        <div class="w-100">
+            <img src="../slike/sportLifeicon.png" style="max-height:40px">
+        </div>
+        <div class="d-flex justify-content-center">
+            <h4>Log in</h4>
+        </div>
+        <div class="d-flex justify-content-center"><p>Še niste registrirani?  <a>Registriraj se</a></p></div>
+
+        <form id="loginForm">
+            <div class="d-flex flex-column">
+                <div class="form-group">
+                    <label class="form-label" for="emailInput">Email:</label>
+                    <input type="email" class="form-control" id="emailInput" placeholder="Vnesite email naslov">
+                </div>
+                <div class="form-group">
+                    <div class="d-flex">
+                        <div class="d-flex flex-fill">
+                            <label class="form-label" for="passwordInput">Geslo:</label>
+                        </div>
+                        <div class="flex-row-reverse flex-fill">
+                            <a>Pozabljeno geslo?</a>
+                        </div>
+                    </div>
+                    
+                    <input type="password" class="form-control" id="passwordInput" placeholder="Vnesite geslo">
+                </div>
+                <div class="form-group d-flex">
+                    <input type="checkbox" id="stayLoggedIn">
+                    <label for="stayLoggedIn">Ostani prijavljen.</label>
+                </div>
+                <button class="btn btn-danger">Prijava</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/script.js"></script>
