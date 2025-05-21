@@ -63,26 +63,30 @@ document.addEventListener("DOMContentLoaded", function(){
         })
         
     })
-
     
+
+   
     
     buttons.forEach(btn =>{
         btn.addEventListener('click', ()=>{
 
-            buttons.forEach(b =>{
-                if(btn != b){
-                    
-                    b.classList.add('border-0')
-                   
-
-                }
-                
-            })
+            
+            if(window.innerWidth > 768){
+                buttons.forEach(b =>{
+                    if(btn != b){
+                        b.classList.add('border-0')
+                    }
+                    btn.classList.remove('border-0')
+                })
+            };
+            
+            
             activeButton = btn
             sessionStorage.setItem("activeButtonId", JSON.stringify({activeButtonID : activeButton.id}))
-            btn.classList.remove('border-0')
+            
             console.log(activeButton.id)
             swich(activeButton)
+            
         })
     })
 

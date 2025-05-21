@@ -7,14 +7,14 @@
     
     searchForm.addEventListener('submit', function(e){
         e.preventDefault();
-        console.log(searchForm.querySelector('#searchComp').textContent)
-        const activePage = JSON.parse(sessionStorage.getItem("activeButtonId")).activeButtonID
-        console.log(activePage)
+        
+        const activePageButton = sessionStorage.getItem('activePageButton');
+        
         
         let data;
-        switch(activePage){
+        switch(activePageButton){
             
-            case "sportiBtn":
+            case "sport":
                 const sport = searchForm.querySelector('#searchComp').textContent;
                 const sportLoc = searchForm.querySelector('#searchComp').textContent;
 
@@ -22,23 +22,23 @@
                 search(data, sport, sportLoc)
                 break;
 
-            case "dejavnostiBtn":
-                const dejavnostTF = searchForm.querySelector('#searchComp').textContent;
-                const datum = searchForm.querySelector('#searchDate')
-                const dejavnostiLoc = searchForm.querySelector('#searchLoc').textContent
+            case "dejavnosti":
+                const dejavnostTF = searchForm.querySelector('#searchComp1').textContent;
+                const datum = searchForm.querySelector('#searchComp3')
+                const dejavnostiLoc = searchForm.querySelector('#searchComp4').textContent
 
                 data = JSON.parse(sessionStorage.getItem("events"))
                 search(data, dejavnostTF, dejavnostiLoc)
                 break;
 
-            case "zdruzenjeBtn":
+            case "zdruzenja":
                 const zdruzenjeTF = searchForm.querySelector('#searchComp').textContent;
                 const zdruzenjeLoc = searchForm.querySelector('#searchComp').textContent;
                 data = JSON.parse(sessionStorage.getItem("zdruzenja"))
                 search(data, zdruzenjeTF, zdruzenjeLoc)
                 break;
 
-            case "trenerjiBtn":
+            case "trenerji":
                 const trenerTF = searchForm.querySelector('#searchComp').value
                 
                 const trenerLoc = searchForm.querySelector('#searchLoc').value;
