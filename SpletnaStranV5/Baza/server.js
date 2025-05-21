@@ -20,7 +20,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'Smetar245', // Prilagodite geslo
+        password: 'geslo', // Prilagodite geslo
         database: 'sportaj_si', // Prilagodite ime baze
     }
 });

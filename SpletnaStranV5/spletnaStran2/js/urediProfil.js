@@ -11,12 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const newPasswordInput = document.getElementById('newPasswordInput');
     const confirmNewPasswordInput = document.getElementById('confirmNewPasswordInput');
 
-    // Funkcija za nalaganje podatkov o profilu (iz PrijavaInRegistracija.js)
-    // Predpostavljamo, da fetchZAvtentikacijo že obstaja in deluje.
-    // Če ne, jo morate kopirati ali uvoziti iz PrijavaInRegistracija.js
+    
 
     async function loadProfileData() {
-        const response = await fetchZAvtentikacijo('/api/profil'); // Predpostavljamo, da imate fetchZAvtentikacijo
+        const response = await fetchZAvtentikacijo('/api/profil'); 
         if (response.ok) {
             const data = await response.json();
             usernameInput.value = data.username;
@@ -31,8 +29,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Napaka pri nalaganju podatkov profila. Poskusite osvežiti stran.');
             // Možna odjava ali preusmeritev, če žeton ni več veljaven
             if(response.status === 401 || response.status === 403) {
-                //await odjava(true, 'Vaša seja je potekla, prijavite se ponovno.'); // Če želite avtomatsko odjavo
-                //window.location.href = '/'; // Preusmeri na domačo stran
+                alert('Vaša seja je potekla. Prijavite se ponovno.');
+                sessionStorage.removeItem('accessToken');
+                sessionStorage.removeItem('uporabnikInfo');
+                window.location.href = '/'; // Preusmeri na domačo stran
             }
         }
     }
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const response = await fetchZAvtentikacijo('/api/profil/slika', {
                 method: 'POST',
-                body: formData // FormData sam nastavi Content-Type na multipart/form-data
+                body: formData 
             });
 
             const data = await response.json();
@@ -77,14 +77,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert(data.message || 'Profilna slika uspešno posodobljena!');
                 if (data.slika_profila_url) {
                     profileImagePreview.src = data.slika_profila_url;
-                    // Posodobi sliko v navigaciji, če obstaja tam (zahteva dodatno logiko)
+
                     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
                     if (uporabnikInfoString) {
                         const uporabnikInfo = JSON.parse(uporabnikInfoString);
                         uporabnikInfo.slika_profila_url = data.slika_profila_url;
                         sessionStorage.setItem('uporabnikInfo', JSON.stringify(uporabnikInfo));
-                        // Klic funkcije, ki osveži prikaz v navigaciji, če je potrebno
-                        // updateNavUserProfileImage(data.slika_profila_url);
+
                     }
                 }
             } else {
@@ -113,8 +112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Posodobi shranjene podatke o uporabniku v sessionStorage, če je nov žeton
             if (data.accessToken && data.uporabnik) {
                 sessionStorage.setItem('accessToken', data.accessToken);
-                const uporabnikInfo = { // Zgradi nov objekt
-                    userId: JSON.parse(sessionStorage.getItem('uporabnikInfo')).userId, // Ohrani userId
+                const uporabnikInfo = { 
+                    userId: JSON.parse(sessionStorage.getItem('uporabnikInfo')).userId,
                     username: data.uporabnik.username,
                     email: data.uporabnik.email,
                     slika_profila_url: JSON.parse(sessionStorage.getItem('uporabnikInfo')).slika_profila_url // Ohrani sliko
