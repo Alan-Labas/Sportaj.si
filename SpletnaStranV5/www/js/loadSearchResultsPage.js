@@ -1,6 +1,30 @@
-const searchResults = JSON.parse(sessionStorage.getItem('searchResults'));
+const result = JSON.parse(sessionStorage.getItem('searchResults'));
+
+let activePage = sessionStorage.getItem('activePageButton');
+console.log(activePage)
+document.getElementById('rezultatiIskanjaText').innerHTML = "";
+
+
+const searchedBy = result[1]
+const searchResults = result[0];
+console.log(searchedBy)
 console.log(searchResults)
-const activePage = sessionStorage.getItem('activePageButton');
+if(searchedBy.length > 0){
+    document.getElementById('rezultatiIskanjaText').innerHTML = `Rezultati iskanja za: ${searchedBy.ime}`
+}else{
+    if(activePage === 'dejavnosti'){
+         document.getElementById('rezultatiIskanjaText').innerHTML = `Vse dejavnosti`;
+    }else if(activePage === 'zdruzenja'){
+         document.getElementById('rezultatiIskanjaText').innerHTML = `Vsa zdruzenja`;
+    }else if ( activePage === 'sport'){
+        document.getElementById('rezultatiIskanjaText').innerHTML =  `Vsi sporti`;
+    }else if(activePage === 'trenerji'){
+         document.getElementById('rezultatiIskanjaText').innerHTML =  `Vsi trenerji`;
+    }
+    
+   
+}
+
 
 switch(activePage){
     case "dejavnosti":

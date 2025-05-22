@@ -9,223 +9,139 @@ searchForm.addEventListener('submit', (e)=>{
     const searchComp3 = searchForm.querySelector('#searchComp3');
     const searchComp4 = searchForm.querySelector('#searchComp4');
     const calendarButton = searchForm.querySelector('#calendarBtn')
+    const searchFields = [searchComp1, searchComp2,searchComp3,searchComp4];
+    const searchBy = [];
+    
 
     const activePageButton = sessionStorage.getItem('activePageButton');
     console.log(activePageButton)
 
-    switch(activePageButton){
-        case "sport":
-            const isciField = searchComp1.value;
-            
-            search(activePageButton, isciField, null, null)
-            break;
+    const API_URL = 'http://localhost:3000/api/search/';
+    const tab = {
+        dejavnosti : "sportna_aktivnost",
+        sport : "sport",
+        trenerji : "trenerji"
 
-        case "dejavnosti":
-            const isciDejavnost = searchComp1.value;
-            
-            const datum = window.innerWidth > 992 ? searchComp2.value :  calendarButton.value;
-            let lokacijaD = window.innerHeight > 992 ? searchComp4.value : [];
-            
-            if(lokacijaD.length === 0){lokacijaD = null}
-            
-            
-            search(activePageButton, isciDejavnost, null,null, lokacijaD)
-            break;
-
-        case "zdruzenja":
-            const isciZdruzenje = searchComp1.textContent;
-            
-            const lokacijaZ = window.innerHeight > 992 ? searchComp4.textContent : "";
-            search(activePageButton, isciZdruzenje, lokacijaZ)
-            break;
-
-        case "trenerji":
-            
-            const isciTrenerja = searchComp1.value;
-            console.log(isciTrenerja)
-            let imePriimek = [];
-            if(isciTrenerja.includes(" ")){
-                imePriimek = isciTrenerja.split(" ") ;
-            }else{imePriimek.push(isciTrenerja)}
-              
-            console.log(imePriimek)
-            search(activePageButton, imePriimek,null, null, null)
-            break;
     }
-
-
-})
-
-function search(activePageButton, input1, input2, input3, input4){
-    const data = JSON.parse(sessionStorage.getItem(activePageButton))
-    
-    let args= [input1,input2,input3];
-    let searchBy = [];
-    let searchResults =[];
-
-    let dataByArg = []
-    for(let i of args){
-        if(i != null){
-            searchBy.push(i);
+    let table;
+    let searchParams = [];
+    for(let field of searchFields){
+        if(!(field.length === 0) || !(field.value === null)){
+            searchParams.push(field);
+            
         }
     }
-
-    switch(activePageButton){
-        
-        case "sport":
-            let sportMatch = []
-            if(input1 != null){
-                data.forEach(entity =>{
-                    if(entity.Sport === input1){
-                        sportMatch.push(entity)
-                    }
-
-                })
-            }else{
-                data.forEach(entity =>{
-                    sportMatch.push(entity)
-                })
-            }
+    console.log(searchParams)
+    const params = [];
+    if(activePageButton === 'dejavnosti'){
+        table = tab.dejavnosti;
+        const inputDBPairs = [
+            {key:"searchComp1", value:"naziv"} ,
+            {key:"searchComp2", value:"sport"} ,
+            {key:"searchComp3", value:"datum"} ,
+            {key:"searchComp4", value:"lokacija"} 
+        ]
+        let paramKey;
+        let paramValue;
+        const paramKeyValuePair = [];
+        for(let param of searchParams){
+            for(let atr of inputDBPairs){
                 
-            searchResults.push(sportMatch)
-            sessionStorage.setItem('searchResults', JSON.stringify(sportMatch))
-            break;
+                if(param.id === atr.key ){
+                    console.log(param.id+" "+atr.key)
+                    paramKey = atr.value;
+                    paramValue = param.value;
 
-        case "dejavnosti":
-            let dejavnostiMatch = []
-            if(input1 != null && input4 != null){
-                console.log('yess')
-                console.log(input4)
-                data.forEach(entity =>{
-                    if(entity.Naziv === input1 && entity.Lokacija === input4){
-                        dejavnostiMatch.push(entity)
-                    }
+                    paramKeyValuePair.push({paramKey, paramValue});
 
-                })
-            }else if ( input1 !=null && input4 === null){
-                console.log('nooo')
-                data.forEach(entity =>{
-                    if(entity.Naziv === input1){
-                        dejavnostiMatch.push(entity)
-                    }
-
-                })
-            }else if( input1 === null && input4 != null){
-                console.log('myb')
-                data.forEach(entity =>{
-                    if(entity.Lokacija === input4){
-                        dejavnostiMatch.push(entity)
-                    }
-
-                })
-            }
-                
-           searchResults.push(dejavnostiMatch)
-           sessionStorage.setItem('searchResults', JSON.stringify(dejavnostiMatch))
-            break;
-
-        case "zdruzenja":
-            let zdruzenjaMatch = []
-            if(input1 != null && input4 != null){
-                data.forEach( entity =>{
-                    if(entity.Naziv === input1 && entity.Lokacija === input4){
-                        zdruzenjaMatch.push(entity)
-                    }
-                })
-            }else if(input1 != null & input4 ===null){
-                data.forEach( entity =>{
-                    if(entity.Naziv === input1){
-                        zdruzenjaMatch.push(entity)
-                    }
-                })
-            }else if(input1 ===null && input4 != null){
-                data.forEach(entity =>{
-                    if(entity.Lokacija === input4){
-                        zdruzenjaMatch.push(entity);
-                    }
-                })
-                
-            }
-            searchResults.push(zdruzenjaMatch)
-            sessionStorage.setItem('searchResults', JSON.stringify(zdruzenjaMatch))
-            break;
-
-        case "trenerji":
-            
-            console.log(input1)
-            console.log(input1[0])
-            let trenerjiMatch = []
-            
-            if(input1 != null && input4 === null){
-                console.log('yesss')
-                if(input1.length === 1){
-                    data.forEach(entity =>{
-                        if(entity.ime === input1[0] || entity.priimek === input1[0]){
-                            trenerjiMatch.push(entity);
-                        }
-
-                    })
-                }else if(input1.length === 2){
-                    data.forEach(entity =>{
-                        if(entity.ime === input1[0] && entity.priimek === input1[1]){
-                            console.log(entity.ime)
-                            console.log(input1[0])
-                            console.log("and")
-                            console.log(entity.priimek)
-                            console.log(input1[1])
-                            console.log(entity)
-                            trenerjiMatch.push(entity);
-                        }
-
-                    })
                 }
-            }else if ( input1 != null && input4 != null){
-                console.log('nooo')
-                if(input1.length === 1){
-                    data.forEach(entity =>{
-                        if((entity.ime === input1[0] || entity.priimek === input1[0]) && entity.Lokacija === input4){
-                            trenerjiMatch.push(entity);
-                        }
-
-                    })
-                }else if(input1.length === 2){
-                    data.forEach(entity =>{
-                        if((entity.ime === input1[0] && entity.priimek === input1[1])&& entity.Lokacija === input4){
-                            console.log(entity.ime)
-                            console.log(input1[0])
-                            console.log("and")
-                            console.log(entity.priimek)
-                            console.log(input1[1])
-                            console.log(entity)
-                            trenerjiMatch.push(entity);
-                        }
-
-                    })
-                }
-            }else if(input1 === null && input4 != null){
-                console.log('myb')
-                data.forEach(entity =>{
-                    if(entity.Lokacija === input4){
-                        trenerjiMatch.push(entity);
-                    }
-                })
             }
-
+        }
+        console.log(paramKeyValuePair)
+        const urlParams = new URLSearchParams()
+        for(let param of paramKeyValuePair){
+            if(param.paramValue.trim()){
+                urlParams.append(param.paramKey, param.paramValue)
+            }
             
-            console.log(trenerjiMatch)
-            searchResults.push(trenerjiMatch)
-            
-            sessionStorage.setItem('searchResults', JSON.stringify(trenerjiMatch))
-            break;
-        console.log(searchResults)
+        }
         
+        
+        console.log(urlParams.toString())
+        
+        const url = new URL(`${API_URL}${table}`)
+        url.search = urlParams.toString()
+        
+        fetch(url)
+        .then(response => response.json())
+        .then(data =>{
+            sessionStorage.setItem('searchResults', JSON.stringify(data));
+            console.log(data)
+        })
+        .catch(error =>{console.error(error)})
+
+
+
+        
+
+
+    }else if(activePageButton === 'trenerji'){
+        table = tab.trenerji;
+        const inputDBPairs = [
+            {key:"searchComp1", value:"ime"} ,
+            {key:"searchComp2", value:"sport"} ,
+            {key:"searchComp3", value:"datum"} ,
+            {key:"searchComp4", value:"lokacija"} 
+        ]
+        let paramKey;
+        let paramValue;
+        const paramKeyValuePair = [];
+        for(let param of searchParams){
+            for(let atr of inputDBPairs){
+                
+                if(param.id === atr.key ){
+                    console.log(param.id+" "+atr.key)
+                    paramKey = atr.value;
+                    paramValue = param.value;
+
+                    paramKeyValuePair.push({paramKey, paramValue});
+
+                }
+            }
+        }
+        console.log(paramKeyValuePair)
+        const urlParams = new URLSearchParams()
+        for(let param of paramKeyValuePair){
+            if(param.paramValue.trim()){
+                urlParams.append(param.paramKey, param.paramValue)
+            }
+            
+        }
+        
+        
+        console.log(urlParams.toString())
+        
+        const url = new URL(`${API_URL}${table}`)
+        url.search = urlParams.toString()
+        
+        fetch(url)
+        .then(response => response.json())
+        .then(data =>{
+            sessionStorage.setItem('searchResults', JSON.stringify(data));
+            console.log(data)
+        })
+        .catch(error =>{console.error(error)})
+
+    }else if(activePageButton === 'sport'){
+        table = tab.sport;
     }
     
+    
+    
+    
     window.location.href = "../html/searchResults.html"
-    console.log(searchResults)
-    
-
     
     
-}
+    
+});
 

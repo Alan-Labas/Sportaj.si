@@ -22,6 +22,10 @@ const knex = require('knex')({
     }
 });
 
+
+
+
+
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 app.use(fileUpload({createParentPath: true}));
@@ -119,6 +123,32 @@ app.get('/api/sport/:id/details', async (req, res) => {
     }
 });
 
+
+app.get('/api/search/:table', async(req, res)=>{
+    const {table} = req.params;
+    const filters = JSON.parse(JSON.stringify(req.query));
+    console.log(table)
+    console.log(filters)
+
+    const allowedTables = ['sport', 'sportna_aktivnost', 'trenerji']
+    if(!allowedTables.includes(table)){
+        return res.status(400).json({error: `Tabela ${table} ni dostopna`})
+    }
+    try{
+        let query = knex(table).select('*')
+        for(const [key,value] of Object.entries(filters)){
+            query = query.where(key, 'like', `%${value}`)
+        }
+        
+        const searchResult = await query;
+        
+        res.json([searchResult, filters]);
+    }catch(error){
+        console.error('Database query error: ', error);
+        res.status(500).json({error: 'Internal server error'})
+    }
+})
+
 // === API TOČKE ZA ŠPORTNE AKTIVNOSTI (javne) ===
 app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
     try {
@@ -164,6 +194,18 @@ app.get('/api/dejavnosti-okolica', async (req, res) => {
         res.status(500).json({message: 'Napaka na strežniku.'});
     }
 });
+
+app.get('/api/vse-aktivnosti', async(req,res)=>{
+    try{
+        const vseAktivnosti = await knex('sportna_aktivnost').select();
+        
+        res.json(vseAktivnosti);
+    }catch(err){
+        res.status(500).json({napaka: err.message})
+    }
+})
+
+
 
 app.get('/api/aktivnost/:id/details', async (req, res) => {
     const {id} = req.params;

@@ -14,47 +14,59 @@
 
     </head>
     <body class="justify-content-center d-flex flex-column" style="margin:1%;">
-        <nav class=" mb-5 d-flex " style="min-height:fit-content;background-color : white;">
-            <ul class=" align-items-center w-50 d-flex flex-row nav">
-                <li class="nav-item">
-                    <div class="input-group">
-                        
-                        <div class="dropdown show">
-                            <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"  aria-expanded="false"></a>
-                            <div class=" bg-light dropdown-menu " style="z-index:1050;" >
-                                <a class="dropdown-item" value="trener" onclick="document.getElementById('dropdownMenuLink').textContent = this.textContent">Trenerji</a>
-                                <a class="dropdown-item acive" value="dejavnost" onclick="document.getElementById('dropdownMenuLink').textContent = this.textContent">Dejavnosti</a>
-                                
+        <nav class=" mb-5 d-flex  flex-column" style="min-height:fit-content;background-color : white;">
+            <div class="d-flex flex-row w-100">
+                <ul class=" align-items-center w-50 d-flex flex-row nav">
+                    <li class="nav-item">
+                        <div class="input-group">
+                            
+                            <div class="dropdown show">
+                                <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"  aria-expanded="false"></a>
+                                <div class=" bg-light dropdown-menu " style="z-index:1050;" >
+                                    <a class="dropdown-item" value="trener" onclick="document.getElementById('dropdownMenuLink').textContent = this.textContent">Trenerji</a>
+                                    <a class="dropdown-item acive" value="dejavnost" onclick="document.getElementById('dropdownMenuLink').textContent = this.textContent">Dejavnosti</a>
+                                    
+                                </div>
                             </div>
+                            
+                            <input type="text" class="form-control " placeholder="Search..." aria-label="Search" style="border-radius: 10px;margin-left:5%; ">
+                            <input id="locationSearch" class="form-control" type="text" placeholder="Vpisi kraj" aria-label="location" style="border-radius:10px;">
+                            <button class="btn btn-success" style="border-radius: 10px;;">🔍</button>
                         </div>
-                        
-                        <input type="text" class="form-control " placeholder="Search..." aria-label="Search" style="border-radius: 10px;margin-left:5%; ">
-                        <input id="locationSearch" class="form-control" type="text" placeholder="Vpisi kraj" aria-label="location" style="border-radius:10px;">
-                        <button class="btn btn-success" style="border-radius: 10px;;">🔍</button>
-                    </div>
-                </li>
-                <li class="nav-item"></li>
-                
-                
+                    </li>
+                    <li class="nav-item"></li>
+                    
+                    
 
-            </ul>
-            <ul class="d-flex w-50 flex-row-reverse nav">
-                <li class="nav-item"><button class="btn btn-primary">Log in</button> </li>
-                <li class="nav-item"><button class="btn btn-secondary">Sign up</button></li>
-            </ul>
+                </ul>
+                <ul class="d-flex w-50 flex-row-reverse nav">
+                    <li class="nav-item"><button class="btn btn-primary">Log in</button> </li>
+                    <li class="nav-item"><button class="btn btn-secondary">Sign up</button></li>
+                </ul>
+            </div>
+            
         </nav>
+        <div class="d-flex flex-row w-100 align-items-bottom">
+            <div class="d-flex w-50">
+                <h3 class="" id="rezultatiIskanjaText"></h3>
+            </div>
+            <div class="d-flex flex-row-reverse w-50">
+                <button class=" btn btn-secondary" style="margin-left:10px">Sortiraj</button>
+                <button class="btn btn-secondary">Filtriraj</button>
+            </div>
+        </div>
         <hr>
 
-        <main class="w-100 d-flex justify-content-center " id="main" style=" min-height:50vh">
-            <div class=" d-flex w-75 flex-column text-center" id="mainCenter" style=" background-color: beige;">
+        <main class="w-100 d-flex justify-content-center " id="main" style=" min-height:50vh;">
+            <div class=" d-flex w-75 flex-column text-center shadow" id="mainCenter" style="" >
                 
                 <div class="d-flex flex-row-reverse ">
                     <button class="btn btn-secondary" id="categoryBtn" onclick="toggleSidebar()">SW</button>
                 </div>
 
-                <h2>Rezultati iskanja</h2>
-                <hr>
-                <div class="row p-4" id="searchResults">
+                
+                
+                <div class="row p-4" id="searchResults" style="min-height:fit-content;">
                     <div class="col-sm-6 col-md-4 col-lg-3">
                         <div class="card m-1 p-2">
                             <img src="#" class="card-img-top" alt="slika">

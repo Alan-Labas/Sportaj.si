@@ -290,6 +290,7 @@ function loadContentToContainer(content, containerId, itemType, activePage) {
 
 async function showTrainerDetails(trainerId) {
     const trainer = await fetchData(`/api/trener/${trainerId}/details`);
+    
     const modalTitle = document.getElementById('modalTitle');
     const modalBody = document.getElementById('modalBody');
     const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
