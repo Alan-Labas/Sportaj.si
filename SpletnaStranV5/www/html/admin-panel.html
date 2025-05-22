@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - Sportaj.si</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+  <style>
+    body { padding-top: 70px; } /* Prostor za fiksno navigacijo */
+    .admin-section { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #ddd; border-radius: .25rem; background-color: #f9f9f9;}
+    .table th, .table td { vertical-align: middle; }
+    .modal-xl { max-width: 90%; }
+    .action-buttons button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+<div id="globalAlertMessageFixed" class="container text-center my-2 fixed-top" style="z-index: 1055;"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/"><img src="/slike/sportLifeicon.png" style="max-height: 40px;" alt="Sportaj.si"> Admin Panel</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="adminNavbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#" data-section="ocene-trenerjev">Ocene Trenerjev</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-section="ocene-aktivnosti">Ocene Aktivnosti</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-section="aktivnosti">Športne Aktivnosti</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-section="trenerji">Trenerji</a>
+        </li>
+      </ul>
+      <div id="navRightAdmin" class="d-flex align-items-center">
+        <span id="pozdravAdmin" class="navbar-text me-3 text-white"></span>
+        <button id="odjavaAdminBtn" class="btn btn-warning btn-sm">Odjava</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container mt-5 pt-3">
+  <h1 id="sectionTitle" class="mb-4">Admin Panel</h1>
+
+  <section id="ocene-trenerjev-section" class="admin-section">
+    <h2>Upravljanje Ocen Trenerjev</h2>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Trener</th>
+          <th>Uporabnik</th>
+          <th>Ocena</th>
+          <th>Komentar</th>
+          <th>Datum</th>
+          <th>Akcije</th>
+        </tr>
+        </thead>
+        <tbody id="oceneTrenerjevTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="ocene-aktivnosti-section" class="admin-section d-none">
+    <h2>Upravljanje Ocen Aktivnosti</h2>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Aktivnost</th>
+          <th>Uporabnik</th>
+          <th>Ocena</th>
+          <th>Komentar</th>
+          <th>Datum</th>
+          <th>Akcije</th>
+        </tr>
+        </thead>
+        <tbody id="oceneAktivnostiTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="aktivnosti-section" class="admin-section d-none">
+    <h2>Upravljanje Športnih Aktivnosti</h2>
+    <button id="dodajAktivnostBtn" class="btn btn-success mb-3">Dodaj Novo Aktivnost</button>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Naziv</th>
+          <th>Šport</th>
+          <th>Trener</th>
+          <th>Lokacija</th>
+          <th>Cena</th>
+          <th>Prosta Mesta</th>
+          <th>Akcije</th>
+        </tr>
+        </thead>
+        <tbody id="aktivnostiTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="trenerji-section" class="admin-section d-none">
+    <h2>Upravljanje Trenerjev</h2>
+    <button id="dodajTrenerjaBtn" class="btn btn-success mb-3">Dodaj Novega Trenerja</button>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Ime in Priimek</th>
+          <th>Uporabniško Ime (Login)</th>
+          <th>Email (Login)</th>
+          <th>Email (Kontakt)</th>
+          <th>Telefon</th>
+          <th>Akcije</th>
+        </tr>
+        </thead>
+        <tbody id="trenerjiTableBody">
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="modal fade" id="urediOcenoModal" tabindex="-1" aria-labelledby="urediOcenoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="urediOcenoModalLabel">Uredi Oceno</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="urediOcenoForm">
+          <input type="hidden" id="ocenaIdInput">
+          <input type="hidden" id="ocenaTypeInput"> <div class="mb-3">
+          <label for="ocenaKomentarInput" class="form-label">Komentar:</label>
+          <textarea class="form-control" id="ocenaKomentarInput" rows="3"></textarea>
+        </div>
+          <div class="mb-3">
+            <label for="ocenaVrednostInput" class="form-label">Ocena (1-5):</label>
+            <input type="number" class="form-control" id="ocenaVrednostInput" min="1" max="5" step="1" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Prekliči</button>
+        <button type="button" class="btn btn-primary" id="shraniOcenoBtn">Shrani Spremembe</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="aktivnostModal" tabindex="-1" aria-labelledby="aktivnostModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="aktivnostModalLabel">Dodaj/Uredi Aktivnost</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="aktivnostForm">
+          <input type="hidden" id="aktivnostIdInput">
+          <div class="mb-3">
+            <label for="aktivnostNazivInput" class="form-label">Naziv*</label>
+            <input type="text" class="form-control" id="aktivnostNazivInput" required>
+          </div>
+          <div class="mb-3">
+            <label for="aktivnostOpisInput" class="form-label">Opis*</label>
+            <textarea class="form-control" id="aktivnostOpisInput" rows="3" required></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostLokacijaInput" class="form-label">Lokacija*</label>
+              <input type="text" class="form-control" id="aktivnostLokacijaInput" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostCenaInput" class="form-label">Cena* (€)</label>
+              <input type="number" class="form-control" id="aktivnostCenaInput" step="0.01" min="0" required value="0">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostProstaMestaInput" class="form-label">Prosta Mesta*</label>
+              <input type="number" class="form-control" id="aktivnostProstaMestaInput" min="0" required value="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostSlikaInput" class="form-label">URL Slike (npr. /slike/sporti/nogomet.png)</label>
+              <input type="text" class="form-control" id="aktivnostSlikaInput" placeholder="/slike/default-sport.png">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostTipSelect" class="form-label">Tip Aktivnosti (Šport)*</label>
+              <select class="form-select" id="aktivnostTipSelect" required>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="aktivnostTrenerSelect" class="form-label">Trener</label>
+              <select class="form-select" id="aktivnostTrenerSelect">
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Prekliči</button>
+        <button type="button" class="btn btn-primary" id="shraniAktivnostBtn">Shrani Aktivnost</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="trenerModal" tabindex="-1" aria-labelledby="trenerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl"> <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="trenerModalLabel">Dodaj/Uredi Trenerja</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <form id="trenerForm">
+        <input type="hidden" id="trenerIdInput"> <input type="hidden" id="trenerUporabnikIdInput"> <h5>Podatki za Uporabniški Račun (Prijava)</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="trenerUsernameInput" class="form-label">Uporabniško Ime (za prijavo)*</label>
+            <input type="text" class="form-control" id="trenerUsernameInput" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="trenerLoginEmailInput" class="form-label">Email (za prijavo)*</label>
+            <input type="email" class="form-control" id="trenerLoginEmailInput" required>
+          </div>
+        </div>
+        <div class="mb-3" id="trenerGesloGroup"> <label for="trenerGesloInput" class="form-label">Geslo* (min. 6 znakov, 1 velika črka, 1 številka)</label>
+          <input type="password" class="form-control" id="trenerGesloInput" pattern="^(?=.*[A-Z])(?=.*\d).{6,}$">
+          <small id="gesloHelpBlock" class="form-text text-muted">
+            Pustite prazno, če ne želite spremeniti gesla pri urejanju. Obvezno pri dodajanju.
+          </small>
+        </div>
+        <hr>
+        <h5>Podatki za Javni Profil Trenerja</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="trenerImeInputModal" class="form-label">Ime (javno)*</label>
+            <input type="text" class="form-control" id="trenerImeInputModal" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="trenerPriimekInputModal" class="form-label">Priimek (javno)*</label>
+            <input type="text" class="form-control" id="trenerPriimekInputModal" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="trenerKontaktEmailInputModal" class="form-label">Kontaktni Email (javen)*</label>
+            <input type="email" class="form-control" id="trenerKontaktEmailInputModal" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="trenerTelefonInputModal" class="form-label">Telefonska št. (javna)*</label>
+            <input type="tel" class="form-control" id="trenerTelefonInputModal" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="trenerUrnikTextareaModal" class="form-label">Urnik*</label>
+          <textarea class="form-control" id="trenerUrnikTextareaModal" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="trenerOpisProfilaTextareaModal" class="form-label">Opis Profila</label>
+          <textarea class="form-control" id="trenerOpisProfilaTextareaModal" rows="4"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Prekliči</button>
+      <button type="button" class="btn btn-primary" id="shraniTrenerjaBtn">Shrani Trenerja</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/PrijavaInRegistracija.js" defer></script> <script src="/js/admin-panel.js" defer></script>
+</body>
+</html>
