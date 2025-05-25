@@ -173,8 +173,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="aktivnostForm">
-          <input type="hidden" id="aktivnostIdInput">
+        <form id="aktivnostForm"> <input type="hidden" id="aktivnostIdInput">
           <div class="mb-3">
             <label for="aktivnostNazivInput" class="form-label">Naziv*</label>
             <input type="text" class="form-control" id="aktivnostNazivInput" required>
@@ -199,8 +198,8 @@
               <input type="number" class="form-control" id="aktivnostProstaMestaInput" min="0" required value="0">
             </div>
             <div class="col-md-6 mb-3">
-              <label for="aktivnostSlikaInput" class="form-label">URL Slike (npr. /slike/sporti/nogomet.png)</label>
-              <input type="text" class="form-control" id="aktivnostSlikaInput" placeholder="/slike/default-sport.png">
+              <label for="aktivnostSlikaUploadInput" class="form-label">Naloži sliko aktivnosti (opcijsko):</label>
+              <input class="form-control" type="file" id="aktivnostSlikaUploadInput" name="slikaAktivnosti" accept="image/png, image/jpeg, image/gif">
             </div>
           </div>
           <div class="row">
@@ -210,10 +209,14 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="aktivnostTrenerSelect" class="form-label">Trener</label>
+              <label for="aktivnostTrenerSelect" class="form-label">Trener (opcijsko)</label>
               <select class="form-select" id="aktivnostTrenerSelect">
               </select>
             </div>
+          </div>
+          <div class="mb-3 form-check" id="aktivnostOdstraniSlikoGroup" style="display:none;">
+            <input type="checkbox" class="form-check-input" id="aktivnostOdstraniSlikoCheckbox">
+            <label class="form-check-label" for="aktivnostOdstraniSlikoCheckbox">Odstrani trenutno sliko</label>
           </div>
         </form>
       </div>
