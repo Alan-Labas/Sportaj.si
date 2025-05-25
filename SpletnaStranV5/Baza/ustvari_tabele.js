@@ -4,7 +4,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root', // Vaš MySQL uporabnik
-        password: 'Smetar245', // Vaše MySQL geslo
+        password: 'geslo', // Vaše MySQL geslo
         database: 'sportaj_si',
     }
 });
@@ -156,6 +156,10 @@ async function napolniBazo() {
 
         const Ocena_Trenerja = [
             {Komentar: 'Marko je odličen motivator!', Ocena: 5, Datum: '2025-05-10', TK_Trener: 1, TK_Uporabnik: 11},
+            // novi komentarji za marko skace (TK_Trener: 1)
+            {Komentar: 'Zelo strokoven pristop in prilagojeni treningi. Napredek je viden!', Ocena: 5, Datum: '2025-05-12', TK_Trener: 1, TK_Uporabnik: 12},
+            {Komentar: 'Odlično vzdušje na treningih, vedno pripravljen pomagati.', Ocena: 4, Datum: '2025-05-15', TK_Trener: 1, TK_Uporabnik: 13},
+            // konec novih komentarjev
             {Komentar: 'Luka zna dobro razložiti tehniko.', Ocena: 4, Datum: '2025-05-11', TK_Trener: 2, TK_Uporabnik: 12},
             {Komentar: 'Tina je zelo strokovna.', Ocena: 5, Datum: '2025-04-15', TK_Trener: 3, TK_Uporabnik: 13},
             {Komentar: 'Pri Juretu sem se naučil pravilno plavati.', Ocena: 5, Datum: '2025-03-20', TK_Trener: 4, TK_Uporabnik: 14},

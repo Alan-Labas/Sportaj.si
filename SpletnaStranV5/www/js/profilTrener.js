@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         trainerImage.alt = `Slika ${trainerData.ime} ${trainerData.priimek}`;
     }
     if (trainerFullName) trainerFullName.textContent = `${trainerData.ime} ${trainerData.priimek}`;
+    //tel in email
     if (trainerPhone) trainerPhone.innerHTML = trainerData.telefon ? `<a href="tel:${trainerData.telefon}">${trainerData.telefon}</a>` : 'Ni podatka';
     if (trainerEmail) trainerEmail.innerHTML = trainerData.email ? `<a href="mailto:${trainerData.email}">${trainerData.email}</a>` : 'Ni podatka';
     if (trainerSchedule) trainerSchedule.textContent = trainerData.urnik || 'Ni podatka';
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return html;
     }
 
+    //komentraji in ocene iz baze
     function displayCommentsAndAverageRating(ocene) {
         if (userCommentsSection) {
             userCommentsSection.innerHTML = '';
