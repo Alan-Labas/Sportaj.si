@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${akt.ime_sporta || '-'}</td>
                     <td>${akt.ime_trenerja || '-'}</td>
                     <td>${akt.Lokacija}</td>
-                    <td>${akt.Cena.toFixed(2)} €</td>
+                    <td>${(typeof akt.Cena === 'number' ? akt.Cena.toFixed(2) : (parseFloat(akt.Cena) ? parseFloat(akt.Cena).toFixed(2) : 'N/A'))} €</td>
                     <td>${akt.ProstaMesta}</td>
                     <td class="action-buttons">
                         <button class="btn btn-sm btn-primary btn-uredi-aktivnost" data-id="${akt.id}">Uredi</button>

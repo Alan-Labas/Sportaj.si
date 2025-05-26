@@ -4,7 +4,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root', // Vaš MySQL uporabnik
-        password: 'geslo', // Vaše MySQL geslo
+        password: 'Smetar245', // Vaše MySQL geslo
         database: 'sportaj_si',
     }
 });
@@ -212,7 +212,6 @@ async function main() {
     }
 }
 
-// Zagotovite, da se skripta zažene samo, če je glavna datoteka
 if (require.main === module) {
     main();
 }
