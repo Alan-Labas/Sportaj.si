@@ -31,7 +31,9 @@ app.use(express.urlencoded({extended: false}));
 
 app.use(fileUpload({createParentPath: true}));
 
+
 app.use(express.static(path.join(__dirname, '../www')));
+
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
@@ -40,11 +42,9 @@ app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
 });
 app.get('/uredi-profil.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/uredi-profil.html'));
+    res.sendFile(path.join(__dirname, 'uredi-profil.html'));
 });
-app.get('/html/uredi-profil.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/uredi-profil.html'));
-});
+
 app.get('/html/profilTrener.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/profilTrener.html'));
 });
@@ -62,6 +62,7 @@ function normalizirajImgPath(path, defaultPath){
     }
     return path;
 }
+
 
 function preveriZeton(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -89,6 +90,8 @@ function preveriAdmin(req, res, next) {
     }
     next();
 }
+
+const PREDPOSTAVLJEN_MIME_TIP_SLIKE = 'image/jpeg';
 
 // === API TOČKE ZA ŠPORTE ===
 app.get('/api/vsi-sporti', async (req, res) => {
@@ -118,12 +121,15 @@ app.get('/api/sport/:id/details', async (req, res) => {
             .select('sa.id', 'sa.Naziv', 'sa.Lokacija', 'sa.Cena', 'sa.slika',
                 't.ime as trener_ime', 't.priimek as trener_priimek')
             .limit(10);
+
         const aktivnostiSpremenjeneSlike = aktivnosti.map(akt => {
-            let slikaPath = akt.slika;
-            if (slikaPath && slikaPath.startsWith('../slike/')) {
-                slikaPath = slikaPath.replace('../slike/', '/slike/');
-            } else if (slikaPath && !slikaPath.startsWith('/slike/')) {
-                slikaPath = `/slike/${slikaPath}`;
+            let slikaPath = null;
+            if (akt.slika instanceof Buffer) {
+                slikaPath = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${akt.slika.toString('base64')}`;
+            } else if (typeof akt.slika === 'string' && akt.slika.startsWith('../slike/')) {
+                slikaPath = akt.slika.replace('../slike/', '/slike/');
+            } else if (typeof akt.slika === 'string' && !akt.slika.startsWith('/slike/')) {
+                slikaPath = `/slike/${akt.slika}`;
             }
             return {...akt, slika: slikaPath || '/slike/default-sport.png'};
         });
@@ -135,48 +141,47 @@ app.get('/api/sport/:id/details', async (req, res) => {
 });
 
 
+// === API TOČKA ZA ISKANJE ===
 app.get('/api/search/:table', async(req, res)=>{
     const {table} = req.params;
     const filters = JSON.parse(JSON.stringify(req.query));
-    console.log(table)
-    console.log(filters)
+    console.log("Iskanje v tabeli:", table);
+    console.log("Filtri:", filters);
 
     const allowedTables = ['sport', 'sportna_aktivnost', 'trenerji']
     if(!allowedTables.includes(table)){
-        return res.status(400).json({error: `Tabela ${table} ni dostopna`})
+        return res.status(400).json({error: `Tabela ${table} ni dostopna za iskanje`})
     }
     try{
         
         let query = knex(table).select('*')
-        if(table === 'trenerji'){
-            query = knex('trenerji as t')
-            .leftJoin('uporabniki as u', 't.TK_Uporabnik', 'u.id')
-            .select('t.*', 'u.slika')
-
-            
-            for(const [key,value] of Object.entries(filters)){
-                query = query.where(`${key}`, 'like', `%${value}%`);
-            }
-            
-
-        }else {
-            
-            for(const [key,value] of Object.entries(filters)){
+        for(const [key,value] of Object.entries(filters)){
+            if (value.trim() !== '') {
                 query = query.where(key, 'like', `%${value}%`)
             }
-            
         }
-        
+
         const searchResult = await query;
-        console.log(searchResult)
-        let normaliziranaPotDoSlik = searchResult.map(ent =>({
-                ...ent,
-                slika: normalizirajImgPath(ent.slika)
-            }))
-        res.json([normaliziranaPotDoSlik, filters]);
+
+        let formattedResult = searchResult;
+        if (table === 'sportna_aktivnost' || table === 'trenerji') {
+            formattedResult = searchResult.map(item => {
+                let itemSlika = null;
+                const slikaField = table === 'sportna_aktivnost' ? item.slika : (table === 'trenerji' ? item.slika_profila_buffer : item.slika);
+
+                if (slikaField instanceof Buffer) {
+                    itemSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${slikaField.toString('base64')}`;
+                } else if (typeof slikaField === 'string') {
+                    itemSlika = slikaField;
+                }
+                return { ...item, slika: itemSlika };
+            });
+        }
+
+        res.json([formattedResult, filters]);
     }catch(error){
-        console.error('Database query error: ', error);
-        res.status(500).json({error: 'Internal server error'})
+        console.error('Napaka pri poizvedbi v bazi: ', error);
+        res.status(500).json({error: 'Interna napaka strežnika'})
     }
 })
 
@@ -186,21 +191,22 @@ app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .select('sa.id', 'sa.Naziv', 'sa.Opis', 'sa.Lokacija', 'sa.Cena', 'sa.ProstaMesta', 'sa.slika', 's.Sport as ime_sporta')
-            .orderBy('sa.id', 'desc')
+            .orderBy('sa.created_at', 'desc')
             .limit(12);
+
         const obdelaneAktivnosti = aktivnosti.map(a => {
-            let slikaPath = a.slika;
-            if (slikaPath && slikaPath.startsWith('../slike/')) {
-                slikaPath = slikaPath.replace('../slike/', '/slike/');
-            } else if (slikaPath && !slikaPath.startsWith('/slike/')) {
-                slikaPath = `/slike/${slikaPath}`;
+            let formattedSlika = null;
+            if (a.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika.toString('base64')}`;
+            } else if (typeof a.slika === 'string') {
+                formattedSlika = a.slika;
             }
-            return {...a, slika: slikaPath || '/slike/default-sport.png'}
+            return { ...a, slika: formattedSlika };
         });
         res.json(obdelaneAktivnosti);
     } catch (error) {
         console.error('Napaka pri pridobivanju prihajajočih dejavnosti:', error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: 'Napaka na strežniku.' });
     }
 });
 
@@ -210,65 +216,84 @@ app.get('/api/dejavnosti-okolica', async (req, res) => {
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .select('sa.id', 'sa.Naziv', 'sa.Opis', 'sa.Lokacija', 'sa.Cena', 'sa.ProstaMesta', 'sa.slika', 's.Sport as ime_sporta')
             .limit(12);
+
         const obdelaneAktivnosti = aktivnosti.map(a => {
-            let slikaPath = a.slika;
-            if (slikaPath && slikaPath.startsWith('../slike/')) {
-                slikaPath = slikaPath.replace('../slike/', '/slike/');
-            } else if (slikaPath && !slikaPath.startsWith('/slike/')) {
-                slikaPath = `/slike/${slikaPath}`;
+            let formattedSlika = null;
+            if (a.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika.toString('base64')}`;
+            } else if (typeof a.slika === 'string') {
+                formattedSlika = a.slika;
             }
-            return {...a, slika: slikaPath || '/slike/default-sport.png'}
+            return { ...a, slika: formattedSlika };
         });
         res.json(obdelaneAktivnosti);
     } catch (error) {
         console.error('Napaka pri pridobivanju dejavnosti v okolici:', error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: 'Napaka na strežniku.' });
     }
 });
 
 app.get('/api/vse-aktivnosti', async(req,res)=>{
     try{
-        const vseAktivnosti = await knex('sportna_aktivnost').select();
-        
-        res.json(vseAktivnosti);
+        const vseAktivnosti = await knex('Sportna_Aktivnost as sa')
+            .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
+            .select('sa.id', 'sa.Naziv', 'sa.Opis', 'sa.Lokacija', 'sa.Cena', 'sa.ProstaMesta', 'sa.slika', 's.Sport as ime_sporta');
+
+        const obdelaneAktivnosti = vseAktivnosti.map(a => {
+            let formattedSlika = null;
+            if (a.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika.toString('base64')}`;
+            } else if (typeof a.slika === 'string') {
+                formattedSlika = a.slika;
+            }
+            return { ...a, slika: formattedSlika };
+        });
+        res.json(obdelaneAktivnosti);
     }catch(err){
+        console.error('Napaka pri pridobivanju vseh aktivnosti:', err);
         res.status(500).json({napaka: err.message})
     }
 })
 
-
-
 app.get('/api/aktivnost/:id/details', async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     try {
         const aktivnost = await knex('Sportna_Aktivnost as sa')
             .where('sa.id', id)
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .leftJoin('Trenerji as t', 'sa.TK_Trener', 't.id')
             .select('sa.*', 's.Sport as ime_sporta',
-                't.id as TK_Trener',
+                't.id as TK_Trener_id_only',
                 't.ime as trener_ime', 't.priimek as trener_priimek',
                 't.email as trener_email', 't.telefon as trener_telefon', 't.urnik as urnik_trenerja')
             .first();
         if (!aktivnost) {
-            return res.status(404).json({message: 'Športna aktivnost ni najdena.'});
+            return res.status(404).json({ message: 'Športna aktivnost ni najdena.' });
         }
         const ocene = await knex('Ocena_Sporta as os')
             .join('Uporabniki as u', 'os.TK_Uporabnik', 'u.id')
-            .where({'os.TK_SportnaAktivnost': id})
+            .where({ 'os.TK_SportnaAktivnost': id })
             .select('os.id as ocena_id', 'os.Komentar', 'os.Ocena', 'os.Datum', 'u.username as username_uporabnika', 'u.id as uporabnik_id')
             .orderBy('os.created_at', 'desc');
-        let slikaPath = aktivnost.slika;
-        if (slikaPath && slikaPath.startsWith('../slike/')) {
-            slikaPath = slikaPath.replace('../slike/', '/slike/');
-        } else if (slikaPath && !slikaPath.startsWith('/slike/')) {
-            slikaPath = `/slike/${slikaPath}`;
+
+        const tkTrenerId = aktivnost.TK_Trener_id_only || aktivnost.TK_Trener;
+
+        let formattedSlika = null;
+        if (aktivnost.slika instanceof Buffer) {
+            formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${aktivnost.slika.toString('base64')}`;
+        } else if (typeof aktivnost.slika === 'string') {
+            formattedSlika = aktivnost.slika;
         }
-        aktivnost.slika = slikaPath || '/slike/default-sport.png';
-        res.json({...aktivnost, ocene});
+
+        res.json({
+            ...aktivnost,
+            TK_Trener: tkTrenerId,
+            slika: formattedSlika,
+            ocene
+        });
     } catch (error) {
         console.error(`Napaka pri pridobivanju podrobnosti aktivnosti ${id}:`, error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: 'Napaka na strežniku.' });
     }
 });
 
@@ -288,10 +313,13 @@ app.get('/api/vsi-trenerji', async (req, res) => {
                 'o.povprecna_ocena', 't.urnik', 't.email as kontakt_email', 't.telefon'
             )
             .orderByRaw('COALESCE(o.povprecna_ocena, 0) DESC, t.priimek ASC, t.ime ASC');
-        const obdelaniTrenerji = trenerji.map(t => ({
-            ...t,
-            slika: t.slika ? t.slika.toString('base64') : null
-        }));
+        const obdelaniTrenerji = trenerji.map(t => {
+            let formattedSlika = null;
+            if (t.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${t.slika.toString('base64')}`;
+            }
+            return {...t, slika: formattedSlika };
+        });
         res.json(obdelaniTrenerji);
     } catch (error) {
         console.error('Napaka pri pridobivanju vseh trenerjev:', error);
@@ -313,10 +341,13 @@ app.get('/api/priporoceni-trenerji', async (req, res) => {
                 'o.povprecna_ocena', 't.urnik')
             .orderBy([{column: 'o.povprecna_ocena', order: 'desc', nulls: 'last'}, {column: 't.priimek', order: 'asc'}])
             .limit(12);
-        const obdelaniTrenerji = trenerji.map(t => ({
-            ...t,
-            slika: t.slika ? t.slika.toString('base64') : null
-        }));
+        const obdelaniTrenerji = trenerji.map(t => {
+            let formattedSlika = null;
+            if (t.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${t.slika.toString('base64')}`;
+            }
+            return {...t, slika: formattedSlika };
+        });
         res.json(obdelaniTrenerji);
     } catch (error) {
         console.error('Napaka pri pridobivanju priporočenih trenerjev:', error);
@@ -337,10 +368,13 @@ app.get('/api/trenerji-okolica', async (req, res) => {
             .select('t.id', 't.ime', 't.priimek', 't.OpisProfila', 'u.slika',
                 'o.povprecna_ocena', 't.urnik')
             .limit(12);
-        const obdelaniTrenerji = trenerji.map(t => ({
-            ...t,
-            slika: t.slika ? t.slika.toString('base64') : null
-        }));
+        const obdelaniTrenerji = trenerji.map(t => {
+            let formattedSlika = null;
+            if (t.slika instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${t.slika.toString('base64')}`;
+            }
+            return {...t, slika: formattedSlika };
+        });
         res.json(obdelaniTrenerji);
     } catch (error) {
         console.error('Napaka pri pridobivanju trenerjev v okolici:', error);
@@ -363,22 +397,29 @@ app.get('/api/trener/:id/details', async (req, res) => {
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .where({'sa.TK_Trener': id})
             .select('sa.id', 'sa.Naziv', 'sa.Lokacija', 'sa.Cena', 's.Sport as ime_sporta', 'sa.slika as slika_aktivnosti');
+
         const ocene = await knex('Ocena_Trenerja as ot')
             .join('Uporabniki as u_ocenjevalec', 'ot.TK_Uporabnik', 'u_ocenjevalec.id')
             .where({'ot.TK_Trener': id})
             .select('ot.id as ocena_id', 'ot.Komentar', 'ot.Ocena', 'ot.Datum', 'u_ocenjevalec.username as username_uporabnika', 'u_ocenjevalec.id as uporabnik_id')
             .orderBy('ot.created_at', 'desc');
+
+        let formattedSlikaTrenerja = null;
+        if (trener.slika_uporabnika instanceof Buffer) {
+            formattedSlikaTrenerja = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${trener.slika_uporabnika.toString('base64')}`;
+        }
+
         const trenerZaPosiljanje = {
             ...trener,
-            slika: trener.slika_uporabnika ? trener.slika_uporabnika.toString('base64') : null,
+            slika: formattedSlikaTrenerja,
             aktivnosti: aktivnosti.map(a => {
-                let slikaPath = a.slika_aktivnosti;
-                if (slikaPath && slikaPath.startsWith('../slike/')) {
-                    slikaPath = slikaPath.replace('../slike/', '/slike/');
-                } else if (slikaPath && !slikaPath.startsWith('/slike/')) {
-                    slikaPath = `/slike/${slikaPath}`;
+                let formattedSlikaAktivnosti = null;
+                if (a.slika_aktivnosti instanceof Buffer) {
+                    formattedSlikaAktivnosti = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika_aktivnosti.toString('base64')}`;
+                } else if (typeof a.slika_aktivnosti === 'string') {
+                    formattedSlikaAktivnosti = a.slika_aktivnosti;
                 }
-                return {...a, slika_aktivnosti: slikaPath || '/slike/default-sport.png'}
+                return {...a, slika_aktivnosti: formattedSlikaAktivnosti || '/slike/default-sport.png'}
             }),
             ocene
         };
@@ -400,11 +441,18 @@ app.get('/api/profil', preveriZeton, async (req, res) => {
         if (!uporabnikOsnovno) {
             return res.status(404).json({message: 'Uporabnik ni najden.'});
         }
+
+        let formattedSlikaUporabnika = null;
+        if (uporabnikOsnovno.slika instanceof Buffer) {
+            formattedSlikaUporabnika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${uporabnikOsnovno.slika.toString('base64')}`;
+        }
+
         let profilZaPosiljanje = {
             userId: uporabnikOsnovno.id, username: uporabnikOsnovno.username, email: uporabnikOsnovno.email,
-            slika_base64: uporabnikOsnovno.slika ? uporabnikOsnovno.slika.toString('base64') : null,
+            slika_base64: formattedSlikaUporabnika,
             JeAdmin: uporabnikOsnovno.JeAdmin, isTrainer: false
         };
+
         const trenerPodatki = await knex('Trenerji').where({TK_Uporabnik: req.uporabnik.userId}).first();
         if (trenerPodatki) {
             profilZaPosiljanje.isTrainer = true;
@@ -429,10 +477,12 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
         trainerIme, trainerPriimek, trainerTelefon, trainerKontaktEmail, trainerUrnik, trainerOpisProfila
     } = req.body;
     const userId = req.uporabnik.userId;
+
     if (!username || !email) {
         return res.status(400).json({message: 'Uporabniško ime in email za prijavo sta obvezna.'});
     }
     try {
+
         if (email.toLowerCase() !== req.uporabnik.email.toLowerCase()) {
             const obstojecEmail = await knex('Uporabniki').whereRaw('LOWER(email) = ?', [email.toLowerCase()]).whereNot({id: userId}).first();
             if (obstojecEmail) {
@@ -445,7 +495,9 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
                 return res.status(409).json({message: 'To uporabniško ime je že v uporabi.'});
             }
         }
+
         await knex('Uporabniki').where({id: userId}).update({username: username, email: email});
+
         const trenerPodatkiPreverba = await knex('Trenerji').where({TK_Uporabnik: userId}).first();
         if (trenerPodatkiPreverba) {
             const podatkiZaPosodobitevTrenerja = {};
@@ -465,10 +517,12 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
             }
             if (trainerUrnik !== undefined) podatkiZaPosodobitevTrenerja.urnik = trainerUrnik;
             if (trainerOpisProfila !== undefined) podatkiZaPosodobitevTrenerja.OpisProfila = trainerOpisProfila;
+
             if (Object.keys(podatkiZaPosodobitevTrenerja).length > 0) {
                 await knex('Trenerji').where({TK_Uporabnik: userId}).update(podatkiZaPosodobitevTrenerja);
             }
         }
+
         const novAccessToken = jwt.sign(
             {
                 userId: userId,
@@ -480,12 +534,17 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
             },
             JWT_SECRET, {expiresIn: '30m'}
         );
+
         const posodobljenUporabnikRaw = await knex('Uporabniki').where({id: userId}).select('username', 'email', 'slika', 'JeAdmin').first();
         let uporabnikZaOdziv = {
-            username: posodobljenUporabnikRaw.username, email: posodobljenUporabnikRaw.email,
-            slika_base64: posodobljenUporabnikRaw.slika ? posodobljenUporabnikRaw.slika.toString('base64') : null,
-            JeAdmin: posodobljenUporabnikRaw.JeAdmin, isTrainer: false
+            userId: userId,
+            username: posodobljenUporabnikRaw.username,
+            email: posodobljenUporabnikRaw.email,
+            slika_base64: posodobljenUporabnikRaw.slika ? `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${posodobljenUporabnikRaw.slika.toString('base64')}` : null,
+            JeAdmin: posodobljenUporabnikRaw.JeAdmin,
+            isTrainer: false
         };
+
         if (trenerPodatkiPreverba) {
             const posodobljeniTrenerPodatki = await knex('Trenerji').where({TK_Uporabnik: userId}).first();
             uporabnikZaOdziv.isTrainer = true;
@@ -497,16 +556,20 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
             uporabnikZaOdziv.trenerUrnik = posodobljeniTrenerPodatki.urnik;
             uporabnikZaOdziv.trenerOpisProfila = posodobljeniTrenerPodatki.OpisProfila;
         }
+
         res.json({message: 'Podatki uspešno posodobljeni.', accessToken: novAccessToken, uporabnik: uporabnikZaOdziv});
+
     } catch (error) {
         console.error('Napaka pri posodabljanju informacij o profilu:', error);
         res.status(500).json({message: 'Napaka na strežniku pri posodabljanju informacij o profilu.'});
     }
 });
 
+
 app.put('/api/profil/geslo', preveriZeton, async (req, res) => {
     const {currentPassword, newPassword} = req.body;
     const userId = req.uporabnik.userId;
+
     if (!currentPassword || !newPassword) {
         return res.status(400).json({message: 'Trenutno in novo geslo sta obvezna.'});
     }
@@ -514,6 +577,7 @@ app.put('/api/profil/geslo', preveriZeton, async (req, res) => {
     if (!gesloRegex.test(newPassword)) {
         return res.status(400).json({message: 'Novo geslo mora vsebovati vsaj 6 znakov, eno veliko črko in eno številko.'});
     }
+
     try {
         const uporabnik = await knex('Uporabniki').where({id: userId}).first();
         if (!uporabnik) {
@@ -523,6 +587,7 @@ app.put('/api/profil/geslo', preveriZeton, async (req, res) => {
         if (!pravilnoGeslo) {
             return res.status(401).json({message: 'Trenutno geslo ni pravilno.'});
         }
+
         const novoHashiranoGeslo = bcrypt.hashSync(newPassword, saltKodiranje);
         await knex('Uporabniki').where({id: userId}).update({geslo: novoHashiranoGeslo});
         res.json({message: 'Geslo uspešno spremenjeno.'});
@@ -534,27 +599,35 @@ app.put('/api/profil/geslo', preveriZeton, async (req, res) => {
 
 app.post('/api/profil/slika', preveriZeton, async (req, res) => {
     const userId = req.uporabnik.userId;
+
     if (!req.files || Object.keys(req.files).length === 0 || !req.files.profilePicture) {
         return res.status(400).json({message: 'Nobena datoteka ni bila naložena.'});
     }
+
     const profilePicture = req.files.profilePicture;
     const slikaBuffer = Buffer.from(profilePicture.data);
+
     const dovoljeniTipi = ['image/jpeg', 'image/png', 'image/gif'];
     if (!dovoljeniTipi.includes(profilePicture.mimetype)) {
         return res.status(400).json({message: 'Nedovoljen tip datoteke. Prosimo, naložite JPG, PNG ali GIF.'});
     }
+
     const maxVelikost = 5 * 1024 * 1024;
     if (profilePicture.size > maxVelikost) {
         return res.status(400).json({message: `Datoteka je prevelika. Največja dovoljena velikost je ${maxVelikost / (1024 * 1024)}MB.`});
     }
     try {
         await knex('Uporabniki').where({id: userId}).update({slika: slikaBuffer});
-        res.json({message: 'Profilna slika uspešno naložena v bazo.', slika_base64: slikaBuffer.toString('base64')});
+
+        const formattedSlikaZaOdziv = `data:${profilePicture.mimetype};base64,${slikaBuffer.toString('base64')}`;
+
+        res.json({message: 'Profilna slika uspešno naložena v bazo.', slika_base64: formattedSlikaZaOdziv});
     } catch (dbError) {
         console.error('Napaka pri shranjevanju slike v bazo:', dbError);
         res.status(500).json({message: 'Napaka pri shranjevanju slike v bazo.'});
     }
 });
+
 
 app.post('/api/prijava', async (req, res) => {
     console.log('body: ', req.body)
@@ -572,11 +645,13 @@ app.post('/api/prijava', async (req, res) => {
             if (pravilnoGeslo) {
                 const trenerPodatki = await knex('Trenerji').where({TK_Uporabnik: uporabnik.id}).first();
                 const isTrainer = !!trenerPodatki;
+
                 const accessTokenPayload = {
                     userId: uporabnik.id, username: uporabnik.username, email: uporabnik.email,
                     type: 'access', JeAdmin: uporabnik.JeAdmin, isTrainer: isTrainer
                 };
                 const accessToken = jwt.sign(accessTokenPayload, JWT_SECRET, {expiresIn: '30m'});
+
                 let osvezilniToken = null;
                 if (rememberMe) {
                     const refreshTokenPayload = {
@@ -589,14 +664,20 @@ app.post('/api/prijava', async (req, res) => {
                     const hashiranOsvezilniToken = bcrypt.hashSync(osvezilniToken, saltKodiranje);
                     const datumPoteka = new Date();
                     datumPoteka.setDate(datumPoteka.getDate() + 7);
+
                     await knex('osvezilniTokens').where({user_id: uporabnik.id}).del();
                     await knex('osvezilniTokens').insert({
                         user_id: uporabnik.id, hashiranToken: hashiranOsvezilniToken, expires_at: datumPoteka
                     });
                 }
+
+                let formattedSlikaUporabnika = null;
+                if (uporabnik.slika instanceof Buffer) {
+                    formattedSlikaUporabnika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${uporabnik.slika.toString('base64')}`;
+                }
                 let uporabnikZaOdziv = {
                     userId: uporabnik.id, username: uporabnik.username, email: uporabnik.email,
-                    slika_base64: uporabnik.slika ? uporabnik.slika.toString('base64') : null,
+                    slika_base64: formattedSlikaUporabnika,
                     JeAdmin: uporabnik.JeAdmin, isTrainer: isTrainer
                 };
                 if (isTrainer) {
@@ -626,16 +707,23 @@ app.post('/api/token/refresh', async (req, res) => {
     if (!osvezilniToken) {
         return res.status(401).json({message: 'Osvežilni žeton je potreben.'});
     }
+
     try {
         const dekodiranOsvezilniToken = jwt.verify(osvezilniToken, REFRESH_TOKEN_SECRET);
         if (dekodiranOsvezilniToken.type !== 'refresh') {
             return res.status(403).json({message: 'Neveljaven tip osvežilnega žetona.'});
         }
+
         const userId = dekodiranOsvezilniToken.userId;
+
         const zgodovinaShranjenihTokenov = await knex('osvezilniTokens')
-            .where({user_id: userId}).andWhere('expires_at', '>', new Date()).select('id', 'hashiranToken');
+            .where({user_id: userId})
+            .andWhere('expires_at', '>', new Date())
+            .select('id', 'hashiranToken');
+
         let najdenValidiranShranjenToken = false;
         let shranjenTokenId = null;
+
         for (const record of zgodovinaShranjenihTokenov) {
             if (bcrypt.compareSync(osvezilniToken, record.hashiranToken)) {
                 najdenValidiranShranjenToken = true;
@@ -643,17 +731,21 @@ app.post('/api/token/refresh', async (req, res) => {
                 break;
             }
         }
+
         if (!najdenValidiranShranjenToken) {
             await knex('osvezilniTokens').where({user_id: userId}).del();
             return res.status(403).json({message: 'Osvežilni žeton ni veljaven, ne obstaja v bazi ali je potekel. Vsi žetoni za uporabnika so bili preklicani.'});
         }
+
         await knex('osvezilniTokens').where({id: shranjenTokenId}).del();
+
         const uporabnik = await knex('Uporabniki').where({id: userId}).select('id', 'username', 'email', 'slika', 'JeAdmin').first();
         if (!uporabnik) {
             return res.status(403).json({message: 'Povezan uporabnik ne obstaja več.'});
         }
         const trenerPodatki = await knex('Trenerji').where({TK_Uporabnik: userId}).first();
         const isTrainer = !!trenerPodatki;
+
         const novOsvezilniTokenPayload = {
             userId: userId,
             type: 'refresh',
@@ -667,14 +759,20 @@ app.post('/api/token/refresh', async (req, res) => {
         await knex('osvezilniTokens').insert({
             user_id: userId, hashiranToken: hashiranNovOsvezilniToken, expires_at: novDatumPoteka
         });
+
         const novAccesTokenPayload = {
             userId: uporabnik.id, username: uporabnik.username, email: uporabnik.email,
             type: 'access', JeAdmin: uporabnik.JeAdmin, isTrainer: isTrainer
         };
         const novAccesToken = jwt.sign(novAccesTokenPayload, JWT_SECRET, {expiresIn: '30m'});
+
+        let formattedSlikaUporabnika = null;
+        if (uporabnik.slika instanceof Buffer) {
+            formattedSlikaUporabnika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${uporabnik.slika.toString('base64')}`;
+        }
         let uporabnikZaOdziv = {
             userId: uporabnik.id, username: uporabnik.username, email: uporabnik.email,
-            slika_base64: uporabnik.slika ? uporabnik.slika.toString('base64') : null,
+            slika_base64: formattedSlikaUporabnika,
             JeAdmin: uporabnik.JeAdmin, isTrainer: isTrainer
         };
         if (isTrainer) {
@@ -682,10 +780,13 @@ app.post('/api/token/refresh', async (req, res) => {
             uporabnikZaOdziv.trenerIme = trenerPodatki.ime;
             uporabnikZaOdziv.trenerPriimek = trenerPodatki.priimek;
         }
+
         res.json({
-            accessToken: novAccesToken, osvezilniToken: novOsvezilniToken,
+            accessToken: novAccesToken,
+            osvezilniToken: novOsvezilniToken,
             uporabnik: uporabnikZaOdziv
         });
+
     } catch (error) {
         console.error('Napaka pri osveževanju žetona:', error.message);
         if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
@@ -707,11 +808,13 @@ app.post('/api/token/refresh', async (req, res) => {
     }
 });
 
+
 app.post('/api/odjava', async (req, res) => {
     const {osvezilniToken} = req.body;
     if (!osvezilniToken) {
         return res.status(200).json({message: 'Odjava: osvežilni žeton ni bil posredovan.'});
     }
+
     try {
         let userIdFromToken = null;
         try {
@@ -722,10 +825,12 @@ app.post('/api/odjava', async (req, res) => {
             if (payload && payload.userId) userIdFromToken = payload.userId;
             console.log("Refresh token pri odjavi ni veljaven JWT ali je potekel, a poskušamo brisati na podlagi ID-ja:", e.message);
         }
+
         let steviloIzbrisanihTokenov = 0;
         if (userIdFromToken) {
             const zgodovinaShranjenihTokenov = await knex('osvezilniTokens')
                 .where({user_id: userIdFromToken}).select('id', 'hashiranToken');
+
             for (const record of zgodovinaShranjenihTokenov) {
                 if (bcrypt.compareSync(osvezilniToken, record.hashiranToken)) {
                     await knex('osvezilniTokens').where({id: record.id}).del();
@@ -735,6 +840,7 @@ app.post('/api/odjava', async (req, res) => {
                 }
             }
         }
+
         if (steviloIzbrisanihTokenov > 0) {
             res.status(200).json({message: 'Odjava uspešna, osvežilni žeton je bil preklican.'});
         } else {
@@ -746,8 +852,10 @@ app.post('/api/odjava', async (req, res) => {
     }
 });
 
+
 app.post('/api/registracija', async (req, res) => {
     const {ime, priimek, email, geslo} = req.body;
+
     if (!ime || !email || !geslo) {
         return res.status(400).json({message: 'Uporabniško ime (ime), email in geslo so obvezni.'});
     }
@@ -759,6 +867,7 @@ app.post('/api/registracija', async (req, res) => {
     if (!gesloRegex.test(geslo)) {
         return res.status(400).json({message: 'Geslo mora vsebovati vsaj 6 znakov, eno veliko črko in eno številko.'});
     }
+
     try {
         const obstojecUporabnikPoEmailu = await knex('Uporabniki').whereRaw('LOWER(email) = ?', [email.toLowerCase()]).first();
         if (obstojecUporabnikPoEmailu) {
@@ -768,8 +877,12 @@ app.post('/api/registracija', async (req, res) => {
         if (obstojecUporabnikPoImenu) {
             return res.status(409).json({message: 'Uporabnik s tem uporabniškim imenom že obstaja.'});
         }
+
         const novUporabnik = {
-            username: ime, email: email, geslo: bcrypt.hashSync(geslo, saltKodiranje), JeAdmin: 0,
+            username: ime,
+            email: email,
+            geslo: bcrypt.hashSync(geslo, saltKodiranje),
+            JeAdmin: 0,
         };
         const [uporabnikId] = await knex('Uporabniki').insert(novUporabnik);
         res.status(201).json({message: 'Registracija uspešna!', userId: uporabnikId});
@@ -786,28 +899,35 @@ app.post('/api/registracija', async (req, res) => {
 app.post('/api/trener/:id/ocena', preveriZeton, async (req, res) => {
     const trenerId = req.params.id;
     const uporabnikId = req.uporabnik.userId;
-    const {ocena, komentar} = req.body;
+    const { ocena, komentar } = req.body;
+
     if (!ocena || ocena < 1 || ocena > 5) {
-        return res.status(400).json({message: 'Ocena mora biti število med 1 in 5.'});
+        return res.status(400).json({ message: 'Ocena mora biti število med 1 in 5.' });
     }
     try {
         const trener = await knex('Trenerji').where({id: trenerId}).first();
         if (!trener) {
-            return res.status(404).json({message: 'Trener s tem ID-jem ni najden.'});
+            return res.status(404).json({ message: 'Trener s tem ID-jem ni najden.' });
         }
+
+
         await knex('Ocena_Trenerja').insert({
-            TK_Trener: trenerId, TK_Uporabnik: uporabnikId, Ocena: ocena,
-            Komentar: komentar || null, Datum: new Date(),
+            TK_Trener: trenerId,
+            TK_Uporabnik: uporabnikId,
+            Ocena: ocena,
+            Komentar: komentar || null,
+            Datum: new Date(),
         });
-        res.status(201).json({message: 'Ocena in komentar sta bila uspešno oddana.'});
+        res.status(201).json({ message: 'Ocena in komentar sta bila uspešno oddana.' });
     } catch (error) {
         console.error(`Napaka pri oddaji ocene za trenerja ${trenerId}:`, error);
         if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
             return res.status(409).json({message: 'Za tega trenerja ste že oddali oceno.'});
         }
-        res.status(500).json({message: 'Napaka na strežniku pri oddaji ocene.'});
+        res.status(500).json({ message: 'Napaka na strežniku pri oddaji ocene.' });
     }
 });
+
 
 // === ADMIN API TOČKE ===
 
@@ -898,73 +1018,129 @@ app.delete('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async 
     }
 });
 
-// --- Upravljanje športnih aktivnosti ---
+
+//  Upravljanje športnih aktivnosti
 app.get('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) => {
     try {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
             .leftJoin('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .leftJoin('Trenerji as t', 'sa.TK_Trener', 't.id')
-            .select('sa.id', 'sa.Naziv', 'sa.Opis', 'sa.Lokacija', 'sa.Cena', 'sa.ProstaMesta', 'sa.slika',
+            .select('sa.id', 'sa.Naziv', 'sa.Opis', 'sa.Lokacija', 'sa.Cena', 'sa.ProstaMesta',
+                knex.raw('CASE WHEN sa.slika IS NOT NULL THEN TRUE ELSE FALSE END as imaSliko'),
                 's.Sport as ime_sporta', 's.id as sport_id',
                 knex.raw("CONCAT(t.ime, ' ', t.priimek) as ime_trenerja"), 't.id as trener_id')
             .orderBy('sa.id', 'desc');
+
         res.json(aktivnosti);
     } catch (error) {
         console.error('Admin napaka pri pridobivanju aktivnosti:', error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: 'Napaka na strežniku.' });
     }
 });
 
+
 app.post('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) => {
-    const {Naziv, Opis, Lokacija, Cena, ProstaMesta, slika, TK_TipAktivnosti, TK_Trener} = req.body;
+    const { Naziv, Opis, Lokacija, Cena, ProstaMesta, TK_TipAktivnosti, TK_Trener } = req.body;
+    let slikaBuffer = null;
+
     if (!Naziv || !Opis || !Lokacija || Cena === undefined || ProstaMesta === undefined || !TK_TipAktivnosti) {
-        return res.status(400).json({message: 'Manjkajoči obvezni podatki za aktivnost.'});
+        return res.status(400).json({ message: 'Manjkajoči obvezni podatki za aktivnost (Naziv, Opis, Lokacija, Cena, ProstaMesta, TipAktivnosti so obvezni).' });
     }
+    if (isNaN(parseFloat(Cena)) || isNaN(parseInt(ProstaMesta)) || isNaN(parseInt(TK_TipAktivnosti))) {
+        return res.status(400).json({ message: 'Cena, ProstaMesta in TK_TipAktivnosti morajo biti veljavna števila.' });
+    }
+
+
+    if (req.files && req.files.slikaAktivnosti) {
+        const slikaDatoteka = req.files.slikaAktivnosti;
+        const dovoljeniTipi = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!dovoljeniTipi.includes(slikaDatoteka.mimetype)) {
+            return res.status(400).json({ message: 'Nedovoljen tip datoteke za sliko aktivnosti. Prosimo, naložite JPG, PNG ali GIF.' });
+        }
+        const maxVelikost = 5 * 1024 * 1024;
+        if (slikaDatoteka.size > maxVelikost) {
+            return res.status(400).json({ message: `Datoteka slike aktivnosti je prevelika. Največja dovoljena velikost je ${maxVelikost / (1024 * 1024)}MB.` });
+        }
+        slikaBuffer = slikaDatoteka.data;
+    }
+
     try {
         const [id] = await knex('Sportna_Aktivnost').insert({
-            Naziv, Opis, Lokacija, Cena, ProstaMesta,
-            slika: slika || null,
-            TK_TipAktivnosti,
-            TK_Trener: TK_Trener || null
+            Naziv, Opis, Lokacija,
+            Cena: parseFloat(Cena),
+            ProstaMesta: parseInt(ProstaMesta),
+            slika: slikaBuffer,
+            TK_TipAktivnosti: parseInt(TK_TipAktivnosti),
+            TK_Trener: TK_Trener ? parseInt(TK_Trener) : null
         });
-        res.status(201).json({message: 'Aktivnost uspešno dodana.', id});
+        res.status(201).json({ message: 'Aktivnost uspešno dodana.', id });
     } catch (error) {
         console.error('Admin napaka pri dodajanju aktivnosti:', error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: `Napaka na strežniku pri dodajanju aktivnosti: ${error.message}` });
     }
 });
 
 app.put('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
-    const {id} = req.params;
-    const {Naziv, Opis, Lokacija, Cena, ProstaMesta, slika, TK_TipAktivnosti, TK_Trener} = req.body;
+    const { id } = req.params;
+    const { Naziv, Opis, Lokacija, Cena, ProstaMesta, TK_TipAktivnosti, TK_Trener, odstraniSliko } = req.body;
+
+    if (!Naziv || !Opis || !Lokacija || Cena === undefined || ProstaMesta === undefined || !TK_TipAktivnosti) {
+        return res.status(400).json({ message: 'Manjkajoči obvezni podatki za aktivnost (Naziv, Opis, Lokacija, Cena, ProstaMesta, TipAktivnosti so obvezni).' });
+    }
+    if (isNaN(parseFloat(Cena)) || isNaN(parseInt(ProstaMesta)) || isNaN(parseInt(TK_TipAktivnosti))) {
+        return res.status(400).json({ message: 'Cena, ProstaMesta in TK_TipAktivnosti morajo biti veljavna števila.' });
+    }
+
+    let podatkiZaPosodobitev = {
+        Naziv, Opis, Lokacija,
+        Cena: parseFloat(Cena),
+        ProstaMesta: parseInt(ProstaMesta),
+        TK_TipAktivnosti: parseInt(TK_TipAktivnosti),
+        TK_Trener: TK_Trener ? parseInt(TK_Trener) : null,
+        updated_at: new Date()
+    };
+
+    if (req.files && req.files.slikaAktivnosti) {
+        const slikaDatoteka = req.files.slikaAktivnosti;
+        podatkiZaPosodobitev.slika = slikaDatoteka.data;
+    } else if (odstraniSliko === 'true' || odstraniSliko === true) {
+        podatkiZaPosodobitev.slika = null;
+    }
+
     try {
         const updatedCount = await knex('Sportna_Aktivnost')
-            .where({id})
-            .update({
-                Naziv, Opis, Lokacija, Cena, ProstaMesta, slika, TK_TipAktivnosti,
-                TK_Trener: TK_Trener || null,
-                updated_at: new Date()
-            });
-        if (updatedCount === 0) return res.status(404).json({message: 'Aktivnost ni najdena.'});
-        res.json({message: 'Aktivnost uspešno posodobljena.'});
+            .where({ id: parseInt(id) })
+            .update(podatkiZaPosodobitev);
+
+        if (updatedCount === 0) return res.status(404).json({ message: 'Aktivnost ni najdena ali pa ni bilo sprememb za posodobitev.' });
+        res.json({ message: 'Aktivnost uspešno posodobljena.' });
     } catch (error) {
         console.error(`Admin napaka pri urejanju aktivnosti ${id}:`, error);
-        res.status(500).json({message: 'Napaka na strežniku.'});
+        res.status(500).json({ message: `Napaka na strežniku pri urejanju aktivnosti: ${error.message}` });
     }
 });
 
 app.delete('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
     const {id} = req.params;
+    const trx = await knex.transaction();
     try {
-        await knex('Ocena_Sporta').where({TK_SportnaAktivnost: id}).del();
-        const deletedCount = await knex('Sportna_Aktivnost').where({id}).del();
-        if (deletedCount === 0) return res.status(404).json({message: 'Aktivnost ni najdena.'});
-        res.json({message: 'Aktivnost uspešno izbrisana.'});
+        const aktivnost = await trx('Sportna_Aktivnost').where({id}).first();
+        if (!aktivnost) {
+            await trx.rollback();
+            return res.status(404).json({message: 'Aktivnost ni najdena.'});
+        }
+        await trx('Ocena_Sporta').where({TK_SportnaAktivnost: id}).del();
+        await trx('Sportna_Aktivnost').where({id}).del();
+
+        await trx.commit();
+        res.json({message: 'Aktivnost in povezane ocene uspešno izbrisane.'});
     } catch (error) {
+        await trx.rollback();
         console.error(`Admin napaka pri brisanju aktivnosti ${id}:`, error);
         res.status(500).json({message: 'Napaka na strežniku.'});
     }
 });
+
 
 // --- Upravljanje trenerjev ---
 app.get('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
@@ -973,12 +1149,19 @@ app.get('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
             .leftJoin('Uporabniki as u', 't.TK_Uporabnik', 'u.id')
             .select('t.id', 't.ime', 't.priimek', 't.telefon', 't.email as kontakt_email_trenerja', 't.urnik', 't.OpisProfila',
                 'u.id as uporabnik_id', 'u.username as uporabnisko_ime', 'u.email as login_email_uporabnika', 'u.JeAdmin',
-                'u.slika as slika_profila_base64')
+                'u.slika as slika_profila_buffer')
             .orderBy('t.priimek', 'asc');
-        const obdelaniTrenerji = trenerji.map(t => ({
-            ...t,
-            slika_profila_base64: t.slika_profila_base64 ? t.slika_profila_base64.toString('base64') : null
-        }));
+
+        const obdelaniTrenerji = trenerji.map(t => {
+            let formattedSlika = null;
+            if (t.slika_profila_buffer instanceof Buffer) {
+                formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${t.slika_profila_buffer.toString('base64')}`;
+            }
+            return {
+                ...t,
+                slika_profila_base64: formattedSlika
+            };
+        });
         res.json(obdelaniTrenerji);
     } catch (error) {
         console.error('Admin napaka pri pridobivanju trenerjev:', error);
@@ -991,6 +1174,7 @@ app.post('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => 
         username, login_email, geslo,
         ime, priimek, telefon, kontakt_email, urnik, OpisProfila
     } = req.body;
+
     if (!username || !login_email || !geslo || !ime || !priimek || !telefon || !kontakt_email || !urnik) {
         return res.status(400).json({message: 'Manjkajoči obvezni podatki za trenerja ali uporabniški račun.'});
     }
@@ -1002,6 +1186,7 @@ app.post('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => 
     if (!gesloRegex.test(geslo)) {
         return res.status(400).json({message: 'Geslo mora vsebovati vsaj 6 znakov, eno veliko črko in eno številko.'});
     }
+
     const trx = await knex.transaction();
     try {
         let obstojecUporabnik = await trx('Uporabniki').whereRaw('LOWER(username) = ?', [username.toLowerCase()]).first();
@@ -1019,13 +1204,20 @@ app.post('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => 
             await trx.rollback();
             return res.status(409).json({message: 'Kontaktni email trenerja že obstaja.'});
         }
+
         const hashiranoGeslo = bcrypt.hashSync(geslo, saltKodiranje);
         const [novUporabnikId] = await trx('Uporabniki').insert({
-            username: username, email: login_email, geslo: hashiranoGeslo, JeAdmin: 0
+            username: username,
+            email: login_email,
+            geslo: hashiranoGeslo,
+            JeAdmin: 0
         });
+
         const [novTrenerId] = await trx('Trenerji').insert({
-            ime, priimek, telefon, email: kontakt_email, urnik, OpisProfila, TK_Uporabnik: novUporabnikId
+            ime, priimek, telefon, email: kontakt_email, urnik, OpisProfila,
+            TK_Uporabnik: novUporabnikId
         });
+
         await trx.commit();
         res.status(201).json({
             message: 'Trener in povezan uporabniški račun uspešno dodana.',
@@ -1057,7 +1249,6 @@ app.put('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, res) 
             return res.status(404).json({message: 'Trener ni najden.'});
         }
         const uporabnikId = trener.TK_Uporabnik;
-
         if (uporabnikId) {
             const uporabnikUpdateData = {};
             const trenutniUporabnik = await trx('Uporabniki').where({id: uporabnikId}).first();
@@ -1083,6 +1274,7 @@ app.put('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, res) 
                 }
                 uporabnikUpdateData.email = login_email;
             }
+
             if (Object.keys(uporabnikUpdateData).length > 0) {
                 await trx('Uporabniki').where({id: uporabnikId}).update(uporabnikUpdateData);
             }
@@ -1130,14 +1322,17 @@ app.delete('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, re
             return res.status(404).json({message: 'Trener ni najden.'});
         }
         const uporabnikId = trener.TK_Uporabnik;
+
         await trx('Ocena_Trenerja').where({TK_Trener: trenerId}).del();
         await trx('Sportna_Aktivnost').where({TK_Trener: trenerId}).update({TK_Trener: null});
         await trx('Trenerji').where({id: trenerId}).del();
+
         if (uporabnikId) {
             await trx('osvezilniTokens').where({user_id: uporabnikId}).del();
             await trx('Uporabniki').where({id: uporabnikId}).del();
             console.log(`Povezan uporabniški račun ID ${uporabnikId} izbrisan skupaj s trenerjem ID ${trenerId}.`);
         }
+
         await trx.commit();
         res.json({message: 'Trener in povezan uporabniški račun (če je obstajal) uspešno izbrisana.'});
     } catch (error) {
@@ -1148,6 +1343,7 @@ app.delete('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, re
 });
 
 
+// Zaganjanje strežnika
 app.listen(PORT, () => {
     console.log(`Strežnik teče na http://localhost:${PORT}`);
     knex.schema.hasTable('osvezilniTokens').then(exists => {
@@ -1169,6 +1365,7 @@ app.listen(PORT, () => {
     }).catch(err => {
         console.error("Napaka pri preverjanju tabele 'osvezilniTokens':", err);
     });
+
     knex.schema.hasColumn('Uporabniki', 'slika').then(exists => {
         if (!exists) {
             console.log("Stolpec 'slika' (LONGBLOB) ne obstaja v tabeli 'Uporabniki', dodajam ga...");
@@ -1205,5 +1402,19 @@ app.listen(PORT, () => {
         }
     }).catch(err => {
         console.error("Napaka pri preverjanju stolpca 'slika':", err);
+    });
+    knex.schema.hasColumn('Sportna_Aktivnost', 'slika').then(exists => {
+        if (!exists) {
+            console.log("Stolpec 'slika' (LONGBLOB) ne obstaja v tabeli 'Sportna_Aktivnost', dodajam ga...");
+            return knex.schema.alterTable('Sportna_Aktivnost', table => {
+                table.specificType('slika', 'LONGBLOB').nullable().after('ProstaMesta');
+            }).then(() => {
+                console.log("Stolpec 'slika' (LONGBLOB) v 'Sportna_Aktivnost' uspešno dodan.");
+            }).catch(err => {
+                console.error("Napaka pri dodajanju stolpca 'slika' v 'Sportna_Aktivnost':", err);
+            });
+        }
+    }).catch(err => {
+        console.error("Napaka pri preverjanju stolpca 'slika' v 'Sportna_Aktivnost':", err);
     });
 });

@@ -1,3 +1,7 @@
+const aktivnostSlikaUploadInput = document.getElementById('aktivnostSlikaUploadInput');
+const aktivnostOdstraniSlikoGroup = document.getElementById('aktivnostOdstraniSlikoGroup');
+const aktivnostOdstraniSlikoCheckbox = document.getElementById('aktivnostOdstraniSlikoCheckbox');
+
 document.addEventListener('DOMContentLoaded', async () => {
     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
     if (!uporabnikInfoString) {
@@ -199,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${akt.ime_sporta || '-'}</td>
                     <td>${akt.ime_trenerja || '-'}</td>
                     <td>${akt.Lokacija}</td>
-                    <td>${akt.Cena.toFixed(2)} €</td>
+                    <td>${(typeof akt.Cena === 'number' ? akt.Cena.toFixed(2) : (parseFloat(akt.Cena) ? parseFloat(akt.Cena).toFixed(2) : 'N/A'))} €</td>
                     <td>${akt.ProstaMesta}</td>
                     <td class="action-buttons">
                         <button class="btn btn-sm btn-primary btn-uredi-aktivnost" data-id="${akt.id}">Uredi</button>
@@ -394,46 +398,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Aktivnosti
-    function prikaziAktivnostModalZaDodajanje() {
-        aktivnostForm.reset();
-        aktivnostIdInput.value = '';
-        document.getElementById('aktivnostModalLabel').textContent = 'Dodaj Novo Aktivnost';
-        aktivnostModal.show();
-    }
-
-    function prikaziAktivnostModalZaUrejanje(aktivnost) {
-        aktivnostForm.reset();
-        aktivnostIdInput.value = aktivnost.id;
-        document.getElementById('aktivnostModalLabel').textContent = 'Uredi Aktivnost';
-
-        aktivnostNazivInput.value = aktivnost.Naziv;
-        aktivnostOpisInput.value = aktivnost.Opis;
-        aktivnostLokacijaInput.value = aktivnost.Lokacija;
-        aktivnostCenaInput.value = aktivnost.Cena;
-        aktivnostProstaMestaInput.value = aktivnost.ProstaMesta;
-        aktivnostSlikaInput.value = aktivnost.slika || '';
-        aktivnostTipSelect.value = aktivnost.sport_id || '';
-        aktivnostTrenerSelect.value = aktivnost.trener_id || '';
-        aktivnostModal.show();
-    }
-
     async function shraniAktivnost() {
         const id = aktivnostIdInput.value;
-        const podatki = {
-            Naziv: aktivnostNazivInput.value.trim(),
-            Opis: aktivnostOpisInput.value.trim(),
-            Lokacija: aktivnostLokacijaInput.value.trim(),
-            Cena: parseFloat(aktivnostCenaInput.value),
-            ProstaMesta: parseInt(aktivnostProstaMestaInput.value),
-            slika: aktivnostSlikaInput.value.trim() || null,
-            TK_TipAktivnosti: parseInt(aktivnostTipSelect.value),
-            TK_Trener: aktivnostTrenerSelect.value ? parseInt(aktivnostTrenerSelect.value) : null
-        };
 
-        if (!podatki.Naziv || !podatki.Opis || !podatki.Lokacija || isNaN(podatki.Cena) || isNaN(podatki.ProstaMesta) || isNaN(podatki.TK_TipAktivnosti)) {
-            prikaziObvestiloAdmin('Izpolnite vsa obvezna polja za aktivnost pravilno.', 'warning');
+        // Validacija osnovnih polj pred ustvarjanjem FormData
+        const naziv = aktivnostNazivInput.value.trim();
+        const opis = aktivnostOpisInput.value.trim();
+        const lokacija = aktivnostLokacijaInput.value.trim();
+        const cena = aktivnostCenaInput.value; // Validacija na strežniku
+        const prostaMesta = aktivnostProstaMestaInput.value; // Validacija na strežniku
+        const tipAktivnosti = aktivnostTipSelect.value;
+
+        if (!naziv || !opis || !lokacija || cena === '' || prostaMesta === '' || !tipAktivnosti) {
+            prikaziObvestiloAdmin('Izpolnite vsa obvezna polja (*) za aktivnost pravilno.', 'warning');
             return;
+        }
+        if (isNaN(parseFloat(cena)) || isNaN(parseInt(prostaMesta)) || isNaN(parseInt(tipAktivnosti))) {
+            prikaziObvestiloAdmin('Cena, Prosta mesta in Tip aktivnosti morajo biti veljavna števila.', 'warning');
+            return;
+        }
+
+
+        const formData = new FormData();
+        formData.append('Naziv', naziv);
+        formData.append('Opis', opis);
+        formData.append('Lokacija', lokacija);
+        formData.append('Cena', parseFloat(cena));
+        formData.append('ProstaMesta', parseInt(prostaMesta));
+        formData.append('TK_TipAktivnosti', parseInt(tipAktivnosti));
+
+        if (aktivnostTrenerSelect.value) {
+            formData.append('TK_Trener', parseInt(aktivnostTrenerSelect.value));
+        }
+
+        if (aktivnostSlikaUploadInput.files.length > 0) {
+            formData.append('slikaAktivnosti', aktivnostSlikaUploadInput.files[0]);
+        } else if (id && aktivnostOdstraniSlikoCheckbox && aktivnostOdstraniSlikoCheckbox.checked) {
+            // Samo pri urejanju (id obstaja) in če je checkbox označen
+            formData.append('odstraniSliko', 'true');
         }
 
         const url = id ? `${API_BASE_URL}/aktivnosti/${id}` : `${API_BASE_URL}/aktivnosti`;
@@ -442,22 +444,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const response = await fetchZAvtentikacijo(url, {
                 method: method,
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(podatki)
+                body: formData
+                // NE nastavljajte Content-Type headerja, ko uporabljate FormData!
             });
+
             if (!response.ok) {
-                const errData = await response.json();
+                const errData = await response.json().catch(() => ({ message: `Strežnik je vrnil napako ${response.status}` }));
                 throw new Error(errData.message || `Napaka pri shranjevanju aktivnosti: ${response.statusText}`);
             }
-            prikaziObvestiloAdmin(`Aktivnost uspešno ${id ? 'posodobljena' : 'dodana'}.`);
+            const data = await response.json(); // Preberemo odgovor, če je bil uspešen
+            prikaziObvestiloAdmin(data.message || `Aktivnost uspešno ${id ? 'posodobljena' : 'dodana'}.`);
             aktivnostModal.hide();
-            await loadAktivnosti();
+            await loadAktivnosti(); // Ponovno naloži tabelo aktivnosti
         } catch (error) {
-            console.error(error);
-            prikaziObvestiloAdmin(error.message, 'danger');
+            console.error('Napaka pri klicu shraniAktivnost:', error);
+            prikaziObvestiloAdmin(error.message || 'Prišlo je do napake.', 'danger');
         }
     }
 
+    function prikaziAktivnostModalZaDodajanje() {
+        aktivnostForm.reset();
+        aktivnostIdInput.value = '';
+        document.getElementById('aktivnostModalLabel').textContent = 'Dodaj Novo Aktivnost';
+        if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'none';
+        if (aktivnostOdstraniSlikoCheckbox) aktivnostOdstraniSlikoCheckbox.checked = false;
+        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro
+        aktivnostModal.show();
+    }
+
+    async function prikaziAktivnostModalZaUrejanje(aktivnost) { // Dodan async, ker morda kličemo API
+        aktivnostForm.reset();
+        aktivnostIdInput.value = aktivnost.id;
+        document.getElementById('aktivnostModalLabel').textContent = 'Uredi Aktivnost';
+
+        aktivnostNazivInput.value = aktivnost.Naziv || '';
+        aktivnostOpisInput.value = aktivnost.Opis || '';
+        aktivnostLokacijaInput.value = aktivnost.Lokacija || '';
+        aktivnostCenaInput.value = aktivnost.Cena !== undefined ? aktivnost.Cena : 0;
+        aktivnostProstaMestaInput.value = aktivnost.ProstaMesta !== undefined ? aktivnost.ProstaMesta : 0;
+
+
+        aktivnostTipSelect.value = aktivnost.sport_id || '';
+        aktivnostTrenerSelect.value = aktivnost.trener_id || '';
+
+        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro datoteke
+
+        if (aktivnost.imaSliko) {
+            if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'block';
+            if (aktivnostOdstraniSlikoCheckbox) aktivnostOdstraniSlikoCheckbox.checked = false;
+        } else {
+            if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'none';
+        }
+
+        aktivnostModal.show();
+    }
     async function izbrisiAktivnost(id) {
         try {
             const response = await fetchZAvtentikacijo(`${API_BASE_URL}/aktivnosti/${id}`, {method: 'DELETE'});
