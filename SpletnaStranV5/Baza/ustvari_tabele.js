@@ -4,7 +4,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root', // Vaš MySQL uporabnik
-        password: 'Smetar245', // Vaše MySQL geslo
+        password: 'Smetar234', // Vaše MySQL geslo
         database: 'sportaj_si',
     }
 });

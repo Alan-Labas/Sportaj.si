@@ -5,7 +5,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'Smetar245', // Prilagodite geslo
+        password: 'Smetar234', // Prilagodite geslo
         database: 'sportaj_si',
     }
 });
