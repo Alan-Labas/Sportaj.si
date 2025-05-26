@@ -23,8 +23,12 @@ const knex = require('knex')({
 });
 
 
-app.use(express.urlencoded({extended: false}));
+
+
 app.use(express.json());
+
+app.use(express.urlencoded({extended: false}));
+
 app.use(fileUpload({createParentPath: true}));
 
 
@@ -48,6 +52,16 @@ app.get('/html/admin-panel.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/admin-panel.html'));
 });
 
+function normalizirajImgPath(path, defaultPath){
+    if(!path) return defaultPath;
+    if(path.startsWith('../slike/')){
+        return path.replace('../slike/', '/slike/');
+    }
+    if(!path.startsWith('/slike')){
+        return `/slike/${path}`;
+    }
+    return path;
+}
 
 
 function preveriZeton(req, res, next) {
@@ -139,6 +153,7 @@ app.get('/api/search/:table', async(req, res)=>{
         return res.status(400).json({error: `Tabela ${table} ni dostopna za iskanje`})
     }
     try{
+        
         let query = knex(table).select('*')
         for(const [key,value] of Object.entries(filters)){
             if (value.trim() !== '') {
@@ -615,7 +630,11 @@ app.post('/api/profil/slika', preveriZeton, async (req, res) => {
 
 
 app.post('/api/prijava', async (req, res) => {
-    const {email, geslo, rememberMe} = req.body;
+    console.log('body: ', req.body)
+    const email = req.body.email;
+    const geslo = req.body.geslo;
+    const rememberMe = req.body.rememberMe;
+    
     if (!email || !geslo) {
         return res.status(400).json({message: 'Email in geslo sta obvezna.'});
     }

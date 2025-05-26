@@ -8,7 +8,9 @@ const knex = require('knex')({
         database: 'sportaj_si',
     }
 });
+
 const {hashiranjeObstojecihGesel} = require('./hashiranje_obsojecih_gesel.js');
+
 
 async function napolniBazo() {
     try {
@@ -127,6 +129,58 @@ async function napolniBazo() {
             table.integer('TK_Trener').unsigned().references('id').inTable('Trenerji').onDelete('SET NULL');
             table.timestamps(true, true);
         });
+        console.log("Tabela Sportna_Aktivnost je bila uspešno ustvarjena.");
+        const Sportna_Aktivnost = [
+            {
+                Naziv: 'Nogometna tekma U12',
+                Opis: 'Prijateljska tekma med lokalnimi klubi.',
+                Lokacija: 'Igrišče Center',
+                Cena: 0,
+                ProstaMesta: 0,
+                slika: '/slike/sporti/nogtekma.jfif',
+                TK_TipAktivnosti: 1,
+                TK_Trener: 1
+            },
+            {
+                Naziv: 'Košarkarski večeri',
+                Opis: 'Rekreativno igranje košarke.',
+                Lokacija: 'Dvorana Tabor',
+                Cena: 5,
+                ProstaMesta: 10,
+                slika: '/slike/sporti/kostekma.jfif',
+                TK_TipAktivnosti: 2,
+                TK_Trener: 2
+            },
+            {
+                Naziv: 'Atletski miting Maribor',
+                Opis: 'Tekmovanje v različnih atletskih disciplinah.',
+                Lokacija: 'Stadion Poljane',
+                Cena: 10,
+                ProstaMesta: 100,
+                slika: '/slike/sporti/atlettrening.jfif',
+                TK_TipAktivnosti: 3,
+                TK_Trener: 3
+            },
+            {
+                Naziv: 'Plavalni tečaj za odrasle',
+                Opis: 'Izboljšajte svojo plavalno tehniko.',
+                Lokacija: 'Kopališče Pristan',
+                Cena: 75,
+                ProstaMesta: 5,
+                slika: '/slike/sporti/plavaltrening.jfif',
+                TK_TipAktivnosti: 4,
+                TK_Trener: 4
+            },
+            {
+                Naziv: 'Tenis turnir dvojic',
+                Opis: 'Amaterski turnir v dvojicah.',
+                Lokacija: 'Tenis igrišča Branik',
+                Cena: 20,
+                ProstaMesta: 8,
+                slika: '/slike/sporti/tenis.jfif',
+                TK_TipAktivnosti: 5,
+                TK_Trener: 5
+            }]
         console.log("Tabela Sportna_Aktivnost je bila uspešno ustvarjena (s stolpcem slika kot LONGBLOB).");
 
         // Podatki za Sportna_Aktivnost bodo vstavljeni brez slik, ker zdaj pričakujemo binarne podatke.
@@ -202,6 +256,7 @@ async function main() {
     try {
         await napolniBazo();
         console.log('Skripta ustvari_tabele.js je uspešno zaključena, vključno s hashiranjem gesel.');
+        
     } catch (error) {
         console.error("Napaka v skripti ustvari_tabele.js:", error);
     } finally {
@@ -210,6 +265,9 @@ async function main() {
             console.log("Povezava z bazo je zaprta")
         }
     }
+    
+
+
 }
 
 if (require.main === module) {

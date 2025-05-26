@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    
     const pageButtonsDiv = document.getElementById('buttonGroup');
     const pageButtonsDropdown = document.getElementById('dropdownMenu');
 
@@ -57,11 +58,12 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-function handleDynamicItemClick(event) {
+export function handleDynamicItemClick(event) {
     const targetItem = event.target.closest('.dynamic-card-item');
     if (targetItem) {
         const id = targetItem.dataset.id;
         const type = targetItem.dataset.type;
+        
 
         if (type === 'trener') {
             window.location.href = `/html/profilTrener.html?id=${id}`;
@@ -211,7 +213,7 @@ async function setPageContent(activePage) {
 }
 
 
-function loadContentToContainer(content, containerId, itemType, activePage) {
+export function loadContentToContainer(content, containerId, itemType, activePage) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
@@ -367,12 +369,31 @@ async function showTrainerDetails(trainerId) {
 }
 
 async function showActivityDetails(activityId) {
+    
     const activity = await fetchData(`/api/aktivnost/${activityId}/details`);
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
-
+    let modalElement;
+    let modalTitle;
+    let modalBody;
+    let detailsModal;
+    if(window.location.pathname === '/html/searchResults.html'){
+        modalElement = document.getElementById('detailsModalSR')
+        modalTitle = document.getElementById('modalTitleSR');
+        console.log(modalTitle.value)
+        modalBody = document.getElementById('modalBodySR');
+        detailsModal = new bootstrap.Modal(document.getElementById('detailsModalSR'));
+    }else if(window.location.pathname === '/'){
+        modalElement = document.getElementById('detailsModal')
+        modalTitle = document.getElementById('modalTitle');
+        modalBody = document.getElementById('modalBody');
+        detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    }
+    if (!modalElement) {
+    console.error("Modal element not found for current page", window.location.pathname);
+    return; // stop if modal element not found to prevent errors
+    }
+    console.log(activity, modalTitle, modalBody)
     if (activity && modalTitle && modalBody) {
+        
         modalTitle.textContent = activity.Naziv;
 
         const slikaPath = activity.slika || '/slike/default-sport.png';
@@ -442,9 +463,27 @@ async function showActivityDetails(activityId) {
 
 async function showSportDetails(sportId) {
     const sportData = await fetchData(`/api/sport/${sportId}/details`);
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    console.log(sportData)
+    let modalElement;
+    let modalTitle;
+    let modalBody;
+    let detailsModal;
+    
+    if(window.location.pathname === '/'){
+        modalElement = document.getElementById('detailsModal')
+        modalTitle = document.getElementById('modalTitle');
+        modalBody = document.getElementById('modalBody');
+        detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    }else if(window.location.pathname === '/html/searchResults.html'){
+        modalElement = document.getElementById('detailsModalSR')
+        modalTitle = document.getElementById('modalTitleSR');
+        modalBody = document.getElementById('modalBodySR');
+        detailsModal = new bootstrap.Modal(document.getElementById('detailsModalSR'));
+    }
+    if (!modalElement) {
+    console.error("Modal element not found for current page", window.location.pathname);
+    return; // stop if modal element not found to prevent errors
+    }
 
     if (sportData && modalTitle && modalBody) {
         modalTitle.textContent = `Šport: ${sportData.Sport}`;
@@ -498,3 +537,9 @@ async function showSportDetails(sportId) {
         if (detailsModal && !detailsModal._isShown) detailsModal.show();
     }
 }
+
+document.addEventListener('DOMContentLoaded', ()=>{
+    if(window.location.pathname === '/searchResults.html'){
+        console.log("aaaaaa")
+    }
+})
