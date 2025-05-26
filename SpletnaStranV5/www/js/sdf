@@ -1,0 +1,45 @@
+switch(activePage){
+    case "dejavnosti":
+        document.getElementById('searchResults').innerHTML = searchResults.map(ent =>{
+            return `
+                <div class="col-sm-6 col-md-4 col-lg-3 d-flex">
+                    <div class="card shadow-sm rounded-4 w-100">
+                        <img src="../slike/sporti/" class="card-img-top rounded-top-4" alt="Slika ${ent.Naziv}" style="height: 180px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-1 fw-semibold">${ent.Naziv}</h5>
+                            <p class="text-muted small mb-2">${ent.Opis}</p>
+                            <p class="mb-2"><i class="bi bi-geo-alt-fill me-1 text-primary"></i> ${ent.Lokacija}</p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success fs-6">${ent.Cena} €</span>
+                                <button class="btn btn-outline-primary btn-sm">Več</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+        })
+        break;
+
+    case "trenerji":
+        document.getElementById('searchResults').innerHTML = searchResults.map(ent =>{
+            return `
+                <div class="col-sm-6 col-md-4 col-lg-3 d-flex">
+                    <div class="card shadow-sm rounded-4 w-100" style="min-width:fit-content">
+                        <img src="../slike/trenerji/MarkoSkace.avif" class="card-img-top rounded-top-4" alt="Slika ${ent.ime} ${ent.priimek}" style="height: 180px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-semibold mb-1">${ent.ime} ${ent.priimek}</h5>
+                            <p class="mb-1"><i class="bi bi-telephone me-1"></i>${ent.OpisProfila}</p>
+                            <hr>
+                            
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                
+                                <button class="trenerCardMsgBtn btn btn-outline-primary btn-sm">Kontakt</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `
+        }).join(' ');
+        break;
+
+}

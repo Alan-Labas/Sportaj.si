@@ -1,0 +1,85 @@
+<body class="chat-body">
+  <div class="chat-window">
+    <div class="message left">Hey! How are you?</div>
+    <div class="message right">I’m good, you?</div>
+    <div class="message left">All great here. Want to catch up later?</div>
+    <div class="message right">Sure! Let's do it.</div>
+  </div>
+  <div class="input-bar">
+    <input type="text" placeholder="iMessage" />
+    <button>Send</button>
+  </div>
+</body>
+
+<style>
+  body.chat-body {
+    margin: 0;
+    padding: 0;
+    background: #e5e5ea;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .message {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    line-height: 1.4;
+    font-size: 15px;
+    word-wrap: break-word;
+    width: fit-content;
+  }
+
+  .left {
+    align-self: flex-start;
+    background: white;
+    color: black;
+    border-bottom-left-radius: 4px;
+  }
+
+  .right {
+    align-self: flex-end;
+    background: #007aff;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .input-bar {
+    display: flex;
+    padding: 10px;
+    background: #f2f2f7;
+    border-top: 1px solid #ccc;
+  }
+
+  .input-bar input {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 15px;
+    border: none;
+    border-radius: 18px;
+    background: white;
+    outline: none;
+  }
+
+  .input-bar button {
+    margin-left: 10px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 18px;
+    background: #007aff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+</style>

@@ -172,12 +172,14 @@ async function prijavaUporabnika() {
     }
 
     try {
+        console.log(API_URL)
         const response = await fetch(`${API_URL}/prijava`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({email, geslo, rememberMe})
         });
         const data = await response.json();
+        console.log(data)
 
         if (response.ok) {
             prikaziObvestilo(data.message || 'Prijava uspešna!', messageElementId, 'text-success');

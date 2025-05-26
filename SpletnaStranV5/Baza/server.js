@@ -25,9 +25,10 @@ const knex = require('knex')({
 
 
 
+app.use(express.json());
 
 app.use(express.urlencoded({extended: false}));
-app.use(express.json());
+
 app.use(fileUpload({createParentPath: true}));
 
 app.use(express.static(path.join(__dirname, '../www')));
@@ -51,6 +52,16 @@ app.get('/html/admin-panel.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/admin-panel.html'));
 });
 
+function normalizirajImgPath(path, defaultPath){
+    if(!path) return defaultPath;
+    if(path.startsWith('../slike/')){
+        return path.replace('../slike/', '/slike/');
+    }
+    if(!path.startsWith('/slike')){
+        return `/slike/${path}`;
+    }
+    return path;
+}
 
 function preveriZeton(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -135,14 +146,34 @@ app.get('/api/search/:table', async(req, res)=>{
         return res.status(400).json({error: `Tabela ${table} ni dostopna`})
     }
     try{
+        
         let query = knex(table).select('*')
-        for(const [key,value] of Object.entries(filters)){
-            query = query.where(key, 'like', `%${value}`)
+        if(table === 'trenerji'){
+            query = knex('trenerji as t')
+            .leftJoin('uporabniki as u', 't.TK_Uporabnik', 'u.id')
+            .select('t.*', 'u.slika')
+
+            
+            for(const [key,value] of Object.entries(filters)){
+                query = query.where(`${key}`, 'like', `%${value}%`);
+            }
+            
+
+        }else {
+            
+            for(const [key,value] of Object.entries(filters)){
+                query = query.where(key, 'like', `%${value}%`)
+            }
+            
         }
         
         const searchResult = await query;
-        
-        res.json([searchResult, filters]);
+        console.log(searchResult)
+        let normaliziranaPotDoSlik = searchResult.map(ent =>({
+                ...ent,
+                slika: normalizirajImgPath(ent.slika)
+            }))
+        res.json([normaliziranaPotDoSlik, filters]);
     }catch(error){
         console.error('Database query error: ', error);
         res.status(500).json({error: 'Internal server error'})
@@ -526,7 +557,11 @@ app.post('/api/profil/slika', preveriZeton, async (req, res) => {
 });
 
 app.post('/api/prijava', async (req, res) => {
-    const {email, geslo, rememberMe} = req.body;
+    console.log('body: ', req.body)
+    const email = req.body.email;
+    const geslo = req.body.geslo;
+    const rememberMe = req.body.rememberMe;
+    
     if (!email || !geslo) {
         return res.status(400).json({message: 'Email in geslo sta obvezna.'});
     }

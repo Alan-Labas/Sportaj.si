@@ -7,7 +7,9 @@ const knex = require('knex')({
         database: 'sportaj_si',
     }
 });
+
 const {hashiranjeObstojecihGesel} = require('./hashiranje_obsojecih_gesel.js');
+
 
 async function napolniBazo() {
     try {
@@ -211,7 +213,7 @@ async function napolniBazo() {
                 Lokacija: 'Igrišče Center',
                 Cena: 0,
                 ProstaMesta: 0,
-                slika: '/slike/sporti/nogomet.png',
+                slika: '/slike/sporti/nogtekma.jfif',
                 TK_TipAktivnosti: 1,
                 TK_Trener: 1
             },
@@ -221,7 +223,7 @@ async function napolniBazo() {
                 Lokacija: 'Dvorana Tabor',
                 Cena: 5,
                 ProstaMesta: 10,
-                slika: '/slike/sporti/kosarka.png',
+                slika: '/slike/sporti/kostekma.jfif',
                 TK_TipAktivnosti: 2,
                 TK_Trener: 2
             },
@@ -231,7 +233,7 @@ async function napolniBazo() {
                 Lokacija: 'Stadion Poljane',
                 Cena: 10,
                 ProstaMesta: 100,
-                slika: '/slike/sporti/atletika.png',
+                slika: '/slike/sporti/atlettrening.jfif',
                 TK_TipAktivnosti: 3,
                 TK_Trener: 3
             },
@@ -241,7 +243,7 @@ async function napolniBazo() {
                 Lokacija: 'Kopališče Pristan',
                 Cena: 75,
                 ProstaMesta: 5,
-                slika: '/slike/sporti/plavanje.png',
+                slika: '/slike/sporti/plavaltrening.jfif',
                 TK_TipAktivnosti: 4,
                 TK_Trener: 4
             },
@@ -251,7 +253,7 @@ async function napolniBazo() {
                 Lokacija: 'Tenis igrišča Branik',
                 Cena: 20,
                 ProstaMesta: 8,
-                slika: '/slike/sporti/tenis.png',
+                slika: '/slike/sporti/tenis.jfif',
                 TK_TipAktivnosti: 5,
                 TK_Trener: 5
             },
@@ -345,6 +347,7 @@ async function main() {
     try {
         await napolniBazo();
         console.log('Skripta ustvari_tabele.js je uspešno zaključena, vključno s hashiranjem gesel.');
+        
     } catch (error) {
         console.error("Napaka v skripti ustvari_tabele.js:", error);
     } finally {
@@ -353,6 +356,9 @@ async function main() {
             console.log("Povezava z bazo je zaprta")
         }
     }
+    
+
+
 }
 
 if (require.main === module) {

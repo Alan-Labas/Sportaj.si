@@ -134,6 +134,48 @@ searchForm.addEventListener('submit', (e)=>{
 
     }else if(activePageButton === 'sport'){
         table = tab.sport;
+        const inputDBPairs = [
+            {key:"searchComp1", value:"sport"} 
+        ]
+
+        let paramKey;
+        let paramValue;
+        const paramKeyValuePair = [];
+        for(let param of searchParams){
+            for(let atr of inputDBPairs){
+                
+                if(param.id === atr.key ){
+                    console.log(param.id+" "+atr.key)
+                    paramKey = atr.value;
+                    paramValue = param.value;
+
+                    paramKeyValuePair.push({paramKey, paramValue});
+
+                }
+            }
+        }
+        console.log(paramKeyValuePair)
+        const urlParams = new URLSearchParams()
+        for(let param of paramKeyValuePair){
+            if(param.paramValue.trim()){
+                urlParams.append(param.paramKey, param.paramValue)
+            }
+            
+        }
+        
+        
+        console.log(urlParams.toString())
+        
+        const url = new URL(`${API_URL}${table}`)
+        url.search = urlParams.toString()
+        
+        fetch(url)
+        .then(response => response.json())
+        .then(data =>{
+            sessionStorage.setItem('searchResults', JSON.stringify(data));
+            console.log(data)
+        })
+        .catch(error =>{console.error(error)})
     }
     
     
