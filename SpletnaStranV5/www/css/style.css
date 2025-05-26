@@ -71,10 +71,21 @@ a:hover {
 }
 
 /* Navigacija */
-nav.navbar { /* Ciljamo splošno navigacijsko vrstico, če jo boste uporabili */
+nav.navbar {
     box-shadow: 0 2px 4px rgba(0,0,0,.1);
     background-color: white !important; /* Poskrbimo, da je ozadje belo */
+    color: var(--text-color); /* Nastavimo privzeto barvo besedila za navigacijsko vrstico */
 }
+
+nav.navbar a:not(.btn) {
+    color: var(--text-color); /* Uporabi isto temno barvo kot ostalo besedilo v navbaru */
+}
+
+nav.navbar a:not(.btn):hover {
+    color: var(--primary-color); /* Ob prehodu z miško spremeni v primarno barvo (modra) */
+    text-decoration: underline; /* Dodamo podčrtaj za boljši odziv */
+}
+
 
 nav .navbar-brand img {
     max-height: 40px; /* Prilagodimo, da se ikona lepše prilega */
@@ -233,7 +244,8 @@ main {
 
 /* Specifični stili za admin panel in profilne strani */
 .admin-section, .profile-card { /* Uporabimo lahko .profile-card namesto samo .card za specifičnost */
-    background-color: white;
+    /*background-color: white;*/
+    color: black;
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
