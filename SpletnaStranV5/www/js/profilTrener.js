@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             const commentCard = userCommentsSection.querySelector(`.comment-card-${commentId}`);
                             if (commentCard) {
                                 commentCard.style.display = 'none'; // Skrijemo komentar
-                                // Tukaj ne kličemo API-ja za brisanje iz baze
                                 console.log(`Komentar ${commentId} skrit (samo na front-endu).`);
                             }
                         });
