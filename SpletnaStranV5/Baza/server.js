@@ -17,12 +17,16 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'geslo', // Prilagodite geslo
+        password: 'Smetar245', // Prilagodite geslo
         database: 'sportaj_si',
     }
 });
 
 
+const fs = require('fs');
+
+const imageBuffer = fs.readFileSync(path.join(__dirname,'..' ,'www','/slike/sporti/nogtekma.jfif'))
+console.log(imageBuffer.toString('base64'))
 
 
 app.use(express.json());
@@ -201,6 +205,24 @@ app.post('/api/komentiraj', async(req,res)=>{
     
 })
 
+app.get('/api/getKomentarji', async(req,res)=>{
+    console.log('getComments request  recieved')
+    try{
+        const filters = JSON.parse(JSON.stringify(req.query));
+        const activityId = filters.activityId;
+        console.log(activityId)
+        
+        const comments = await knex('Komentarji').where('TK_Aktivnost', activityId);
+        const commentss = await knex('Komentarji')
+        .join('Uporabniki', 'Komentarji.TK_Uporabnik', 'Uporabniki.id')
+        .select('Komentarji.*', 'Uporabniki.username')
+        .where('Komentarji.TK_Aktivnost',activityId )
+        res.json(commentss);
+    }catch(error){
+        res.json({napaka: error})
+    }
+})
+
 // === API TOČKE ZA ŠPORTNE AKTIVNOSTI (javne) ===
 app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
     try {
@@ -212,11 +234,16 @@ app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
 
         const obdelaneAktivnosti = aktivnosti.map(a => {
             let formattedSlika = null;
+            
+            
             if (a.slika instanceof Buffer) {
                 formattedSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika.toString('base64')}`;
+                
             } else if (typeof a.slika === 'string') {
+                
                 formattedSlika = a.slika;
             }
+            console.log()
             return { ...a, slika: formattedSlika };
         });
         res.json(obdelaneAktivnosti);

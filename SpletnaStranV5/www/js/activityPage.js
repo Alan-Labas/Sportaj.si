@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityTrainerPhone = document.getElementById('activityTrainerPhone');
     const activityTrainerEmail = document.getElementById('activityTrainerEmail');
     const activityDescription = document.getElementById('activityDescription');
-    const userCommentsSection = document.getElementById('trainerUserCommentsSection');
+    const userCommentsSection = document.getElementById('activityUserCommentsSection');
     const starsContainer = document.getElementById('starRating');
     const currentRatingText = document.getElementById('currentRatingText');
     const commentForm = document.getElementById('activityCommentForm');
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityDate = document.getElementById('activityDate');
     const activityLocation = document.getElementById('activityLocation')
     const similarActivitiesSection = document.getElementById('similarActivitiesSection');
+    
 
     const defaultProfilePicPath = '../slike/sporti/atlettrening.jfif';
 
@@ -48,13 +49,28 @@ document.addEventListener('DOMContentLoaded', async() =>{
     if(activityLocation) activityLocation.textContent = activityData.Lokacija ? `${activityData.Lokacija}` : 'Ni podatka';
     if(activityTrainerCard) activityTrainerCard.id = activityData.id;
     if(commentForm) commentForm.id = activityData.id;
-
+    document.getElementById('activitySport').textContent = activityData.ime_sporta;
     activityTrainerCard.addEventListener('click', ()=>{
         window.location.href = `/html/profilTrener.html?id=${activityData.TK_Trener}`
     })
     
     commentForm.addEventListener('submit', async(e)=>{
         e.preventDefault();
+        const isLoggedIn = !!sessionStorage.getItem('accessToken');
+        const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
+        if (isLoggedIn && uporabnikInfoString) {
+            
+            
+        }else{
+            const globalAlert = document.getElementById('globalAlertMessage');
+            if (globalAlert) {
+                prikaziObvestilo('Za komentiranje morate prijaviti.', 'globalAlertMessage', 'text-success', 3000);
+            } else {
+                alert('Za komentiranje se morate prijaviti.');
+            }
+            return;
+        }
+        
         const comment = commentForm.querySelector('#activityCommentText').value;
         const activityId = commentForm.id;
         console.log(activityId)
@@ -76,4 +92,54 @@ document.addEventListener('DOMContentLoaded', async() =>{
         }
 
     })
+
+    const prijavaNaAktivnostBtn = document.getElementById('prijavaNaAktivnostBtn');
+    prijavaNaAktivnostBtn.addEventListener('click', async()=>{
+        const isLoggedIn = !!sessionStorage.getItem('accessToken');
+        const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
+        if (isLoggedIn && uporabnikInfoString) {
+            
+        }else{
+            const globalAlert = document.getElementById('globalAlertMessage');
+            if (globalAlert) {
+                prikaziObvestilo('Za prijavo na aktivnost se morate prijaviti.', 'globalAlertMessage', 'text-success', 3000);
+            } else {
+                alert('Za prijavo na aktivnost se morate prijaviti.');
+            }
+            return;
+        }
+
+        const user = JSON.parse(uporabnikInfoString);
+        console.log(user)
+        const activity = activityData;
+        console.log(activity);
+
+
+
+
+    })
+
+    const params = new URLSearchParams({activityId : activityData.id})
+    console.log(params.toString())
+    const comments = await fetchData(`${API_URL}/getKomentarji?${params.toString()}`)
+    if(comments){console.log(comments)}
+
+    userCommentsSection.innerHTML = comments.map(comment =>{
+        return `
+            <div class="w-100  d-flex mb-1 rounded shadow " style="max-height:fit-content;" >
+              <div class="" style="max-width: 50px;max-height:fit-content;">
+                  <img id="userPic" src="../slike/profilne/profileIcon.avif" style="margin-right:10px;max-width: 40px;border-radius:20px">
+              </div>
+              <div id="commentb" class="flex-fill d-flex flex-column  ">
+                  <div class="h-25 d-flex  " style="" >
+                    <p style="font-size: 15px;" id="userName">@${comment.username}</p>
+                  </div>
+                  <div class="d-flex align-items-center " style="max-height: fit-content;;">
+                      <p style="margin-left:5px;">${comment.komentar}</p>
+                  </div>
+              </div>
+          </div>
+        `
+    })
+    
 })

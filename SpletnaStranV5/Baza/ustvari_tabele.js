@@ -4,11 +4,12 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root', // Vaš MySQL uporabnik
-        password: 'geslo', // Vaše MySQL geslo
+        password: 'Smetar245', // Vaše MySQL geslo
         database: 'sportaj_si',
     }
 });
-
+const fs = require('fs')
+const path = require('path');
 const {hashiranjeObstojecihGesel} = require('./hashiranje_obsojecih_gesel.js');
 
 
@@ -132,6 +133,7 @@ async function napolniBazo() {
             table.timestamps(true, true);
         });
         console.log("Tabela Sportna_Aktivnost je bila uspešno ustvarjena.");
+
         const Sportna_Aktivnost = [
             {
                 Naziv: 'Nogometna tekma U12',
@@ -184,6 +186,16 @@ async function napolniBazo() {
                 TK_Trener: 5
             }]
         console.log("Tabela Sportna_Aktivnost je bila uspešno ustvarjena (s stolpcem slika kot LONGBLOB).");
+        
+        for(let act of Sportna_Aktivnost){
+            const slika = act.slika;
+            const imageBuffer = fs.readFileSync(path.join(__dirname,'..','www' ,slika))
+            act.slika = imageBuffer
+
+        }
+        console.log('poti do slik v tabeli Sportna_Aktivnost so bile uspešno pretvorjene v BufferedImage')
+        
+       
 
         // Podatki za Sportna_Aktivnost bodo vstavljeni brez slik, ker zdaj pričakujemo binarne podatke.
         // Slike boste morali dodati preko admin panela.

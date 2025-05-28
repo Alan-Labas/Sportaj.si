@@ -3,10 +3,12 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'geslo',
+        password: 'Smetar245',
         database: 'sportaj_si',
     }
 });
+const fs = require('fs')
+const path = require('path')
 async function posodobiBazo(){
     console.log('Začenja se dodajanje primerkov v tabele')
     try{
@@ -84,42 +86,52 @@ async function posodobiBazo(){
             console.log("Uspešno dodanih 30 novih trenerjev")
         })
 
+
+        const Sportna_Aktivnost =[
+            {Naziv: 'Košarkarski turnir', Opis:'Turnir med srednjimi šolami', Lokacija: 'Branik', Cena: 0, ProstaMesta: 80, slika: '/slike/sporti/kostekma.jfif', TK_TipAktivnosti:2, TK_Trener:6},
+            {Naziv: 'Nogometni trening A', Opis: 'Trening za začetnike z osnovnimi tehnikami.', Lokacija: 'Ljubljana', Cena: 10, ProstaMesta: 20, slika: '/slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 7},
+            {Naziv: 'Košarkarski turnir B', Opis: 'Turnir za srednješolce, finalni dvoboji.', Lokacija: 'Maribor', Cena: 0, ProstaMesta: 80, slika: './slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 8},
+            {Naziv: 'Atletska delavnica C', Opis: 'Delavnica teka in skokov.', Lokacija: 'Celje', Cena: 5, ProstaMesta: 30, slika: '/slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 9},
+            {Naziv: 'Plavalni izziv D', Opis: 'Preizkusi svoje plavalne sposobnosti!', Lokacija: 'Koper', Cena: 8, ProstaMesta: 25, slika: '/slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 10},
+            {Naziv: 'Tenis dvoboj E', Opis: 'Dvoboji za amaterske igralce.', Lokacija: 'Ptuj', Cena: 12, ProstaMesta: 16, slika: '/slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 11},
+            {Naziv: 'Odbojkarska liga F', Opis: 'Liga mešanih ekip.', Lokacija: 'Nova Gorica', Cena: 6, ProstaMesta: 40, slika: '/slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 12},
+            {Naziv: 'Rokometna tekma G', Opis: 'Prijateljska tekma med klubi.', Lokacija: 'Novo mesto', Cena: 0, ProstaMesta: 50, slika: '/slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 13},
+            {Naziv: 'Kolesarski vzpon H', Opis: 'Vzpon na Pohorje s časovnim merjenjem.', Lokacija: 'Maribor', Cena: 15, ProstaMesta: 35, slika: '/slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 14},
+            {Naziv: 'Boksarska šola I', Opis: 'Tehnični trening za začetnike.', Lokacija: 'Kranj', Cena: 20, ProstaMesta: 10, slika: '/slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 15},
+            {Naziv: 'Golf dan J', Opis: 'Turnir za začetnike z mentorji.', Lokacija: 'Bled', Cena: 25, ProstaMesta: 15, slika: '/slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 16},
+
+            {Naziv: 'Nogometna liga K', Opis: 'Amaterska rekreativna liga.', Lokacija: 'Ljubljana', Cena: 10, ProstaMesta: 22, slika: '/slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 17},
+            {Naziv: 'Košarkarska šola L', Opis: 'Šola za otroke od 10 do 14 let.', Lokacija: 'Koper', Cena: 5, ProstaMesta: 18, slika: '/slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 18},
+            {Naziv: 'Atletski miting M', Opis: 'Regijsko atletsko tekmovanje.', Lokacija: 'Celje', Cena: 0, ProstaMesta: 60, slika: '/slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 19},
+            {Naziv: 'Plavalni kamp N', Opis: 'Teden učenja plavanja.', Lokacija: 'Nova Gorica', Cena: 18, ProstaMesta: 20, slika: '/slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 20},
+            {Naziv: 'Tenis šola O', Opis: 'Poletna šola tenisa za mladino.', Lokacija: 'Ljubljana', Cena: 13, ProstaMesta: 12, slika: '/slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 21},
+            {Naziv: 'Odbojka na mivki P', Opis: 'Turnir dvojic na prostem.', Lokacija: 'Portorož', Cena: 7, ProstaMesta: 28, slika: '/slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 22},
+            {Naziv: 'Rokometna šola Q', Opis: 'Osnovne veščine rokometa.', Lokacija: 'Trbovlje', Cena: 9, ProstaMesta: 30, slika: '/slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 23},
+            {Naziv: 'Gorsko kolesarstvo R', Opis: 'Pustolovska tura z vodičem.', Lokacija: 'Kamnik', Cena: 20, ProstaMesta: 12, slika: '/slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 24},
+            {Naziv: 'Boks za mladostnike S', Opis: 'Trening kondicije in tehnike.', Lokacija: 'Ptuj', Cena: 17, ProstaMesta: 14, slika: '/slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 25},
+            {Naziv: 'Golf turnir T', Opis: 'Turnir v parih.', Lokacija: 'Bovec', Cena: 30, ProstaMesta: 10, slika: '/slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 26},
+
+            {Naziv: 'Nogomet za dekleta U', Opis: 'Nogometna skupina za deklice.', Lokacija: 'Murska Sobota', Cena: 5, ProstaMesta: 20, slika: '/slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 27},
+            {Naziv: 'Košarkarski kamp V', Opis: 'Poletni kamp za srednješolce.', Lokacija: 'Škofja Loka', Cena: 10, ProstaMesta: 24, slika: '/slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 28},
+            {Naziv: 'Atletski trening W', Opis: 'Trening za šprint in met.', Lokacija: 'Vrhnika', Cena: 6, ProstaMesta: 18, slika: '/slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 29},
+            {Naziv: 'Plavalni miting X', Opis: 'Tekmovanje za kadete.', Lokacija: 'Ajdovščina', Cena: 0, ProstaMesta: 50, slika: '/slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 30},
+            {Naziv: 'Tenis za odrasle Y', Opis: 'Rekreativni večerni termini.', Lokacija: 'Ilirska Bistrica', Cena: 14, ProstaMesta: 8, slika: '/slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 31},
+            {Naziv: 'Odbojka z žogo Z', Opis: 'Osnove igre z žogo.', Lokacija: 'Sežana', Cena: 4, ProstaMesta: 30, slika: '/slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 32},
+            {Naziv: 'Rokometni dvoboj Ž', Opis: 'Prijateljska tekma.', Lokacija: 'Postojna', Cena: 3, ProstaMesta: 16, slika: '/slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 33},
+            {Naziv: 'Kolesarski maraton AA', Opis: 'Maraton skozi slovensko podeželje.', Lokacija: 'Grosuplje', Cena: 18, ProstaMesta: 40, slika: '/slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 34},
+            {Naziv: 'Boksarska borba AB', Opis: 'Dogodek za napredne boksarje.', Lokacija: 'Zagorje', Cena: 22, ProstaMesta: 6, slika: '/slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 35},
+            {Naziv: 'Golf tečaj AC', Opis: 'Intenziven vikend program.', Lokacija: 'Rogaška Slatina', Cena: 27, ProstaMesta: 9, slika: '/slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 36}
+        ]
+
+        for(let act of Sportna_Aktivnost){
+            const slika = act.slika;
+            const imageBuffer = fs.readFileSync(path.join(__dirname,'..','www' ,slika))
+            act.slika = imageBuffer
+
+        }
+        
         console.log('Dodajanje 30 novih dejavnosti')
-        await knex('sportna_aktivnost').insert([
-            {Naziv: 'Košarkarski turnir', Opis:'Turnir med srednjimi šolami', Lokacija: 'Branik', Cena: 0, ProstaMesta: 80, slika: '../slike/sporti/kostekma.jfif', TK_TipAktivnosti:2, TK_Trener:6},
-            {Naziv: 'Nogometni trening A', Opis: 'Trening za začetnike z osnovnimi tehnikami.', Lokacija: 'Ljubljana', Cena: 10, ProstaMesta: 20, slika: '../slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 7},
-            {Naziv: 'Košarkarski turnir B', Opis: 'Turnir za srednješolce, finalni dvoboji.', Lokacija: 'Maribor', Cena: 0, ProstaMesta: 80, slika: '../slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 8},
-            {Naziv: 'Atletska delavnica C', Opis: 'Delavnica teka in skokov.', Lokacija: 'Celje', Cena: 5, ProstaMesta: 30, slika: '../slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 9},
-            {Naziv: 'Plavalni izziv D', Opis: 'Preizkusi svoje plavalne sposobnosti!', Lokacija: 'Koper', Cena: 8, ProstaMesta: 25, slika: '../slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 10},
-            {Naziv: 'Tenis dvoboj E', Opis: 'Dvoboji za amaterske igralce.', Lokacija: 'Ptuj', Cena: 12, ProstaMesta: 16, slika: '../slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 11},
-            {Naziv: 'Odbojkarska liga F', Opis: 'Liga mešanih ekip.', Lokacija: 'Nova Gorica', Cena: 6, ProstaMesta: 40, slika: '../slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 12},
-            {Naziv: 'Rokometna tekma G', Opis: 'Prijateljska tekma med klubi.', Lokacija: 'Novo mesto', Cena: 0, ProstaMesta: 50, slika: '../slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 13},
-            {Naziv: 'Kolesarski vzpon H', Opis: 'Vzpon na Pohorje s časovnim merjenjem.', Lokacija: 'Maribor', Cena: 15, ProstaMesta: 35, slika: '../slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 14},
-            {Naziv: 'Boksarska šola I', Opis: 'Tehnični trening za začetnike.', Lokacija: 'Kranj', Cena: 20, ProstaMesta: 10, slika: '../slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 15},
-            {Naziv: 'Golf dan J', Opis: 'Turnir za začetnike z mentorji.', Lokacija: 'Bled', Cena: 25, ProstaMesta: 15, slika: '../slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 16},
-
-            {Naziv: 'Nogometna liga K', Opis: 'Amaterska rekreativna liga.', Lokacija: 'Ljubljana', Cena: 10, ProstaMesta: 22, slika: '../slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 17},
-            {Naziv: 'Košarkarska šola L', Opis: 'Šola za otroke od 10 do 14 let.', Lokacija: 'Koper', Cena: 5, ProstaMesta: 18, slika: '../slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 18},
-            {Naziv: 'Atletski miting M', Opis: 'Regijsko atletsko tekmovanje.', Lokacija: 'Celje', Cena: 0, ProstaMesta: 60, slika: '../slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 19},
-            {Naziv: 'Plavalni kamp N', Opis: 'Teden učenja plavanja.', Lokacija: 'Nova Gorica', Cena: 18, ProstaMesta: 20, slika: '../slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 20},
-            {Naziv: 'Tenis šola O', Opis: 'Poletna šola tenisa za mladino.', Lokacija: 'Ljubljana', Cena: 13, ProstaMesta: 12, slika: '../slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 21},
-            {Naziv: 'Odbojka na mivki P', Opis: 'Turnir dvojic na prostem.', Lokacija: 'Portorož', Cena: 7, ProstaMesta: 28, slika: '../slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 22},
-            {Naziv: 'Rokometna šola Q', Opis: 'Osnovne veščine rokometa.', Lokacija: 'Trbovlje', Cena: 9, ProstaMesta: 30, slika: '../slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 23},
-            {Naziv: 'Gorsko kolesarstvo R', Opis: 'Pustolovska tura z vodičem.', Lokacija: 'Kamnik', Cena: 20, ProstaMesta: 12, slika: '../slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 24},
-            {Naziv: 'Boks za mladostnike S', Opis: 'Trening kondicije in tehnike.', Lokacija: 'Ptuj', Cena: 17, ProstaMesta: 14, slika: '../slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 25},
-            {Naziv: 'Golf turnir T', Opis: 'Turnir v parih.', Lokacija: 'Bovec', Cena: 30, ProstaMesta: 10, slika: '../slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 26},
-
-            {Naziv: 'Nogomet za dekleta U', Opis: 'Nogometna skupina za deklice.', Lokacija: 'Murska Sobota', Cena: 5, ProstaMesta: 20, slika: '../slike/sporti/nogtekma.jfif', TK_TipAktivnosti: 1, TK_Trener: 27},
-            {Naziv: 'Košarkarski kamp V', Opis: 'Poletni kamp za srednješolce.', Lokacija: 'Škofja Loka', Cena: 10, ProstaMesta: 24, slika: '../slike/sporti/kostekma.jfif', TK_TipAktivnosti: 2, TK_Trener: 28},
-            {Naziv: 'Atletski trening W', Opis: 'Trening za šprint in met.', Lokacija: 'Vrhnika', Cena: 6, ProstaMesta: 18, slika: '../slike/sporti/atlettrening.jfif', TK_TipAktivnosti: 3, TK_Trener: 29},
-            {Naziv: 'Plavalni miting X', Opis: 'Tekmovanje za kadete.', Lokacija: 'Ajdovščina', Cena: 0, ProstaMesta: 50, slika: '../slike/sporti/plavaltrening.jfif', TK_TipAktivnosti: 4, TK_Trener: 30},
-            {Naziv: 'Tenis za odrasle Y', Opis: 'Rekreativni večerni termini.', Lokacija: 'Ilirska Bistrica', Cena: 14, ProstaMesta: 8, slika: '../slike/sporti/tenis.jfif', TK_TipAktivnosti: 5, TK_Trener: 31},
-            {Naziv: 'Odbojka z žogo Z', Opis: 'Osnove igre z žogo.', Lokacija: 'Sežana', Cena: 4, ProstaMesta: 30, slika: '../slike/sporti/odbojka.jfif', TK_TipAktivnosti: 6, TK_Trener: 32},
-            {Naziv: 'Rokometni dvoboj Ž', Opis: 'Prijateljska tekma.', Lokacija: 'Postojna', Cena: 3, ProstaMesta: 16, slika: '../slike/sporti/rokomet.jfif', TK_TipAktivnosti: 7, TK_Trener: 33},
-            {Naziv: 'Kolesarski maraton AA', Opis: 'Maraton skozi slovensko podeželje.', Lokacija: 'Grosuplje', Cena: 18, ProstaMesta: 40, slika: '../slike/sporti/kolo.jfif', TK_TipAktivnosti: 8, TK_Trener: 34},
-            {Naziv: 'Boksarska borba AB', Opis: 'Dogodek za napredne boksarje.', Lokacija: 'Zagorje', Cena: 22, ProstaMesta: 6, slika: '../slike/sporti/boks.jfif', TK_TipAktivnosti: 9, TK_Trener: 35},
-            {Naziv: 'Golf tečaj AC', Opis: 'Intenziven vikend program.', Lokacija: 'Rogaška Slatina', Cena: 27, ProstaMesta: 9, slika: '../slike/sporti/golf.jfif', TK_TipAktivnosti: 10, TK_Trener: 36}
-        ]).then(()=>{
+        await knex('sportna_aktivnost').insert(Sportna_Aktivnost).then(()=>{
             console.log('Uspešno dodanih 30 novih dejavnosti')
         })
     }catch(error){

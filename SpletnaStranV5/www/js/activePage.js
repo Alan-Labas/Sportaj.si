@@ -235,10 +235,13 @@ export function loadContentToContainer(content, containerId, itemType, activePag
         let slikaPath;
         const defaultSportImage = '/slike/default-sport.png';
         const defaultTrainerImage = '/slike/default-profile.png';
-
+        console.log(c.slika)
         if (displayItemType === 'trener') {
-            slikaPath = c.slika ? `data:image/jpeg;base64,${c.slika}` : defaultTrainerImage;
-        } else {
+            slikaPath = c.slika ? `${c.slika}` : defaultTrainerImage;
+            
+        } else if(displayItemType === 'aktivnost'){
+            slikaPath = c.slika ? `${c.slika}` : defaultSportImage;
+        }else {
             slikaPath = c.slika || defaultSportImage;
         }
         console.log()
@@ -261,7 +264,7 @@ export function loadContentToContainer(content, containerId, itemType, activePag
                 itemHtml = `
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4 dynamic-card-item" data-id="${c.id}" data-type="aktivnost" style="cursor:pointer;">
                         <div class="card h-100 shadow-sm">
-                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${atob(c.slika.split(',')[1])}" alt="${c.Naziv}" onerror="this.onerror=null;this.src='${defaultSportImage}';">
+                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${slikaPath}" alt="${c.Naziv}" onerror="this.onerror=null;this.src='${defaultSportImage}';">
                             <div class="card-body">
                                 <h5 class="card-title">${c.Naziv}</h5>
                                 <p class="card-text mb-1"><small class="text-muted">📍 ${c.Lokacija || 'Neznana lokacija'}</small></p>

@@ -64,7 +64,7 @@ switch(activePage){
             return `
                 <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4 dynamic-card-item" data-id="${ent.id}" data-type="aktivnost" style="cursor:pointer;">
                         <div class="card h-100 shadow-sm">
-                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${atob(ent.slika.split(',')[1])}" alt="${ent.Naziv}" onerror="this.onerror=null;this.src='';">
+                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${ent.slika}" alt="${ent.Naziv}" onerror="this.onerror=null;this.src='';">
                             <div class="card-body">
                                 <h5 class="card-title">${ent.Naziv}</h5>
                                 <p class="card-text mb-1"><small class="text-muted">📍 ${ent.Lokacija || 'Neznana lokacija'}</small></p>
