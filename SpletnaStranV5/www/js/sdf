@@ -1,45 +1,111 @@
-switch(activePage){
-    case "dejavnosti":
-        document.getElementById('searchResults').innerHTML = searchResults.map(ent =>{
-            return `
-                <div class="col-sm-6 col-md-4 col-lg-3 d-flex">
-                    <div class="card shadow-sm rounded-4 w-100">
-                        <img src="../slike/sporti/" class="card-img-top rounded-top-4" alt="Slika ${ent.Naziv}" style="height: 180px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title mb-1 fw-semibold">${ent.Naziv}</h5>
-                            <p class="text-muted small mb-2">${ent.Opis}</p>
-                            <p class="mb-2"><i class="bi bi-geo-alt-fill me-1 text-primary"></i> ${ent.Lokacija}</p>
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <span class="badge bg-success fs-6">${ent.Cena} €</span>
-                                <button class="btn btn-outline-primary btn-sm">Več</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `
-        })
-        break;
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Podrobnosti aktivnosti - Sportaj.si</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../css/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+<body class="justify-content-center d-flex flex-column" style="background-color:rgba(238, 234, 234, 0.534);margin:1%;">
 
-    case "trenerji":
-        document.getElementById('searchResults').innerHTML = searchResults.map(ent =>{
-            return `
-                <div class="col-sm-6 col-md-4 col-lg-3 d-flex">
-                    <div class="card shadow-sm rounded-4 w-100" style="min-width:fit-content">
-                        <img src="../slike/trenerji/MarkoSkace.avif" class="card-img-top rounded-top-4" alt="Slika ${ent.ime} ${ent.priimek}" style="height: 180px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-semibold mb-1">${ent.ime} ${ent.priimek}</h5>
-                            <p class="mb-1"><i class="bi bi-telephone me-1"></i>${ent.OpisProfila}</p>
-                            <hr>
-                            
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                
-                                <button class="trenerCardMsgBtn btn btn-outline-primary btn-sm">Kontakt</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                `
-        }).join(' ');
-        break;
+<nav class="d-flex flex-column mb-4">
+  <div class="d-flex p-2 w-100 align-items-center" style="min-height:fit-content;">
+    <div class="d-lg-flex d-none flex-fill">
+      <a href="/"><img src="../slike/sportLifeicon.png" style="max-height: 50px;" alt="Sportaj.si Domača stran" /></a>
+    </div>
+    <div class="flex-grow-1 d-flex justify-content-center">
+      <a href="index.html" class="btn btn-link">Domov</a>
+    </div>
+    <div class="d-flex flex-fill align-items-center justify-content-end">
+      <!-- login buttons or user info here -->
+    </div>
+  </div>
+</nav>
 
-}
+<main class="container w-md-75 w-lg-60 d-flex flex-column align-items-center" style="min-height:70vh; margin-top: 3vh;">
+  <div class="card p-3 p-md-4 col-12 shadow-sm">
+    <h1 class="card-title text-center mb-4" id="activityTitle">Spominski Tek Pomladi 2025</h1>
+
+    <div class="row">
+      <div class="col-md-4 text-center text-md-start">
+        <img
+          id="activityImage"
+          src="../slike/aktivnosti/spring-marathon.jpg"
+          alt="Slika aktivnosti"
+          class="img-fluid rounded mb-3"
+          style="max-width: 250px; height: auto; aspect-ratio: 4 / 3; object-fit: cover"
+        />
+        <p><i class="fas fa-calendar-alt me-2"></i><strong>Datum:</strong> 20. april 2025</p>
+        <p><i class="fas fa-map-marker-alt me-2"></i><strong>Lokacija:</strong> Centralni park, Ljubljana</p>
+        <p><i class="fas fa-dollar-sign me-2"></i><strong>Prijavnina:</strong> 50 €</p>
+      </div>
+
+      <div class="col-md-8">
+        <div class="mb-3">
+          <h5>Opis aktivnosti:</h5>
+          <p id="activityDescription">
+            Pridružite se nam na tradicionalnem pomladnem maratonu skozi slikovite poti Centralnega parka! Primerno za profesionalne tekače in rekreativce vseh starosti.
+          </p>
+        </div>
+        <hr />
+        <div class="mb-3">
+          <h5>Podrobnosti:</h5>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Dolžina trase
+              <span>42 km</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Začetek
+              <span>8:00</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Kontakt
+              <span>info@pomladmaraton.si</span>
+            </li>
+          </ul>
+        </div>
+        <hr />
+        <div class="mb-3">
+          <h5>Ocena aktivnosti:</h5>
+          <div id="starRating" class="d-flex mb-2" style="cursor: pointer; font-size: 1.5rem; color: #ffc107;">
+            <i class="far fa-star" data-value="1"></i>
+            <i class="far fa-star" data-value="2"></i>
+            <i class="far fa-star" data-value="3"></i>
+            <i class="far fa-star" data-value="4"></i>
+            <i class="far fa-star" data-value="5"></i>
+          </div>
+          <small id="currentRatingText">Trenutna ocena: N/A</small>
+        </div>
+        <hr />
+        <div class="mb-3">
+          <h5>Pusti komentar:</h5>
+          <form id="commentForm">
+            <div class="mb-3">
+              <textarea id="commentText" class="form-control" rows="3" placeholder="Vnesite vaš komentar..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Oddaj komentar</button>
+          </form>
+        </div>
+        <hr />
+        <div class="mb-3">
+          <h5>Komentarji uporabnikov:</h5>
+          <div id="userCommentsSection">
+            <p class="text-muted">Trenutno ni komentarjev.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <a href="aktivnosti.html" class="btn btn-secondary btn-sm">Nazaj na aktivnosti</a>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/aktivnostProfil.js" defer></script>
+</body>
+</html>

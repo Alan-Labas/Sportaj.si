@@ -51,10 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    setActivePage(initialActivePage);
-
-    document.getElementById('firstContainerContent').addEventListener('click', handleDynamicItemClick);
-    document.getElementById('secondContainerContent').addEventListener('click', handleDynamicItemClick);
+    
+    if(window.location.pathname.includes ( '/index.html') || window.location.pathname === '/'){
+        setActivePage(initialActivePage);
+        document.getElementById('firstContainerContent').addEventListener('click', handleDynamicItemClick);
+        document.getElementById('secondContainerContent').addEventListener('click', handleDynamicItemClick);
+    }
+    
 });
 
 
@@ -63,12 +66,15 @@ export function handleDynamicItemClick(event) {
     if (targetItem) {
         const id = targetItem.dataset.id;
         const type = targetItem.dataset.type;
+        console.log(type, id, targetItem.id)
         
 
         if (type === 'trener') {
             window.location.href = `/html/profilTrener.html?id=${id}`;
         } else if (type === 'aktivnost') {
-            showActivityDetails(id);
+            //showActivityDetails(id);
+            console.log(type, id)
+            window.location.href = `../html/pregledAktivnosti.html?id=${id}`
         } else if (type === 'sport') {
             showSportDetails(id);
         }
@@ -76,7 +82,7 @@ export function handleDynamicItemClick(event) {
 }
 
 
-async function fetchData(url) {
+export async function fetchData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -221,11 +227,11 @@ export function loadContentToContainer(content, containerId, itemType, activePag
         container.innerHTML = "<p class='text-center text-muted p-3'>Ni rezultatov za prikaz.</p>";
         return;
     }
-
+    console.log(content)
     content.forEach(c => {
         let itemHtml = '';
         const displayItemType = itemType;
-
+        
         let slikaPath;
         const defaultSportImage = '/slike/default-sport.png';
         const defaultTrainerImage = '/slike/default-profile.png';
@@ -235,7 +241,7 @@ export function loadContentToContainer(content, containerId, itemType, activePag
         } else {
             slikaPath = c.slika || defaultSportImage;
         }
-
+        console.log()
 
         switch (displayItemType) {
             case "sport":
@@ -255,7 +261,7 @@ export function loadContentToContainer(content, containerId, itemType, activePag
                 itemHtml = `
                     <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4 dynamic-card-item" data-id="${c.id}" data-type="aktivnost" style="cursor:pointer;">
                         <div class="card h-100 shadow-sm">
-                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${slikaPath}" alt="${c.Naziv}" onerror="this.onerror=null;this.src='${defaultSportImage}';">
+                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${atob(c.slika.split(',')[1])}" alt="${c.Naziv}" onerror="this.onerror=null;this.src='${defaultSportImage}';">
                             <div class="card-body">
                                 <h5 class="card-title">${c.Naziv}</h5>
                                 <p class="card-text mb-1"><small class="text-muted">📍 ${c.Lokacija || 'Neznana lokacija'}</small></p>

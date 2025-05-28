@@ -347,7 +347,7 @@ async function preveriPrijavo() {
             pozdravElement.textContent = `Pozdravljeni, ${uporabnik.username}!`;
         }
         if (odjavaKontejner) {
-            odjavaKontejner.innerHTML = '<a href="#" id="logoutLink" class="btn btn-warning btn-sm">Odjava</a>';
+            //odjavaKontejner.innerHTML = '<a href="#" id="logoutLink" class="btn btn-warning btn-sm">Odjava</a>';
             const logoutLink = document.getElementById('logoutLink');
             if (logoutLink) {
                 logoutLink.addEventListener('click', async (e) => {

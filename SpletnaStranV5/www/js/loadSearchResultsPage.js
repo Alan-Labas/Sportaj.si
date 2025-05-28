@@ -1,8 +1,23 @@
 const result = JSON.parse(sessionStorage.getItem('searchResults'));
 
 import { handleDynamicItemClick } from "./activePage.js";
-
 let activePage = sessionStorage.getItem('activePageButton');
+
+const pageBtninnerHTML = {
+    dejavnosti: '<img src="../slike/trophy.png" style="max-height:40px;" alt="Dejavnosti ikona">Dejavnosti',
+    trenerji:  '<img src="../slike/coach.png" style="max-height: 40px;" alt="Trenerji ikona">Trenerji',
+    sport: '<img src="../slike/sports.png" style="max-height: 40px;" alt="Športi ikona">Sporti'
+}
+
+const pageBtn = document.getElementById('pageBtn');
+if(pageBtn && pageBtninnerHTML[activePage]){
+    pageBtn.innerHTML = pageBtninnerHTML[activePage];
+}else{
+    console.warn('Invalid activePage key or pageBtn element not found.')
+}
+
+
+
 console.log(activePage)
 console.log(result)
 document.getElementById('rezultatiIskanjaText').innerHTML = "";
@@ -49,7 +64,7 @@ switch(activePage){
             return `
                 <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4 dynamic-card-item" data-id="${ent.id}" data-type="aktivnost" style="cursor:pointer;">
                         <div class="card h-100 shadow-sm">
-                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${ent.slika}" alt="${ent.Naziv}" onerror="this.onerror=null;this.src='';">
+                            <img class="card-img-top" style="height: 180px; object-fit: cover;" src="${atob(ent.slika.split(',')[1])}" alt="${ent.Naziv}" onerror="this.onerror=null;this.src='';">
                             <div class="card-body">
                                 <h5 class="card-title">${ent.Naziv}</h5>
                                 <p class="card-text mb-1"><small class="text-muted">📍 ${ent.Lokacija || 'Neznana lokacija'}</small></p>
@@ -59,7 +74,7 @@ switch(activePage){
                         </div>
                     </div>
                 `
-        })
+        }).join('')
         break;
 
     case "trenerji":
@@ -94,7 +109,7 @@ switch(activePage){
                         </div>
                     </div>
             `
-        })
+        }).join('')
         break;
 
 }
