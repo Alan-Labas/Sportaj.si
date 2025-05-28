@@ -68,26 +68,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     if (trainerActivitiesSection) {
-        trainerActivitiesSection.innerHTML = '<h5>Poučevane športne aktivnosti:</h5>';
-        if (trainerData.aktivnosti && trainerData.aktivnosti.length > 0) {
-            let activitiesHtml = '<ul class="list-group list-group-flush">';
-            trainerData.aktivnosti.forEach(akt => {
-                let actSlikaPath = akt.slika_aktivnosti || '/slike/default-sport.png';
-                activitiesHtml += `
-                    <li class="list-group-item">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">${akt.Naziv} (${akt.ime_sporta})</h6>
-                            <small>${akt.Cena != null ? parseFloat(akt.Cena).toFixed(2) + ' €' : 'N/A'}</small>
-                        </div>
-                        <p class="mb-1"><small>Lokacija: ${akt.Lokacija}</small></p>
-                    </li>`;
-            });
-            activitiesHtml += '</ul>';
-            trainerActivitiesSection.innerHTML += activitiesHtml;
-        } else {
-            trainerActivitiesSection.innerHTML += '<p>Ta trener trenutno nima vpisanih aktivnosti.</p>';
+            trainerActivitiesSection.innerHTML = '<h5>Poučevane športne aktivnosti:</h5>';
+            if (trainerData.aktivnosti && trainerData.aktivnosti.length > 0) {
+                let activitiesHtml = '<div class="list-group">'; 
+                trainerData.aktivnosti.forEach(akt => {
+                    // slika
+                    const slikaPath = akt.slika_aktivnosti || '/slike/default-sport.png';
+                    // kratek opis
+                    const kratekOpis = `${akt.Naziv} (${akt.ime_sporta})`;
+                    const cenaText = akt.Cena != null ? `${parseFloat(akt.Cena).toFixed(2)} €` : 'N/A';
+
+                    activitiesHtml += `
+                        <a href="/html/pregledAktivnosti.html?id=${akt.id}" class="list-group-item list-group-item-action flex-column align-items-start mb-2 shadow-sm" style="text-decoration: none; color: inherit;">
+                            <div class="d-flex w-100">
+                                <img src="${slikaPath}" alt="${akt.Naziv}" class="me-3 rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1 fw-bold">${akt.Naziv}</h6>
+                                        <small class="text-muted">Cena: ${cenaText}</small>
+                                    </div>
+                                    <p class="mb-1"><small>${akt.ime_sporta}</small></p>
+                                    <p class="mb-1"><small class="text-muted">Lokacija: ${akt.Lokacija || 'Neznana lokacija'}</small></p>
+                                </div>
+                            </div>
+                        </a>`;
+                });
+                activitiesHtml += '</div>';
+                trainerActivitiesSection.innerHTML += activitiesHtml;
+            } else {
+                trainerActivitiesSection.innerHTML += '<p>Ta trener trenutno nima vpisanih aktivnosti.</p>';
+            }
         }
-    }
 
     function generateStarsHTML(rating, interactive = false) {
         let html = '';
