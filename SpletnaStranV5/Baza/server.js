@@ -42,7 +42,7 @@ app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
 });
 app.get('/uredi-profil.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'uredi-profil.html'));
+    res.sendFile(path.join(__dirname, '../www/html/uredi-profil.html'));
 });
 
 app.get('/html/profilTrener.html', (req, res) => {
@@ -177,12 +177,28 @@ app.get('/api/search/:table', async(req, res)=>{
                 return { ...item, slika: itemSlika };
             });
         }
-
+        console.log(formattedResult)
         res.json([formattedResult, filters]);
     }catch(error){
         console.error('Napaka pri poizvedbi v bazi: ', error);
         res.status(500).json({error: 'Interna napaka strežnika'})
     }
+})
+
+
+app.post('/api/komentiraj', async(req,res)=>{
+    console.log('Comment recieved');
+    console.log(req.body)
+    try{
+        const komentarr = req.body.komentar;
+        const userId = req.body.userId;
+        const activityId = req.body.activityId;
+        console.log(komentarr, userId, activityId)
+        await knex('komentarji').insert({komentar: komentarr, TK_Uporabnik:userId, TK_Aktivnost:activityId})
+        res.status(200).json({status: 'succes'})
+    }catch(err){console.log(err); res.status(500).json({status: 'error'})}
+
+    
 })
 
 // === API TOČKE ZA ŠPORTNE AKTIVNOSTI (javne) ===
