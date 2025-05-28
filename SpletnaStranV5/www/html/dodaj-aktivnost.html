@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dodaj Novo Aktivnost - Sportaj.si</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+  <style>
+    body { padding-top: 20px; padding-bottom: 20px; background-color: #f8f9fa; }
+    .container { max-width: 800px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,.1); }
+    .user-info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="user-info-header">
+    <span id="pozdravUporabnika">Nalaganje...</span>
+    <button id="odjavaBtn" class="btn btn-outline-secondary btn-sm">Odjava</button>
+  </div>
+
+  <div class="text-center mb-4">
+    <a href="/"><img src="/slike/sportLifeicon.png" style="max-height: 50px;" alt="Sportaj.si Domača stran"></a>
+    <h1 class="mt-2">Dodaj Novo Aktivnost</h1>
+  </div>
+
+  <div id="obvestiloSporocilo" class="mt-3"></div>
+
+  <form id="aktivnostForm" onsubmit="event.preventDefault();"> <input type="hidden" id="aktivnostIdInput"> <div class="mb-3">
+    <label for="aktivnostNazivInput" class="form-label">Naziv*</label>
+    <input type="text" class="form-control" id="aktivnostNazivInput" required>
+  </div>
+    <div class="mb-3">
+      <label for="aktivnostOpisInput" class="form-label">Opis*</label>
+      <textarea class="form-control" id="aktivnostOpisInput" rows="3" required></textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="aktivnostLokacijaInput" class="form-label">Lokacija*</label>
+        <input type="text" class="form-control" id="aktivnostLokacijaInput" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="aktivnostCenaInput" class="form-label">Cena* (€)</label>
+        <input type="number" class="form-control" id="aktivnostCenaInput" step="0.01" min="0" required value="0"> </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="aktivnostProstaMestaInput" class="form-label">Prosta Mesta*</label>
+        <input type="number" class="form-control" id="aktivnostProstaMestaInput" min="0" required value="0"> </div>
+      <div class="col-md-6 mb-3">
+        <label for="aktivnostSlikaUploadInput" class="form-label">Naloži sliko aktivnosti (opcijsko):</label>
+        <input class="form-control" type="file" id="aktivnostSlikaUploadInput" name="slikaAktivnosti" accept="image/png, image/jpeg, image/gif"> </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="aktivnostTipSelect" class="form-label">Tip Aktivnosti (Šport)*</label>
+        <select class="form-select" id="aktivnostTipSelect" required>
+          <option value="">Izberite tip...</option> </select>
+      </div>
+    </div>
+
+    <div class="mb-3 form-check" id="aktivnostOdstraniSlikoGroup" style="display:none;"> <input type="checkbox" class="form-check-input" id="aktivnostOdstraniSlikoCheckbox"> <label class="form-check-label" for="aktivnostOdstraniSlikoCheckbox">Odstrani trenutno sliko</label> </div>
+
+    <div class="mt-4 d-flex justify-content-between">
+      <a href="/" class="btn btn-secondary">Nazaj na Domačo Stran</a>
+      <button type="button" class="btn btn-primary" id="shraniAktivnostBtn">Shrani Aktivnost</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/PrijavaInRegistracija.js" defer></script> <script src="../js/trener-dodaj-aktivnost.js" defer></script>
+</body>
+</html>

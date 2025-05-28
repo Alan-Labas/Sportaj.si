@@ -330,6 +330,8 @@ async function preveriPrijavo() {
     const pozdravElement = document.getElementById('pozdrav');
     const odjavaKontejner = document.getElementById('oddjava');
     const adminPanelLinkContainer = document.getElementById('adminPanelLinkContainer');
+    const trenerDodajAktivnsotLinkContainer = document.getElementById('trenerDodajAktivnsotLinkContainer');
+    const postaniTrenerLinkContainer = document.getElementById('postaniTrenerLinkContainer');
 
     if (uporabnikInfoString && sessionStorage.getItem('accessToken')) {
         const uporabnik = JSON.parse(uporabnikInfoString);
@@ -359,13 +361,34 @@ async function preveriPrijavo() {
 
         if (adminPanelLinkContainer) {
             if (uporabnik.JeAdmin === 1) {
-                adminPanelLinkContainer.innerHTML = '<a href="/html/admin-panel.html" class="btn btn-danger btn-sm ms-2">Admin Panel</a>';
+                adminPanelLinkContainer.innerHTML = '<a href="/html/admin-panel.html" class="btn btn-secondary mb-1">Admin Panel</a>';
                 adminPanelLinkContainer.classList.remove('d-none');
             } else {
                 adminPanelLinkContainer.innerHTML = '';
                 adminPanelLinkContainer.classList.add('d-none');
             }
         }
+
+        if (trenerDodajAktivnsotLinkContainer) {
+            if (uporabnik && typeof uporabnik.email === 'string' && uporabnik.email.endsWith('@trener.si')){
+                trenerDodajAktivnsotLinkContainer.innerHTML = '<a href="../html/dodaj-aktivnost.html" class="btn btn-secondary mb-1">Dodaj aktivnost</a>';
+                trenerDodajAktivnsotLinkContainer.classList.remove('d-none');
+            } else {
+                trenerDodajAktivnsotLinkContainer.innerHTML = '';
+                trenerDodajAktivnsotLinkContainer.classList.add('d-none');
+            }
+        }
+
+        if (postaniTrenerLinkContainer){
+            if (uporabnik && typeof uporabnik.email === 'string' && !uporabnik.email.endsWith('@trener.si') && uporabnik.JeAdmin !==1){
+                postaniTrenerLinkContainer.innerHTML ='<button id="postaniTrenerButton" class="btn btn-secondary mb-1">Postani trener</button>';
+                postaniTrenerLinkContainer.classList.remove('d-none');
+            } else {
+                postaniTrenerLinkContainer.innerHTML = '';
+                postaniTrenerLinkContainer.classList.add('d-none');
+            }
+        }
+
         const urediProfilLink = document.getElementById('urediProfilLink');
         if (urediProfilLink) {
             urediProfilLink.href = (window.location.pathname.includes('uredi-profil.html') || window.location.pathname.includes('profilTrener.html')) ? '/html/uredi-profil.html' : 'html/uredi-profil.html';

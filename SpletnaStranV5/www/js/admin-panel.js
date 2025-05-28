@@ -469,7 +469,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'none';
         if (aktivnostOdstraniSlikoCheckbox) aktivnostOdstraniSlikoCheckbox.checked = false;
         if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro
-        aktivnostModal.show();
+        //aktivnostModal.show();
     }
 
     async function prikaziAktivnostModalZaUrejanje(aktivnost) { // Dodan async, ker morda kličemo API

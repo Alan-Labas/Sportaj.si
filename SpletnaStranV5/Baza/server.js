@@ -17,7 +17,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: '', // Prilagodite geslo
+        password: 'Smetar245', // Prilagodite geslo
         database: 'sportaj_si',
     }
 });
@@ -84,10 +84,21 @@ function preveriZeton(req, res, next) {
     });
 }
 
-function preveriAdmin(req, res, next) {
-    if (!req.uporabnik || req.uporabnik.JeAdmin !== 1) {
-        return res.status(403).json({message: 'Dostop zavrnjen. Zahtevane so administratorske pravice.'});
+function preveriAdminAliTrener(req, res, next) {
+    if (!req.uporabnik) {
+        console.error('[AVTORIZACIJA NAPAKA] Objekt req.uporabnik ni na voljo.');
+        return res.status(401).json({ message: 'Napaka pri avtentikaciji: podatki o uporabniku manjkajo.' });
     }
+
+    const jeAdmin = req.uporabnik.JeAdmin === 1;
+    const jeTrenerPoEmailu = typeof req.uporabnik.email === 'string' && req.uporabnik.email.endsWith('@trener.si');
+
+    if (!jeAdmin && !jeTrenerPoEmailu) {
+        console.log(`[AVTORIZACIJA ZAVRNJENA] Uporabnik ${req.uporabnik.username || req.uporabnik.email} (JeAdmin: ${req.uporabnik.JeAdmin}, Email: ${req.uporabnik.email}) nima ustreznih pravic (admin ali trener).`);
+        // Sporočilo o napaki bi moralo odražati, da so zahtevane administratorske ALI trenerske pravice
+        return res.status(403).json({ message: 'Dostop zavrnjen. Zahtevane so administratorske ali trenerske pravice.' });
+    }
+
     next();
 }
 
@@ -995,7 +1006,7 @@ app.post('/api/postaniTrener', async (req, res) => {
 // === ADMIN API TOČKE ===
 
 // --- Upravljanje komentarjev/ocen ---
-app.get('/api/admin/ocene/trenerjev', preveriZeton, preveriAdmin, async (req, res) => {
+app.get('/api/admin/ocene/trenerjev', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     try {
         const ocene = await knex('Ocena_Trenerja as ot')
             .join('Uporabniki as u', 'ot.TK_Uporabnik', 'u.id')
@@ -1011,7 +1022,7 @@ app.get('/api/admin/ocene/trenerjev', preveriZeton, preveriAdmin, async (req, re
     }
 });
 
-app.get('/api/admin/ocene/aktivnosti', preveriZeton, preveriAdmin, async (req, res) => {
+app.get('/api/admin/ocene/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     try {
         const ocene = await knex('Ocena_Sporta as os')
             .join('Uporabniki as u', 'os.TK_Uporabnik', 'u.id')
@@ -1027,7 +1038,7 @@ app.get('/api/admin/ocene/aktivnosti', preveriZeton, preveriAdmin, async (req, r
     }
 });
 
-app.put('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.put('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {id} = req.params;
     const {Komentar, Ocena} = req.body;
     try {
@@ -1042,7 +1053,7 @@ app.put('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdmin, async (req,
     }
 });
 
-app.put('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.put('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {id} = req.params;
     const {Komentar, Ocena} = req.body;
     try {
@@ -1057,7 +1068,7 @@ app.put('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async (re
     }
 });
 
-app.delete('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.delete('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {id} = req.params;
     try {
         const deletedCount = await knex('Ocena_Trenerja').where({id}).del();
@@ -1069,7 +1080,7 @@ app.delete('/api/admin/ocene/trenerja/:id', preveriZeton, preveriAdmin, async (r
     }
 });
 
-app.delete('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.delete('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {id} = req.params;
     try {
         const deletedCount = await knex('Ocena_Sporta').where({id}).del();
@@ -1083,7 +1094,7 @@ app.delete('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async 
 
 
 //  Upravljanje športnih aktivnosti
-app.get('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) => {
+app.get('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     try {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
             .leftJoin('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
@@ -1102,7 +1113,7 @@ app.get('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) =>
 });
 
 
-app.post('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) => {
+app.post('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const { Naziv, Opis, Lokacija, Cena, ProstaMesta, TK_TipAktivnosti, TK_Trener } = req.body;
     let slikaBuffer = null;
 
@@ -1143,7 +1154,7 @@ app.post('/api/admin/aktivnosti', preveriZeton, preveriAdmin, async (req, res) =
     }
 });
 
-app.put('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.put('/api/admin/aktivnosti/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const { id } = req.params;
     const { Naziv, Opis, Lokacija, Cena, ProstaMesta, TK_TipAktivnosti, TK_Trener, odstraniSliko } = req.body;
 
@@ -1183,7 +1194,7 @@ app.put('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res
     }
 });
 
-app.delete('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.delete('/api/admin/aktivnosti/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {id} = req.params;
     const trx = await knex.transaction();
     try {
@@ -1206,7 +1217,7 @@ app.delete('/api/admin/aktivnosti/:id', preveriZeton, preveriAdmin, async (req, 
 
 
 // --- Upravljanje trenerjev ---
-app.get('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
+app.get('/api/admin/trenerji', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     try {
         const trenerji = await knex('Trenerji as t')
             .leftJoin('Uporabniki as u', 't.TK_Uporabnik', 'u.id')
@@ -1232,7 +1243,7 @@ app.get('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
     }
 });
 
-app.post('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
+app.post('/api/admin/trenerji', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const {
         username, login_email, geslo,
         ime, priimek, telefon, kontakt_email, urnik, OpisProfila
@@ -1297,7 +1308,7 @@ app.post('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => 
     }
 });
 
-app.put('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.put('/api/admin/trenerji/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const trenerId = req.params.id;
     const {
         username, login_email,
@@ -1375,7 +1386,7 @@ app.put('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, res) 
 });
 
 
-app.delete('/api/admin/trenerji/:id', preveriZeton, preveriAdmin, async (req, res) => {
+app.delete('/api/admin/trenerji/:id', preveriZeton, preveriAdminAliTrener, async (req, res) => {
     const trenerId = req.params.id;
     const trx = await knex.transaction();
     try {
