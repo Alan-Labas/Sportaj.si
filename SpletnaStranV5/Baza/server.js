@@ -17,17 +17,13 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'Smetar245', // Prilagodite geslo
+        password: '', // Prilagodite geslo
         database: 'sportaj_si',
     }
 });
 
 
 const fs = require('fs');
-
-const imageBuffer = fs.readFileSync(path.join(__dirname,'..' ,'www','/slike/sporti/nogtekma.jfif'))
-console.log(imageBuffer.toString('base64'))
-
 
 app.use(express.json());
 
@@ -970,6 +966,30 @@ app.post('/api/trener/:id/ocena', preveriZeton, async (req, res) => {
         res.status(500).json({ message: 'Napaka na strežniku pri oddaji ocene.' });
     }
 });
+
+app.post('/api/postaniTrener', async (req, res) => {
+    console.log(req.body);
+
+    const email = req.body.email;
+    const ime = req.body.ime;
+    const priimek = req.body.priimek;
+    const telefon = req.body.telefon;
+    const urnik = req.body.urnik;
+    const opis = req.body.opis;
+
+    try {
+        
+        const trener = await knex("trenerji").insert({ime: ime, priimek: priimek, telefon: telefon, email: email, urnik: urnik, OpisProfila: opis})
+        res.status(200).json({message: "uspešno dodan trener v bazo"})
+
+    } catch (error) {
+        console.error('napaka: ', error);
+        res.status(500).json({error: error});
+    }
+
+    
+})
+
 
 
 // === ADMIN API TOČKE ===
