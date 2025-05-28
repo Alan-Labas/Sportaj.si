@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityData = await fetchData(`/api/aktivnost/${activityId}/details`);
     console.log(await activityData);
     if(!activityData) return;
-    activityData.slika = atob(activityData.slika.split(',')[1])
+    activityData.slika = activityData.slika
     document.getElementById('activityCommentForm').id = activityId;
     if(activityNameTitle) activityNameTitle.textContent = `${activityData.Naziv}`;
     if(activityImage){
