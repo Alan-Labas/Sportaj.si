@@ -1,18 +1,17 @@
-/* Globalne spremenljivke za lažje upravljanje barv in pisav */
 :root {
-    --primary-color: #007bff; /* Modra - lahko prilagodite */
-    --secondary-color: #6c757d; /* Siva - lahko prilagodite */
-    --light-color: #f8f9fa; /* Svetlo siva/bela */
-    --dark-color: #343a40; /* Temna */
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
     --text-color: #212529;
     --link-color: #0056b3;
-    --border-radius: 0.375rem; /* Bootstrapov privzeti radij zaokrožitve */
+    --border-radius: 0.375rem;
     --box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
     --font-family-sans-serif: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modernejša pisava */
 }
 
 body {
-    font-family: var(--font-family-sans-serif);
+    font-family: var(--font-family-sans-serif), sans-serif;
     background-color: var(--light-color);
     color: var(--text-color);
     line-height: 1.6;
@@ -20,7 +19,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 500; /* Malo tanjša pisava za naslove */
+    font-weight: 500;
     color: var(--dark-color);
 }
 
@@ -166,6 +165,25 @@ nav .btn {
     border-bottom: 3px transparent solid !important; /* Zagotovimo, da ni spodnje obrobe */
 }
 
+#resultsContainer .card {
+    transition: transform 0.2s ease-in-out;
+}
+
+#resultsContainer .card:hover {
+    transform: translateY(-5px);
+}
+
+.card-img-top-search {
+    height: 180px;
+    object-fit: cover;
+}
+
+#resultsPlaceholder .placeholder {
+    display: block;
+    background-color: #e9ecef;
+    border-radius: var(--border-radius);
+}
+
 
 .overlay {
     position: fixed;
@@ -242,9 +260,51 @@ main {
 }
 
 
-/* Specifični stili za admin panel in profilne strani */
-.admin-section, .profile-card { /* Uporabimo lahko .profile-card namesto samo .card za specifičnost */
-    /*background-color: white;*/
+.clickable-trainer-card {
+    display: block;
+    height: 100%;
+    text-decoration: none !important;
+    color: inherit;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.clickable-trainer-card .card {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.clickable-trainer-card .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.175) !important;
+}
+
+
+.card .btn:hover,
+.card .btn:focus {
+    text-decoration: none !important;
+}
+
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+    text-decoration: none !important;
+}
+
+.clickable-activity-card {
+    display: block;
+    height: 100%;
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.clickable-activity-card .card {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.clickable-activity-card .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.admin-section, .profile-card {
     color: black;
     padding: 2rem;
     border-radius: var(--border-radius);

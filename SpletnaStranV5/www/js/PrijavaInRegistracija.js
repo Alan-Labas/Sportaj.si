@@ -218,11 +218,11 @@ async function prijavaUporabnika() {
                 await preveriPrijavo();
                 resetTimerNeaktivnosti();
 
-                if (window.location.pathname !== '/' && !window.location.pathname.includes('index.html') && !window.location.pathname.includes('uredi-profil.html') && !window.location.pathname.includes('profilTrener.html')) {
+                if (window.location.pathname !== '/' && !window.location.pathname.includes('search-stran.html') && !window.location.pathname.includes('uredi-profil.html') && !window.location.pathname.includes('profilTrener.html')) {
 
                 }
 
-
+            window.location.href = '/html/index.html';
             }, 1500);
 
         } else {
@@ -451,7 +451,7 @@ async function odjava(forceStopTimers = false, sporocilo = null) {
 
 
     const trenutnaPot = window.location.pathname;
-    const dovoljenePotiBrezPreusmeritve = ['/', '/index.html', '/html/index.html', '/html/uredi-profil.html', '/html/profilTrener.html'];
+    const dovoljenePotiBrezPreusmeritve = ['/', '/search-stran.html', '/html/search-stran.html', '/html/uredi-profil.html', '/html/profilTrener.html'];
 
     if (!dovoljenePotiBrezPreusmeritve.some(pot => trenutnaPot.endsWith(pot))) {
         if (!forceStopTimers) {
@@ -532,10 +532,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const loginButtonInModal = document.querySelector('#loginOverlay button[onclick="prijavaUporabnika()"], #loginOverlay button[onclick*="prijavaUporabnikaIzModala"]');
+    /*const loginButtonInModal = document.querySelector('#loginOverlay button[onclick="prijavaUporabnika()"], #loginOverlay button[onclick*="prijavaUporabnikaIzModala"]');
     if (loginButtonInModal) {
         loginButtonInModal.addEventListener('click', prijavaUporabnika);
-    }
+    }*/
 
     const regButtonInModal = document.querySelector('#registrationOverlay button[onclick="registracijaUporabnika()"], #registrationOverlay button[onclick*="registracijaUporabnikaIzModala"]');
     if (regButtonInModal) {

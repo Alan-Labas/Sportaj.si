@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, '../www')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
 });
-app.get('/index.html', (req, res) => {
+app.get('/index1.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
 });
 app.get('/uredi-profil.html', (req, res) => {
@@ -53,14 +53,30 @@ app.get('/html/admin-panel.html', (req, res) => {
 });
 
 function normalizirajImgPath(path, defaultPath){
-    if(!path) return defaultPath;
-    if(path.startsWith('../slike/')){
+    if(!path || typeof path !== 'string' || path.trim() === '') return defaultPath;
+    if(path.startsWith('../slike/')){ // Starejši format poti
         return path.replace('../slike/', '/slike/');
     }
-    if(!path.startsWith('/slike')){
+    if(path.startsWith('data:')) { // že base64 niz
+        return path;
+    }
+    // Če je samo ime datoteke ali relativna pot brez '/slike/' na začetku
+    // predpostavimo, da mora biti znotraj /slike/
+    if(!path.startsWith('/slike/') && !path.startsWith('/')) {
         return `/slike/${path}`;
     }
-    return path;
+    // Če se začne z '/' ampak ne z '/slike/', je morda že absolutna pot, ki je ok
+    // ali pa je napačna. Za zdaj pustimo.
+    if(path.startsWith('/') && !path.startsWith('/slike/')){
+        // To je lahko veljavna absolutna pot, če je spletni strežnik tako nastavljen.
+        // Če pa želimo vse slike strogo znotraj /slike/, bi tukaj potrebovali drugačno logiko.
+        // Zaenkrat predpostavimo, da so poti, ki se začnejo z '/', že pravilne ali pa jih obravnava frontend.
+        return path; // Primer: /neposredna_pot_do_slike.jpg
+    }
+    if(!path.startsWith('/')) { // Dodatno varovalo, če pot ni niti relativna niti absolutna na pravilen način
+        return `/slike/${path}`;
+    }
+    return path; // Vrne pot, če je že pravilno oblikovana (npr. /slike/nekaj.jpg)
 }
 
 
@@ -159,42 +175,57 @@ app.get('/api/search/:table', async(req, res)=>{
     console.log("Iskanje v tabeli:", table);
     console.log("Filtri:", filters);
 
-    const allowedTables = ['sport', 'sportna_aktivnost', 'trenerji']
+    const allowedTables = ['sport', 'sportna_aktivnost', 'trenerji'];
     if(!allowedTables.includes(table)){
-        return res.status(400).json({error: `Tabela ${table} ni dostopna za iskanje`})
+        return res.status(400).json({error: `Tabela ${table} ni dostopna za iskanje`});
     }
     try{
-        
-        let query = knex(table).select('*')
+        let query = knex(table).select('*');
         for(const [key,value] of Object.entries(filters)){
-            if (value.trim() !== '') {
-                query = query.where(key, 'like', `%${value}%`)
+            if (value && value.trim() !== '') { // Dodan preizkus za value
+                query = query.where(key, 'like', `%${value}%`);
             }
         }
 
         const searchResult = await query;
-
         let formattedResult = searchResult;
+
         if (table === 'sportna_aktivnost' || table === 'trenerji') {
             formattedResult = searchResult.map(item => {
-                let itemSlika = null;
-                const slikaField = table === 'sportna_aktivnost' ? item.slika : (table === 'trenerji' ? item.slika_profila_buffer : item.slika);
+                let defaultImgPath = '/slike/default-image.png';
+                if (table === 'trenerji') defaultImgPath = '/slike/profilne/default-profile.png';
+                else if (table === 'sportna_aktivnost') defaultImgPath = '/slike/sporti/default-sport.png';
+
+                let finalSlikaPath = defaultImgPath;
+                // Za trenerje, 'slika' bi morala priti iz JOIN z Uporabniki.
+                // Za Sportna_Aktivnost, je to stolpec 'slika'.
+                const slikaField = item.slika;
 
                 if (slikaField instanceof Buffer) {
-                    itemSlika = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${slikaField.toString('base64')}`;
-                } else if (typeof slikaField === 'string') {
-                    itemSlika = slikaField;
+                    finalSlikaPath = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${slikaField.toString('base64')}`;
+                } else if (typeof slikaField === 'string' && slikaField.trim() !== '') {
+                    finalSlikaPath = normalizirajImgPath(slikaField, defaultImgPath);
                 }
-                return { ...item, slika: itemSlika };
+                return { ...item, slika: finalSlikaPath };
+            });
+        } else if (table === 'sport') {
+            formattedResult = searchResult.map(s => {
+                const defaultImgPath = '/slike/sporti/default-sport.png';
+                const imageName = s.Sport ? s.Sport.toLowerCase().replace(/\s+/g, '-').replace(/[čć]/g, 'c').replace(/[š]/g, 's').replace(/[ž]/g, 'z') : 'default-sport';
+                const constructedPath = `/slike/sporti/${imageName}.png`; // Pot, kjer bi morale biti slike športov
+                return {
+                    ...s,
+                    slika: constructedPath // Odjemalec bo uporabil to pot
+                };
             });
         }
-        console.log(formattedResult)
+        console.log("Formatirani rezultati za pošiljanje:", formattedResult);
         res.json([formattedResult, filters]);
-    }catch(error){
+    } catch(error){
         console.error('Napaka pri poizvedbi v bazi: ', error);
-        res.status(500).json({error: 'Interna napaka strežnika'})
+        res.status(500).json({error: 'Interna napaka strežnika'});
     }
-})
+});
 
 
 app.post('/api/komentiraj', async(req,res)=>{
@@ -1000,6 +1031,128 @@ app.post('/api/postaniTrener', async (req, res) => {
 
     
 })
+
+// === API TOČKE ZA OSNOVNO STRAN (INDEX.HTML) ===
+
+app.get('/api/dejavnosti/prihajajoce', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 3;
+    try {
+        const aktivnosti = await knex('Sportna_Aktivnost as sa')
+            .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
+            // Datum_Cas_Izvedbe je predpostavljen stolpec v tabeli Sportna_Aktivnost
+            // V MySQL knex.fn.now() deluje za primerjavo s trenutnim časom
+            .where('sa.Datum_Cas_Izvedbe', '>=', knex.raw('NOW()'))
+            .select(
+                'sa.id as Aktivnosti_ID',
+                'sa.Naziv as naziv',
+                'sa.Opis as opis', // Frontend bo to uporabil za kratek_opis
+                'sa.Datum_Cas_Izvedbe as datum_cas_izvedbe',
+                'sa.Lokacija as lokacija_naziv', // Uporabimo stolpec Lokacija
+                'sa.slika', // Slika je lahko buffer ali pot
+                's.Sport as ime_sporta'
+            )
+            .orderBy('sa.Datum_Cas_Izvedbe', 'asc')
+            .limit(limit);
+
+        const obdelaneAktivnosti = aktivnosti.map(a => {
+            let koncnaSlikaUrl = '/slike/default_activity.jpg'; // Privzeta slika
+            if (a.slika instanceof Buffer) {
+                // Predpostavljamo PREDPOSTAVLJEN_MIME_TIP_SLIKE, če ni drugače specificirano
+                koncnaSlikaUrl = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${a.slika.toString('base64')}`;
+            } else if (typeof a.slika === 'string' && a.slika.trim() !== '') {
+                // Uporabimo normalizirajImgPath za pravilno oblikovanje poti
+                koncnaSlikaUrl = normalizirajImgPath(a.slika, '/slike/default_activity.jpg');
+            }
+            return {
+                ...a,
+                slika_url: koncnaSlikaUrl, // Frontend pričakuje slika_url
+                slika: undefined // Odstranimo originalni 'slika' field, da ne pride do zmede
+            };
+        });
+        res.json(obdelaneAktivnosti);
+    } catch (error) {
+        console.error('Napaka pri pridobivanju prihajajočih dejavnosti za index:', error);
+        res.status(500).json({ message: 'Napaka na strežniku pri pridobivanju prihajajočih dejavnosti.' });
+    }
+});
+
+// GET /api/trenerji/top - Pridobi najboljše trenerje po oceni
+app.get('/api/trenerji/top', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 3;
+    try {
+        const subqueryOcene = knex('Ocena_Trenerja')
+            .select('TK_Trener')
+            .avg('Ocena as povprecna_ocena_numeric') // Uporabimo drugačen alias, da se izognemo konfliktu
+            .groupBy('TK_Trener')
+            .as('o');
+
+        const trenerji = await knex('Trenerji as t')
+            .join('Uporabniki as u', 't.TK_Uporabnik', 'u.id')
+            .leftJoin(subqueryOcene, 't.id', 'o.TK_Trener')
+            .select(
+                't.id as TrenerID', // ID iz tabele Trenerji
+                't.ime as Ime',
+                't.priimek as Priimek',
+                't.OpisProfila as Specializacija', // Uporabimo OpisProfila kot Specializacijo
+                'u.slika', // Slika je buffer iz tabele Uporabniki
+                'o.povprecna_ocena_numeric as PovprecnaOcena'
+            )
+            .orderByRaw('COALESCE(o.povprecna_ocena_numeric, 0) DESC, t.priimek ASC, t.ime ASC')
+            .limit(limit);
+
+        const obdelaniTrenerji = trenerji.map(t => {
+            let koncnaSlikaUrl = '/slike/default_trener.png'; // Privzeta slika
+            if (t.slika instanceof Buffer) {
+                koncnaSlikaUrl = `data:${PREDPOSTAVLJEN_MIME_TIP_SLIKE};base64,${t.slika.toString('base64')}`;
+            }
+            // Če je t.slika string (URL že), se lahko to logiko razširi
+            // Trenutna koda v server.js večinoma obravnava slike iz Uporabniki kot Buffer
+
+            return {
+                ...t,
+                PovprecnaOcena: t.PovprecnaOcena ? parseFloat(t.PovprecnaOcena).toFixed(1) : null, // Formatiramo oceno
+                ProfilnaSlikaURL: koncnaSlikaUrl, // Frontend pričakuje ProfilnaSlikaURL
+                slika: undefined // Odstranimo originalni 'slika' field
+            };
+        });
+        res.json(obdelaniTrenerji);
+    } catch (error) {
+        console.error('Napaka pri pridobivanju top trenerjev za index:', error);
+        res.status(500).json({ message: 'Napaka na strežniku pri pridobivanju top trenerjev.' });
+    }
+});
+
+// GET /api/sporti/top - Pridobi top športe (npr. glede na število aktivnosti)
+app.get('/api/sporti/top', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 3;
+    try {
+        const sporti = await knex('Sport as s')
+            .leftJoin('Sportna_Aktivnost as sa', 's.id', 'sa.TK_TipAktivnosti')
+            .select(
+                's.id as Sport_ID',
+                's.Sport as Naziv_Sporta'
+            )
+            .count('sa.id as stevilo_aktivnosti')
+            .groupBy('s.id', 's.Sport')
+            .orderBy('stevilo_aktivnosti', 'desc')
+            .limit(limit);
+
+        // Dodamo še generiranje URL-ja slike, kot v /api/vsi-sporti
+        const sportiSlike = sporti.map(s => ({
+            ...s,
+            // Predpostavka za generiranje imena slike športa
+            slika: normalizirajImgPath(
+                `/slike/${s.Naziv_Sporta.toLowerCase().replace(/\s+/g, '-').replace(/[čć]/g, 'c').replace(/[š]/g, 's').replace(/[ž]/g, 'z')}.png`,
+                '/slike/default-sport.png' // Privzeta slika za šport, če zgornja pot ni veljavna
+            )
+        }));
+
+        res.json(sportiSlike);
+    } catch (error) {
+        console.error('Napaka pri pridobivanju top športov za index:', error);
+        res.status(500).json({ message: 'Napaka na strežniku pri pridobivanju top športov.' });
+    }
+});
 
 
 

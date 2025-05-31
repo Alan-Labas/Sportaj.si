@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     
-    if(window.location.pathname.includes ( '/index.html') || window.location.pathname === '/'){
+    if(window.location.pathname.includes ( '/search-stran.html') || window.location.pathname === '/'){
         setActivePage(initialActivePage);
         document.getElementById('firstContainerContent').addEventListener('click', handleDynamicItemClick);
         document.getElementById('secondContainerContent').addEventListener('click', handleDynamicItemClick);

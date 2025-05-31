@@ -3,19 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dodaj Novo Aktivnost - Sportaj.si</title>
+  <title>Pregled Športa - Sportaj.si</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="../css/style.css" rel="stylesheet">
-  <script src="../js/PrijavaInRegistracija.js" defer></script>
-  <style>
-    /* Stil za body in container je bil v originalni datoteki, ga ohranjam,
-       a bi bilo bolje imeti te stile v glavnem style.css */
-    body.dodaj-aktivnost-body { padding-top: 0; padding-bottom: 20px; background-color: #f8f9fa; }
-    .dodaj-aktivnost-container { max-width: 800px; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,.1); margin-top: 20px;}
-    .user-info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  </style>
 </head>
-<body class="d-flex flex-column min-vh-100 dodaj-aktivnost-body">
+<body class="d-flex flex-column min-vh-100">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container-fluid">
@@ -35,7 +28,7 @@
           <a class="nav-link" href="search-stran.html?category=sport" data-page="sport">Športi</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="search-stran.html?category=dejavnosti" data-page="dejavnosti">Aktivnosti</a>
+          <a class="nav-link" href="search-stran.html?category=sportna_aktivnost" data-page="sportna_aktivnost">Dejavnosti</a>
         </li>
       </ul>
       <ul class="navbar-nav position-absolute end-0 pe-3">
@@ -51,7 +44,8 @@
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
             <li><a class="dropdown-item" href="uredi-profil.html" id="urediProfilLinkNav">Uredi Profil</a></li>
             <li id="adminPanelLinkContainerNav"></li>
-            <li id="trenerDodajAktivnostLinkContainerNav"></li> <li id="postaniTrenerLinkContainerNav"></li>
+            <li id="trenerDodajAktivnostLinkContainerNav"></li>
+            <li id="postaniTrenerLinkContainerNav"></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" id="logoutLinkNav">Odjava</a></li>
           </ul>
@@ -61,92 +55,52 @@
   </div>
 </nav>
 
-<div class="container dodaj-aktivnost-container flex-grow-1">
-  <div class="user-info-header">
-    <span id="pozdravUporabnika">Nalaganje...</span>
+<main class="container mt-4 flex-grow-1">
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="sport-details-header mb-4 text-center">
+          <img id="sportImage" src="/slike/sporti/default-sport.png" alt="Slika športa" class="img-fluid rounded mb-3" style="max-height: 300px; max-width: 100%; object-fit: contain;">
+          <h1 id="sportName" class="display-4">Nalaganje imena športa...</h1>
+          <p id="sportDescription" class="lead">Nalaganje opisa...</p>
+        </div>
+        <hr>
+
+        <h2 class="mb-3">Povezane dejavnosti</h2>
+        <div id="relatedActivitiesContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        </div>
+        <p id="loadingActivitiesText" class="text-center" style="display:none;">Nalagam dejavnosti...</p>
+        <p id="noActivitiesText" class="text-center" style="display:none;">Za ta šport trenutno ni na voljo nobenih dejavnosti.</p>
+      </div>
+    </div>
   </div>
 
-  <div class="text-center mb-4">
-    <h1 class="mt-2">Dodaj Novo Aktivnost</h1>
+  <h2>Povezane Dejavnosti</h2>
+  <div class="mt-4">
+    <a href="search-stran.html?category=sport" class="btn btn-outline-secondary">Nazaj na iskanje športov</a>
   </div>
-
-  <div id="obvestiloSporocilo" class="mt-3"></div>
-
-  <form id="aktivnostForm" onsubmit="event.preventDefault();">
-    <input type="hidden" id="aktivnostIdInput">
-    <div class="mb-3">
-      <label for="aktivnostNazivInput" class="form-label">Naziv*</label>
-      <input type="text" class="form-control" id="aktivnostNazivInput" required>
-    </div>
-    <div class="mb-3">
-      <label for="aktivnostOpisInput" class="form-label">Opis*</label>
-      <textarea class="form-control" id="aktivnostOpisInput" rows="3" required></textarea>
-    </div>
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="aktivnostLokacijaInput" class="form-label">Lokacija*</label>
-        <input type="text" class="form-control" id="aktivnostLokacijaInput" required>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="aktivnostCenaInput" class="form-label">Cena* (€)</label>
-        <input type="number" class="form-control" id="aktivnostCenaInput" step="0.01" min="0" required value="0">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="aktivnostProstaMestaInput" class="form-label">Prosta Mesta*</label>
-        <input type="number" class="form-control" id="aktivnostProstaMestaInput" min="0" required value="0">
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="aktivnostSlikaUploadInput" class="form-label">Naloži sliko aktivnosti (opcijsko):</label>
-        <input class="form-control" type="file" id="aktivnostSlikaUploadInput" name="slikaAktivnosti" accept="image/png, image/jpeg, image/gif, image/avif, image/webp">
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <label for="aktivnostTipSelect" class="form-label">Tip Aktivnosti (Šport)*</label>
-        <select class="form-select" id="aktivnostTipSelect" required>
-          <option value="">Izberite tip...</option>
-        </select>
-      </div>
-      <div class="col-md-6 mb-3">
-        <label for="datumUreInput" class="form-label">Datum in ura aktivnosti*</label>
-        <input type="datetime-local" class="form-control" id="datumUreInput" name="datum_ure_aktivnosti" required>
-      </div>
-    </div>
-
-    <div class="mb-3 form-check" id="aktivnostOdstraniSlikoGroup" style="display:none;">
-      <input type="checkbox" class="form-check-input" id="aktivnostOdstraniSlikoCheckbox">
-      <label class="form-check-label" for="aktivnostOdstraniSlikoCheckbox">Odstrani trenutno sliko</label>
-    </div>
-
-    <div class="mt-4 d-flex justify-content-between">
-      <a href="index.html" class="btn btn-secondary">Nazaj na Domačo Stran</a>
-      <button type="button" class="btn btn-primary" id="shraniAktivnostBtn">Shrani Aktivnost</button>
-    </div>
-  </form>
-</div>
+</main>
 
 <footer class="footer mt-auto py-3 bg-dark text-white text-center">
   <div class="container">
     <p class="mb-1">&copy; <span id="currentYear"></span> Sportaj.si - Vse pravice pridržane.</p>
-    <ul class="list-inline mb-0">
-      <li class="list-inline-item"><a href="#" class="text-white-50">O nas</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Kontakt</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Pogoji uporabe</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Politika zasebnosti</a></li>
-    </ul>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/trener-dodaj-aktivnost.js" defer></script>
+<script src="../js/PrijavaInRegistracija.js" defer></script>
+<script src="../js/pregledSporta.js" defer></script>
 <script>
+  if (document.getElementById('currentYear')) {
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+  }
+
   async function preveriPrijavoZaNavbar() {
     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
     const loginSignUpNavItem = document.getElementById('loginSignUpButtonsNavItem');
     const userDropdownNavItem = document.getElementById('userDropdownNavItem');
     const pozdravKratekEl = document.getElementById('pozdravKratek');
+    // ... (celotna funkcija preveriPrijavoZaNavbar kot v ostalih datotekah) ...
     const logoutLinkNav = document.getElementById('logoutLinkNav');
     const adminPanelLinkContainerNav = document.getElementById('adminPanelLinkContainerNav');
     const trenerDodajAktivnostLinkContainerNav = document.getElementById('trenerDodajAktivnostLinkContainerNav');
@@ -181,9 +135,9 @@
         }
       }
       if (trenerDodajAktivnostLinkContainerNav) {
-        if (uporabnik.isTrainer) { // Na tej strani bi moral biti trener, zato je link viden in aktiven
-          trenerDodajAktivnostLinkContainerNav.innerHTML = '<li><a class="dropdown-item active" href="dodaj-aktivnost.html">Dodaj Aktivnost</a></li>';
-        } else { // Če uporabnik nekako pride sem in ni trener, skrijemo
+        if (uporabnik.isTrainer) {
+          trenerDodajAktivnostLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="dodaj-aktivnost.html">Dodaj Aktivnost</a></li>';
+        } else {
           trenerDodajAktivnostLinkContainerNav.innerHTML = '';
         }
       }
@@ -204,15 +158,13 @@
           postaniTrenerLinkContainerNav.innerHTML = '';
         }
       }
-    } else { // Ni prijavljen - preusmeri na prijavo, ker je to zaščitena stran
+    } else { // Ni prijavljen
       if (loginSignUpNavItem) loginSignUpNavItem.classList.remove('d-none');
       if (userDropdownNavItem) userDropdownNavItem.classList.add('d-none');
       if (pozdravKratekEl) pozdravKratekEl.textContent = '';
       if (adminPanelLinkContainerNav) adminPanelLinkContainerNav.innerHTML = '';
       if (trenerDodajAktivnostLinkContainerNav) trenerDodajAktivnostLinkContainerNav.innerHTML = '';
       if (postaniTrenerLinkContainerNav) postaniTrenerLinkContainerNav.innerHTML = '';
-      // Dodatno: Če uporabnik ni prijavljen, ga je treba preusmeriti
-      window.location.href = 'prijava.html?redirect=dodaj-aktivnost';
     }
   }
 
@@ -224,31 +176,21 @@
 
     navLinks.forEach(link => {
       link.classList.remove('active');
-      const linkHref = link.getAttribute('href');
       const linkDataPage = link.dataset.page;
-
-      if (linkHref.includes('search-stran.html')) {
-        if (trenutnaStranImeDatoteke === 'search-stran.html' && category === linkDataPage) {
-          link.classList.add('active');
-        }
-      } else {
-        const linkImeDatoteke = linkHref.split('/').pop().split('?')[0];
-        if (trenutnaStranImeDatoteke === linkImeDatoteke && !category) {
-          link.classList.add('active');
-        }
+      if (linkDataPage === 'sport') { // Na strani pregledSporta.html naj bo aktivna povezava "Športi"
+        link.classList.add('active');
+      } else if (trenutnaStranImeDatoteke === 'search-stran.html' && category === linkDataPage) {
+        link.classList.add('active');
       }
     });
     if (trenutnaStranImeDatoteke === 'index.html' || trenutnaStranImeDatoteke === '') {
       navLinks.forEach(link => link.classList.remove('active'));
     }
-    // Na strani dodaj-aktivnost noben glavni link ni aktiven, kar je pravilno.
-    // Povezava "Dodaj aktivnost" v dropdownu je že označena z .active v `preveriPrijavoZaNavbar` za to stran.
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
     await preveriPrijavoZaNavbar();
     oznaciAktivnoStran();
-    // trener-dodaj-aktivnost.js bo svoje DOMContentLoaded evente upravljal sam.
   });
 </script>
 </body>

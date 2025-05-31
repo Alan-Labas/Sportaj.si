@@ -127,7 +127,8 @@ async function napolniBazo() {
             table.string('Lokacija').notNullable();
             table.decimal('Cena', 10, 2).notNullable().defaultTo(0.00);
             table.integer('ProstaMesta').notNullable().unsigned();
-            table.specificType('slika', 'LONGBLOB').nullable(); // <-- SPREMEMBA TUKAJ
+            table.specificType('slika', 'LONGBLOB').nullable();
+            table.date('Datum_Cas_Izvedbe').notNullable();
             table.integer('TK_TipAktivnosti').unsigned().references('id').inTable('Sport').onDelete('SET NULL');
             table.integer('TK_Trener').unsigned().references('id').inTable('Trenerji').onDelete('SET NULL');
             table.timestamps(true, true);
@@ -142,6 +143,7 @@ async function napolniBazo() {
                 Cena: 0,
                 ProstaMesta: 0,
                 slika: '/slike/sporti/nogtekma.jfif',
+                Datum_Cas_Izvedbe: '2025-06-15',
                 TK_TipAktivnosti: 1,
                 TK_Trener: 1
             },
@@ -152,6 +154,7 @@ async function napolniBazo() {
                 Cena: 5,
                 ProstaMesta: 10,
                 slika: '/slike/sporti/kostekma.jfif',
+                Datum_Cas_Izvedbe:'2025-6-10',
                 TK_TipAktivnosti: 2,
                 TK_Trener: 2
             },
@@ -162,6 +165,7 @@ async function napolniBazo() {
                 Cena: 10,
                 ProstaMesta: 100,
                 slika: '/slike/sporti/atlettrening.jfif',
+                Datum_Cas_Izvedbe:'2025-6-20',
                 TK_TipAktivnosti: 3,
                 TK_Trener: 3
             },
@@ -172,6 +176,7 @@ async function napolniBazo() {
                 Cena: 75,
                 ProstaMesta: 5,
                 slika: '/slike/sporti/plavaltrening.jfif',
+                Datum_Cas_Izvedbe: '2025-6-30',
                 TK_TipAktivnosti: 4,
                 TK_Trener: 4
             },
@@ -182,6 +187,7 @@ async function napolniBazo() {
                 Cena: 20,
                 ProstaMesta: 8,
                 slika: '/slike/sporti/tenis.jfif',
+                Datum_Cas_Izvedbe:'2025-06-25',
                 TK_TipAktivnosti: 5,
                 TK_Trener: 5
             }]
