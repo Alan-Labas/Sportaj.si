@@ -66,8 +66,9 @@
                 <h5 class="card-title mb-3">Prijava na aktivnost</h5>
                 <button class="btn btn-primary w-100 mb-3" id="gumbPrijavaAktivnost">Pridruži se</button> </div>
             </div>
-            <div class="card shadow-sm mb-4 d-none d-lg-flex">
+            <div class="card shadow-sm mb-4 d-none d-lg-flex" id="ocenjevanjeInKomentiranjeCard">
                 <div class="card-body">
+                    <h5 id="ocenaNaslov" class="mb-3">Oceni aktivnost</h5>
                     <div id="activityStarRating" class="d-flex justify-content-center mb-2" style="cursor: pointer; font-size: 1.5rem; color: #ffc107;">
                         <i class="far fa-star" data-value="1"></i>
                         <i class="far fa-star" data-value="2"></i>
@@ -75,6 +76,8 @@
                         <i class="far fa-star" data-value="4"></i>
                         <i class="far fa-star" data-value="5"></i>
                     </div>
+                     <small id="activityCurrentRatingText" class="d-block text-center mb-3">Trenutna ocena: N/A</small>
+                    <h5 id="komentarNaslov" class="mb-2">Dodaj komentar</h5>
                     <form id="activityCommentForm">
                         <textarea id="activityCommentText" class="form-control mb-2" rows="2" placeholder="Dodaj komentar..." required></textarea>
                         <button type="submit" class="btn btn-outline-primary btn-sm w-100">Oddaj komentar</button>
@@ -120,7 +123,7 @@
                 </div>
             </div>
             <div class="card shadow-sm " id="activityMapDiv">
-                <iframe id="activityMap" src="https://maps.google.com/maps?q=Slovenija&hl=sl&z=7&amp;output=embed" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe id="activityMap" src="https://maps.google.com/maps?q=Slovenija&hl=sl&z=7&output=embed" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </div>
@@ -137,7 +140,7 @@
 
 <footer class="footer mt-auto py-3 bg-dark text-white text-center">
     <div class="container">
-        <p class="mb-1">&copy; <span id="currentYear"></span> Sportaj.si - Vse pravice pridržane.</p>
+        <p class="mb-1">© <span id="currentYear"></span> Sportaj.si - Vse pravice pridržane.</p>
         <ul class="list-inline mb-0">
             <li class="list-inline-item"><a href="#" class="text-white-50">O nas</a></li>
             <li class="list-inline-item"><a href="#" class="text-white-50">Kontakt</a></li>
@@ -212,7 +215,7 @@
                     postaniTrenerLinkContainerNav.innerHTML = '';
                 }
             }
-        } else { // Ni prijavljen
+        } else { 
             if (loginSignUpNavItem) loginSignUpNavItem.classList.remove('d-none');
             if (userDropdownNavItem) userDropdownNavItem.classList.add('d-none');
             if (pozdravKratekEl) pozdravKratekEl.textContent = '';
@@ -237,7 +240,6 @@
                 if (trenutnaStranImeDatoteke === 'search-stran.html' && category === linkDataPage) {
                     link.classList.add('active');
                 }
-                // Če smo na pregledAktivnosti.html in ta aktivnost spada pod "dejavnosti"
                 else if (trenutnaStranImeDatoteke === 'pregledAktivnosti.html' && linkDataPage === 'dejavnosti') {
                     link.classList.add('active');
                 }

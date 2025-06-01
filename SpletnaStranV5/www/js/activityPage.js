@@ -12,10 +12,15 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityTrainerEmail = document.getElementById('activityTrainerEmail');
     const activityDescription = document.getElementById('activityDescription');
     const userCommentsSection = document.getElementById('activityUserCommentsSection');
-    const starsContainer = document.getElementById('starRating');
-    const currentRatingText = document.getElementById('currentRatingText');
+    
+    const starsContainer = document.getElementById('activityStarRating');
+    const currentRatingText = document.getElementById('activityCurrentRatingText');
     const commentForm = document.getElementById('activityCommentForm');
     const commentTextElement = document.getElementById('activityCommentText');
+
+    const ocenjevanjeInKomentiranjeCard = document.getElementById('ocenjevanjeInKomentiranjeCard');
+
+
     const activityDate = document.getElementById('activityDate');
     const activityLocation = document.getElementById('activityLocation')
     const similarActivitiesSection = document.getElementById('similarActivitiesSection');
@@ -23,11 +28,24 @@ document.addEventListener('DOMContentLoaded', async() =>{
 
     const defaultProfilePicPath = '../slike/sporti/atlettrening.jfif';
 
+    const isLoggedIn = !!sessionStorage.getItem('accessToken');
+
+    if (!isLoggedIn) {
+        if (ocenjevanjeInKomentiranjeCard) {
+            ocenjevanjeInKomentiranjeCard.style.display = 'none';
+        }
+    } else {
+        if (ocenjevanjeInKomentiranjeCard) {
+            ocenjevanjeInKomentiranjeCard.style.display = 'block'; // Ali 'flex', odvisno od originalnega stila
+        }
+    }
+
+
     if(!activityId || isNaN(activityId)){
         if(activityNameTitle) activityNameTitle.textContent = 'Aktivnost ni najdena';
         console.error('ID aktivnosti manjka ali ni veljaven.');
         const mainContent = document.querySelector('main.container');
-        if (mainContent) mainContent.innerHTML = '<p class="text-danger text-center display-6 mt-5">ID trenerja manjka ali ni veljaven. Prosimo, vrnite se na <a href="/">domačo stran</a> in poskusite znova.</p>';
+        if (mainContent) mainContent.innerHTML = '<p class="text-danger text-center display-6 mt-5">ID aktivnosti manjka ali ni veljaven. Prosimo, vrnite se na <a href="/">domačo stran</a> in poskusite znova.</p>';
         return;
     }
 
@@ -54,92 +72,136 @@ document.addEventListener('DOMContentLoaded', async() =>{
         window.location.href = `/html/profilTrener.html?id=${activityData.TK_Trener}`
     })
     
-    commentForm.addEventListener('submit', async(e)=>{
-        e.preventDefault();
-        const isLoggedIn = !!sessionStorage.getItem('accessToken');
-        const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
-        if (isLoggedIn && uporabnikInfoString) {
-            
-            
-        }else{
-            const globalAlert = document.getElementById('globalAlertMessage');
-            if (globalAlert) {
-                prikaziObvestilo('Za komentiranje morate prijaviti.', 'globalAlertMessage', 'text-success', 3000);
-            } else {
-                alert('Za komentiranje se morate prijaviti.');
+    if (commentForm) {
+        commentForm.addEventListener('submit', async(e)=>{
+            e.preventDefault();
+            const isLoggedInSubmit = !!sessionStorage.getItem('accessToken');
+            const uporabnikInfoStringSubmit = sessionStorage.getItem('uporabnikInfo');
+            if (!isLoggedInSubmit || !uporabnikInfoStringSubmit) {
+                const globalAlert = document.getElementById('activityGlobalAlertMessage');
+                if (globalAlert && typeof prikaziObvestilo === 'function') {
+                    prikaziObvestilo('Za komentiranje se morate prijaviti.', 'activityGlobalAlertMessage', 'text-danger', 3000);
+                } else {
+                    alert('Za komentiranje se morate prijaviti.');
+                }
+                return;
             }
-            return;
-        }
-        
-        const comment = commentForm.querySelector('#activityCommentText').value;
-        const activityId = commentForm.id;
-        console.log(activityId)
-        const user = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
-        console.log(user);
-        
-        try{
-            const response = await fetch(`${API_URL}/komentiraj`, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({userId: user.userId, komentar:comment, activityId:activityData.id})
-            });
-            if(response.ok){
-                const res = await response.json();
-                console.log('Uspešno ste dodali komentar.', res)
-            }
-        }catch(err){
-            console.error('Napaka pri objavljanju komentarja: ',err)
-        }
-
-    })
-
-    const prijavaNaAktivnostBtn = document.getElementById('prijavaNaAktivnostBtn');
-    prijavaNaAktivnostBtn.addEventListener('click', async()=>{
-        const isLoggedIn = !!sessionStorage.getItem('accessToken');
-        const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
-        if (isLoggedIn && uporabnikInfoString) {
             
-        }else{
-            const globalAlert = document.getElementById('globalAlertMessage');
-            if (globalAlert) {
-                prikaziObvestilo('Za prijavo na aktivnost se morate prijaviti.', 'globalAlertMessage', 'text-success', 3000);
-            } else {
-                alert('Za prijavo na aktivnost se morate prijaviti.');
+            const comment = commentForm.querySelector('#activityCommentText').value;
+            const activityIdForm = commentForm.id; 
+            console.log(activityIdForm)
+            const user = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
+            console.log(user);
+            
+            try{
+                const response = await fetch(`${API_URL}/komentiraj`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({userId: user.userId, komentar:comment, activityId:activityData.id})
+                });
+                if(response.ok){
+                    const res = await response.json();
+                    console.log('Uspešno ste dodali komentar.', res)
+                    if (typeof prikaziObvestilo === 'function') {
+                         prikaziObvestilo('Komentar uspešno dodan!', 'activityGlobalAlertMessage', 'text-success', 3000);
+                    } else {
+                        alert('Komentar uspešno dodan!');
+                    }
+                    commentForm.querySelector('#activityCommentText').value = ''; 
+                    // Optionally, refresh comments section
+                    const params = new URLSearchParams({activityId : activityData.id});
+                    const comments = await fetchData(`${API_URL}/getKomentarji?${params.toString()}`);
+                    if(comments && userCommentsSection){
+                        userCommentsSection.innerHTML = comments.map(comment =>{
+                            return `
+                                <div class="w-100  d-flex mb-1 rounded shadow " style="max-height:fit-content;" >
+                                  <div class="" style="max-width: 50px;max-height:fit-content;">
+                                      <img id="userPic" src="../slike/profilne/profileIcon.avif" style="margin-right:10px;max-width: 40px;border-radius:20px">
+                                  </div>
+                                  <div id="commentb" class="flex-fill d-flex flex-column  ">
+                                      <div class="h-25 d-flex  " style="" >
+                                        <p style="font-size: 15px;" id="userName">@${comment.username}</p>
+                                      </div>
+                                      <div class="d-flex align-items-center " style="max-height: fit-content;;">
+                                          <p style="margin-left:5px;">${comment.komentar}</p>
+                                      </div>
+                                  </div>
+                              </div>
+                            `
+                        }).join('');
+                    }
+
+                } else {
+                    const errRes = await response.json().catch(() => ({message: 'Neznana napaka strežnika.'}));
+                     if (typeof prikaziObvestilo === 'function') {
+                         prikaziObvestilo(`Napaka: ${errRes.message}`, 'activityGlobalAlertMessage', 'text-danger', 3000);
+                    } else {
+                        alert(`Napaka: ${errRes.message}`);
+                    }
+                }
+            }catch(err){
+                console.error('Napaka pri objavljanju komentarja: ',err);
+                if (typeof prikaziObvestilo === 'function') {
+                    prikaziObvestilo('Napaka pri komunikaciji s strežnikom.', 'activityGlobalAlertMessage', 'text-danger', 3000);
+                } else {
+                    alert('Napaka pri komunikaciji s strežnikom.');
+                }
             }
-            return;
-        }
 
-        const user = JSON.parse(uporabnikInfoString);
-        console.log(user)
-        const activity = activityData;
-        console.log(activity);
+        });
+    }
 
 
+    const prijavaNaAktivnostBtn = document.getElementById('gumbPrijavaAktivnost');
+    if (prijavaNaAktivnostBtn) {
+        prijavaNaAktivnostBtn.addEventListener('click', async()=>{
+            const isLoggedInSubmit = !!sessionStorage.getItem('accessToken');
+            const uporabnikInfoStringSubmit = sessionStorage.getItem('uporabnikInfo');
+            if (!isLoggedInSubmit || !uporabnikInfoStringSubmit) {
+                const globalAlert = document.getElementById('activityGlobalAlertMessage');
+                if (globalAlert && typeof prikaziObvestilo === 'function') {
+                    prikaziObvestilo('Za prijavo na aktivnost se morate prijaviti.', 'activityGlobalAlertMessage', 'text-danger', 3000);
+                } else {
+                    alert('Za prijavo na aktivnost se morate prijaviti.');
+                }
+                return;
+            }
 
+            const user = JSON.parse(uporabnikInfoStringSubmit);
+            console.log(user)
+            const activity = activityData;
+            console.log(activity);
+        })
+    }
 
-    })
 
     const params = new URLSearchParams({activityId : activityData.id})
     console.log(params.toString())
     const comments = await fetchData(`${API_URL}/getKomentarji?${params.toString()}`)
     if(comments){console.log(comments)}
 
-    userCommentsSection.innerHTML = comments.map(comment =>{
-        return `
-            <div class="w-100  d-flex mb-1 rounded shadow " style="max-height:fit-content;" >
-              <div class="" style="max-width: 50px;max-height:fit-content;">
-                  <img id="userPic" src="../slike/profilne/profileIcon.avif" style="margin-right:10px;max-width: 40px;border-radius:20px">
-              </div>
-              <div id="commentb" class="flex-fill d-flex flex-column  ">
-                  <div class="h-25 d-flex  " style="" >
-                    <p style="font-size: 15px;" id="userName">@${comment.username}</p>
+    if (userCommentsSection) {
+        if (comments && comments.length > 0) {
+            userCommentsSection.innerHTML = comments.map(comment =>{
+                return `
+                    <div class="w-100  d-flex mb-1 rounded shadow " style="max-height:fit-content;" >
+                      <div class="" style="max-width: 50px;max-height:fit-content;">
+                          <img id="userPic" src="../slike/profilne/default-profile.png" style="margin-right:10px;max-width: 40px; border-radius:50%; object-fit:cover;">
+                      </div>
+                      <div id="commentb" class="flex-fill d-flex flex-column  ">
+                          <div class="h-25 d-flex  " style="" >
+                            <p style="font-size: 15px;" id="userName">@${comment.username}</p>
+                          </div>
+                          <div class="d-flex align-items-center " style="max-height: fit-content;;">
+                              <p style="margin-left:5px;">${comment.komentar}</p>
+                          </div>
+                      </div>
                   </div>
-                  <div class="d-flex align-items-center " style="max-height: fit-content;;">
-                      <p style="margin-left:5px;">${comment.komentar}</p>
-                  </div>
-              </div>
-          </div>
-        `
-    })
+                `
+            }).join('');
+        } else {
+            userCommentsSection.innerHTML = '<p class="text-muted">Za to aktivnost še ni komentarjev.</p>';
+        }
+    }
     
 })

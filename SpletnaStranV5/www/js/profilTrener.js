@@ -16,6 +16,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const commentTextElement = document.getElementById('commentText');
     const defaultProfilePicPath = '/slike/default-profile.png';
 
+    const ocenaContainer = document.getElementById('ocenaContainer');
+    const komentarFormContainer = document.getElementById('komentarFormContainer');
+    const komentarjiUporabnikovContainer = document.getElementById('komentarjiUporabnikovContainer');
+
+    const hrBeforeOcenaContainer = document.getElementById('hrBeforeOcenaContainer');
+    const hrBeforeKomentarFormContainer = document.getElementById('hrBeforeKomentarFormContainer');
+    const hrBeforeKomentarjiUporabnikovContainer = document.getElementById('hrBeforeKomentarjiUporabnikovContainer');
+
+
     const isLoggedIn = !!sessionStorage.getItem('accessToken');
     let isUserAdmin = false;
     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
@@ -60,7 +69,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         trainerImage.alt = `Slika ${trainerData.ime} ${trainerData.priimek}`;
     }
     if (trainerFullName) trainerFullName.textContent = `${trainerData.ime} ${trainerData.priimek}`;
-    //tel in email
     if (trainerPhone) trainerPhone.innerHTML = trainerData.telefon ? `<a href="tel:${trainerData.telefon}">${trainerData.telefon}</a>` : 'Ni podatka';
     if (trainerEmail) trainerEmail.innerHTML = trainerData.email ? `<a href="mailto:${trainerData.email}">${trainerData.email}</a>` : 'Ni podatka';
     if (trainerSchedule) trainerSchedule.textContent = trainerData.urnik || 'Ni podatka';
@@ -72,9 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (trainerData.aktivnosti && trainerData.aktivnosti.length > 0) {
                 let activitiesHtml = '<div class="list-group">'; 
                 trainerData.aktivnosti.forEach(akt => {
-                    // slika
                     const slikaPath = akt.slika_aktivnosti || '/slike/default-sport.png';
-                    // kratek opis
                     const kratekOpis = `${akt.Naziv} (${akt.ime_sporta})`;
                     const cenaText = akt.Cena != null ? `${parseFloat(akt.Cena).toFixed(2)} €` : 'N/A';
 
@@ -110,16 +116,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return html;
     }
 
-    //komentraji in ocene iz baze
     function displayCommentsAndAverageRating(ocene) {
         if (userCommentsSection) {
-            userCommentsSection.innerHTML = ''; // Počistimo obstoječe komentarje
+            userCommentsSection.innerHTML = ''; 
             if (ocene && ocene.length > 0) {
-                ocene.forEach((ocena, index) => { // Dodan index za unikaten ID gumba
+                ocene.forEach((ocena, index) => { 
                     const commentDiv = document.createElement('div');
-                    commentDiv.classList.add('card', 'mb-2', `comment-card-${ocena.ocena_id || index}`); // Dodamo ID komentarja ali index za sklicevanje
+                    commentDiv.classList.add('card', 'mb-2', `comment-card-${ocena.ocena_id || index}`); 
                     const datumOcene = ocena.Datum ? new Date(ocena.Datum).toLocaleDateString('sl-SI') : 'Neznan datum';
-                    const starsHTML = generateStarsHTML(ocena.Ocena, false); // Ocene v seznamu niso interaktivne
+                    const starsHTML = generateStarsHTML(ocena.Ocena, false); 
 
                     let adminDeleteButton = '';
                     if (isUserAdmin) {
@@ -144,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             const commentId = this.dataset.commentId;
                             const commentCard = userCommentsSection.querySelector(`.comment-card-${commentId}`);
                             if (commentCard) {
-                                commentCard.style.display = 'none'; // Skrijemo komentar
+                                commentCard.style.display = 'none'; 
                                 console.log(`Komentar ${commentId} skrit (samo na front-endu).`);
                             }
                         });
@@ -178,23 +183,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (!isLoggedIn) {
-        if (commentForm) {
-            commentForm.style.display = 'none'; // Skrijemo formo
-            const parentDiv = commentForm.closest('.mb-3'); 
-             if(parentDiv){
-                const titleElement = parentDiv.querySelector('h5');
-                if(titleElement && titleElement.textContent.includes("Pusti Komentar")){
-                    parentDiv.style.display = 'none';
-                }
-                const ratingTitleDiv = document.querySelector('#starRating')?.closest('.mb-3');
-                if(ratingTitleDiv){
-                     const ratingTitle = ratingTitleDiv.querySelector('h5');
-                     if(ratingTitle && ratingTitle.textContent.includes("Oceni Trenerja")){
-                        ratingTitleDiv.style.display = 'none';
-                     }
-                }
-            }
+        if (ocenaContainer) ocenaContainer.style.display = 'none';
+        if (komentarFormContainer) komentarFormContainer.style.display = 'none';
+        
+        if (hrBeforeOcenaContainer) hrBeforeOcenaContainer.style.display = 'none';
+        if (hrBeforeKomentarFormContainer) hrBeforeKomentarFormContainer.style.display = 'none';
+        
+        // Odločitev, ali naj se skrije tudi <hr> nad komentarji uporabnikov, če komentarji niso prikazani
+        // ali pa če je `komentarjiUporabnikovContainer` prazen.
+        // Zaenkrat predpostavimo, da če ni prijave, se komentarji uporabnikov ne prikazujejo ali pa je ta sekcija prazna,
+        // zato skrijemo tudi ta <hr>. Če bi želeli, da je ta <hr> vedno viden, odstranite naslednji if.
+        if (komentarjiUporabnikovContainer && (komentarjiUporabnikovContainer.offsetParent === null || userCommentsSection.innerHTML.includes('Trenutno ni komentarjev.'))) {
+             if (hrBeforeKomentarjiUporabnikovContainer) hrBeforeKomentarjiUporabnikovContainer.style.display = 'none';
+        } else if (hrBeforeKomentarjiUporabnikovContainer) {
+             // Če je komentarjiUporabnikovContainer viden in ima vsebino, naj bo hr tudi viden
+             hrBeforeKomentarjiUporabnikovContainer.style.display = 'block';
         }
+
+
         if (starsContainer) {
              starsContainer.style.pointerEvents = 'none'; 
         }
@@ -206,10 +212,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             updateDisplayStars(avgRat, avgRat > 0 ? "Povprečna ocena:" : "Ni ocen", false);
         }
+    } else {
+        if (ocenaContainer) ocenaContainer.style.display = 'block';
+        if (komentarFormContainer) komentarFormContainer.style.display = 'block';
+        if (komentarjiUporabnikovContainer) komentarjiUporabnikovContainer.style.display = 'block';
+
+        if (hrBeforeOcenaContainer) hrBeforeOcenaContainer.style.display = 'block';
+        if (hrBeforeKomentarFormContainer) hrBeforeKomentarFormContainer.style.display = 'block';
+        if (hrBeforeKomentarjiUporabnikovContainer) hrBeforeKomentarjiUporabnikovContainer.style.display = 'block';
     }
 
 
-    if (starsContainer && isLoggedIn) { // Event listenerje za zvezdice dodamo samo, če je uporabnik prijavljen
+    if (starsContainer && isLoggedIn) { 
         starsContainer.addEventListener('click', (event) => {
             const targetStar = event.target.closest('i[data-value]');
             if (targetStar) {
@@ -236,7 +250,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (currentUserRating > 0) {
                 updateDisplayStars(currentUserRating, "Vaša ocena:", true);
             } else {
-                // Če ni trenutne uporabniške ocene, prikažemo povprečno
                 let avgRat = 0;
                 if (trainerData.ocene && trainerData.ocene.length > 0) {
                     const sum = trainerData.ocene.reduce((acc, o) => acc + (parseFloat(o.Ocena) || 0), 0);
@@ -247,12 +260,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (commentForm && commentTextElement && isLoggedIn) { // Formo obravnavamo samo, če je uporabnik prijavljen
+    if (commentForm && commentTextElement && isLoggedIn) { 
         commentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const komentar = commentTextElement.value.trim();
 
-            // Preverjanje prijave je že implicitno narejeno z isLoggedIn zgoraj, a za vsak slučaj
             if (!sessionStorage.getItem('accessToken')) {
                 alert('Za oddajo ocene in komentarja se morate prijaviti.');
                 if (typeof showLoginModal === "function") showLoginModal();
@@ -292,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (typeof preveriPrijavo === "function") { //
+    if (typeof preveriPrijavo === "function") { 
         preveriPrijavo();
     }
 });

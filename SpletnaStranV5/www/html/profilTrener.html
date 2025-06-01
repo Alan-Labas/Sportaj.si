@@ -73,13 +73,8 @@
                     <h5>Urnik:</h5>
                     <p id="trainerSchedule"></p>
                 </div>
-                <hr>
-                <div class="mb-3">
-                    <h5>Opis Profila:</h5>
-                    <p id="trainerDescription"></p>
-                </div>
-                <hr>
-                <div class="mb-3">
+                <div id="hrBeforeOcenaContainer"> <hr> </div>
+                <div class="mb-3" id="ocenaContainer">
                     <h5>Oceni Trenerja:</h5>
                     <div id="starRating" class="d-flex mb-2" style="cursor: pointer; font-size: 1.5rem; color: #ffc107;">
                         <i class="far fa-star" data-value="1"></i>
@@ -90,8 +85,8 @@
                     </div>
                     <small id="currentRatingText">Trenutna ocena: N/A</small>
                 </div>
-                <hr>
-                <div class="mb-3">
+                <div id="hrBeforeKomentarFormContainer"> <hr> </div>
+                <div class="mb-3" id="komentarFormContainer">
                     <h5>Pusti Komentar:</h5>
                     <form id="commentForm">
                         <div class="mb-3">
@@ -100,8 +95,8 @@
                         <button type="submit" class="btn btn-primary btn-sm">Oddaj Komentar</button>
                     </form>
                 </div>
-                <hr>
-                <div class="mb-3">
+                <div id="hrBeforeKomentarjiUporabnikovContainer"> <hr> </div>
+                <div class="mb-3" id="komentarjiUporabnikovContainer">
                     <h5>Komentarji Uporabnikov:</h5>
                     <div id="userCommentsSection">
                         <p class="text-muted">Trenutno ni komentarjev.</p>
@@ -202,7 +197,7 @@
                     postaniTrenerLinkContainerNav.innerHTML = '';
                 }
             }
-        } else { // Ni prijavljen
+        } else { 
             if (loginSignUpNavItem) loginSignUpNavItem.classList.remove('d-none');
             if (userDropdownNavItem) userDropdownNavItem.classList.add('d-none');
             if (pozdravKratekEl) pozdravKratekEl.textContent = '';
@@ -240,8 +235,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-        // Klic profilTrener.js funkcij bo potekal preko type="module" in njegovih lastnih listenerjev.
-        // Tukaj kličemo samo funkcije za navbar.
         await preveriPrijavoZaNavbar();
         oznaciAktivnoStran();
     });
