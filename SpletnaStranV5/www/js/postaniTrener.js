@@ -46,11 +46,12 @@ document.addEventListener("DOMContentLoaded", function() {
     if (postaniTrenerForm) {
         postaniTrenerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const postaniTrenerImeInput = document.querySelector("#postaniTrenerImeInput")?.value || '';
-            const postaniTrenerPriimekInput = document.querySelector("#postaniTrenerPriimekInput")?.value || '';
-            const postaniTrenerTelefonInput = document.querySelector("#postaniTrenerTelefonInput")?.value || '';
-            const postaniTrenerUrnikInput = document.querySelector("#postaniTrenerUrnikInput")?.value || '';
-            const postaniTrenerOpisInput = document.querySelector("#postaniTrenerOpisInput")?.value || '';
+            const postaniTrenerImeInput = document.querySelector("#imeInput")?.value || '';
+            const postaniTrenerPriimekInput = document.querySelector("#priimekInput")?.value || '';
+            const postaniTrenerTelefonInput = document.querySelector("#telefonInput")?.value || '';
+            const postaniTrenerUrnikInput = document.querySelector("#urnikInput")?.value || '';
+            const postaniTrenerOpisInput = document.querySelector("#opisInput")?.value || '';
+            const postaniTrenerEmailInput = document.querySelector("#emailInput")?.value || '';
 
             const userString = sessionStorage.getItem("uporabnikInfo");
             if (!userString) {
@@ -68,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const dataToSend = {
                 email: user.email,
+                kontaktEmail: postaniTrenerEmailInput,
                 ime: postaniTrenerImeInput,
                 priimek: postaniTrenerPriimekInput,
                 telefon: postaniTrenerTelefonInput,

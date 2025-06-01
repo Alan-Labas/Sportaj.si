@@ -188,8 +188,8 @@
       }
       if (postaniTrenerLinkContainerNav) {
         if (!uporabnik.isTrainer && uporabnik.JeAdmin !== 1) {
-          postaniTrenerLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="#" id="postaniTrenerModalGumbNav">Postani Trener</a></li>';
-          if(postaniTrenerIndexGumbContainer) postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="#" id="postaniTrenerModalGumbIndex">Postani Trener »</a>';
+          postaniTrenerLinkContainerNav.innerHTML = '<a class="dropdown-item" href="/html/postani-trener.html" id="urediProfilLinkNav">Postani Trener</a>';
+          if(postaniTrenerIndexGumbContainer) postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="/html/postani-trener.html" id="postaniTrenerModalGumbIndex">Postani Trener »</a>';
 
           const postaniTrenerModalGumbNav = document.getElementById('postaniTrenerModalGumbNav');
           if(postaniTrenerModalGumbNav && !postaniTrenerModalGumbNav.dataset.listenerAttachedNav) {

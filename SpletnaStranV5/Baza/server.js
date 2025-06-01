@@ -17,7 +17,7 @@ const knex = require('knex')({
     connection: {
         host: '127.0.0.1',
         user: 'root',
-        password: 'geslo', // Prilagodite geslo
+        password: '', // Prilagodite geslo
         database: 'sportaj_si',
     }
 });
@@ -1013,6 +1013,7 @@ app.post('/api/postaniTrener', async (req, res) => {
     console.log(req.body);
 
     const email = req.body.email;
+    const kontaktEmail = req.body.kontaktEmail;
     const ime = req.body.ime;
     const priimek = req.body.priimek;
     const telefon = req.body.telefon;
@@ -1021,7 +1022,7 @@ app.post('/api/postaniTrener', async (req, res) => {
 
     try {
         
-        const trener = await knex("trenerji").insert({ime: ime, priimek: priimek, telefon: telefon, email: email, urnik: urnik, OpisProfila: opis})
+        const trener = await knex("trenerji").insert({ime: ime, priimek: priimek, telefon: telefon, email: email, kontaktEmail: kontaktEmail, urnik: urnik, OpisProfila: opis})
         res.status(200).json({message: "uspešno dodan trener v bazo"})
 
     } catch (error) {
