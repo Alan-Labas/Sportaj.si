@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     const uporabnik = JSON.parse(uporabnikInfoString);
-    if (uporabnik.JeAdmin !== 1) {
+    if (!uporabnik.JeAdmin) {
         alert('Nimate dovoljenja za dostop do te strani.');
         window.location.href = '/';
         return;
@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const aktivnostSlikaInput = document.getElementById('aktivnostSlikaInput');
     const aktivnostTipSelect = document.getElementById('aktivnostTipSelect');
     const aktivnostTrenerSelect = document.getElementById('aktivnostTrenerSelect');
+    const aktivnostDatumInput = document.getElementById('aktivnostDatumInput');
+    const nacinIzvedbeSelect = document.getElementById('nacinIzvedbeSelect');
 
     const trenerForm = document.getElementById('trenerForm');
     const trenerIdInput = document.getElementById('trenerIdInput');
@@ -73,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('dodajAktivnostBtn').addEventListener('click', () => prikaziAktivnostModalZaDodajanje());
     document.getElementById('dodajTrenerjaBtn').addEventListener('click', () => prikaziTrenerModalZaDodajanje());
 
-    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    const navLinks = document.querySelectorAll('#adminNavbar .nav-link');
     const sections = document.querySelectorAll('.admin-section');
 
     navLinks.forEach(link => {
@@ -408,8 +410,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const cena = aktivnostCenaInput.value; // Validacija na strežniku
         const prostaMesta = aktivnostProstaMestaInput.value; // Validacija na strežniku
         const tipAktivnosti = aktivnostTipSelect.value;
+        const datumCas = aktivnostDatumInput.value;
+        const nacinIzvedbe = nacinIzvedbeSelect.value;
 
-        if (!naziv || !opis || !lokacija || cena === '' || prostaMesta === '' || !tipAktivnosti) {
+        if (!naziv || !opis || !lokacija || cena === '' || prostaMesta === '' || !tipAktivnosti || !datumCas || !nacinIzvedbe) {
             prikaziObvestiloAdmin('Izpolnite vsa obvezna polja (*) za aktivnost pravilno.', 'warning');
             return;
         }
@@ -426,15 +430,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('Cena', parseFloat(cena));
         formData.append('ProstaMesta', parseInt(prostaMesta));
         formData.append('TK_TipAktivnosti', parseInt(tipAktivnosti));
+        formData.append('DatumCas', datumCas);
+        formData.append('NacinIzvedbe', nacinIzvedbe);
 
         if (aktivnostTrenerSelect.value) {
-            formData.append('TK_Trener', parseInt(aktivnostTrenerSelect.value));
+            formData.append('TK_Trener_Select', parseInt(aktivnostTrenerSelect.value));
         }
 
         if (aktivnostSlikaUploadInput.files.length > 0) {
             formData.append('slikaAktivnosti', aktivnostSlikaUploadInput.files[0]);
         } else if (id && aktivnostOdstraniSlikoCheckbox && aktivnostOdstraniSlikoCheckbox.checked) {
-            // Samo pri urejanju (id obstaja) in če je checkbox označen
             formData.append('odstraniSliko', 'true');
         }
 
@@ -468,8 +473,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('aktivnostModalLabel').textContent = 'Dodaj Novo Aktivnost';
         if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'none';
         if (aktivnostOdstraniSlikoCheckbox) aktivnostOdstraniSlikoCheckbox.checked = false;
-        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro
-        //aktivnostModal.show();
+        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = '';
+        // Pazi, da imaš v HTML-ju element z ID-jem 'aktivnostModal'
+        const modalElement = document.getElementById('aktivnostModal');
+        if (modalElement) {
+            const bootstrapModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+            bootstrapModal.show();
+        }
     }
 
     async function prikaziAktivnostModalZaUrejanje(aktivnost) { // Dodan async, ker morda kličemo API
@@ -483,9 +493,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         aktivnostCenaInput.value = aktivnost.Cena !== undefined ? aktivnost.Cena : 0;
         aktivnostProstaMestaInput.value = aktivnost.ProstaMesta !== undefined ? aktivnost.ProstaMesta : 0;
 
+        if (aktivnost.Datum_Cas_Izvedbe) {
+            const datumCas = new Date(aktivnost.Datum_Cas_Izvedbe);
+            aktivnostDatumInput.value = datum.toISOString().slice(0, 16);
+        }
 
-        aktivnostTipSelect.value = aktivnost.sport_id || '';
-        aktivnostTrenerSelect.value = aktivnost.trener_id || '';
+        nacinIzvedbeSelect.value = aktivnost.Nacin_Izvedbe || 'Skupinsko';
+        aktivnostTipSelect.value = aktivnost.TK_TipAktivnosti || '';
+        aktivnostTrenerSelect.value = aktivnost.TK_Trener || '';
 
         if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro datoteke
 

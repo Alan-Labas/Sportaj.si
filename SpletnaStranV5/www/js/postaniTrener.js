@@ -1,130 +1,110 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const postaniTrenerOverlay = document.getElementById('postaniTrenerOverlay');
-    const postaniTrenerLinkContainer = document.getElementById('postaniTrenerLinkContainer');
     const postaniTrenerForm = document.getElementById("postaniTrenerForm");
+    const sportiSelect = document.getElementById('sportiInput');
 
-    // Funkcija za prikaz modala
-    function showPostaniTrenerModal() {
-        if (postaniTrenerOverlay) {
-            // Po potrebi skrijemo druge modale/overlaye
-            const registrationOverlay = document.getElementById('registrationOverlay');
-            const loginOverlay = document.getElementById('loginOverlay');
-            if (registrationOverlay) registrationOverlay.style.display = 'none';
-            if (loginOverlay) loginOverlay.style.display = 'none';
-            postaniTrenerOverlay.style.display = 'flex';
-        } else {
-            console.error("Modalni element 'postaniTrenerOverlay' ni bil najden.");
+    // Funkcija za pridobitev in prikaz vseh športov v select meniju
+    async function naloziSporte() {
+        if (!sportiSelect) return;
+        try {
+            const response = await fetch('/api/vsi-sporti');
+            if (!response.ok) throw new Error('Napaka pri nalaganju športov.');
+
+            const sporti = await response.json();
+            sportiSelect.innerHTML = ''; // Počistimo morebitne obstoječe opcije
+            sporti.forEach(sport => {
+                const option = document.createElement('option');
+                option.value = sport.id;
+                option.textContent = sport.ime_sporta;
+                sportiSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Napaka pri pridobivanju športov:", error);
+            sportiSelect.innerHTML = '<option disabled>Ni mogoče naložiti seznama športov.</option>';
         }
     }
 
-    function hidePostaniTrenerModal() {
-        if (postaniTrenerOverlay) {
-            postaniTrenerOverlay.style.display = 'none';
-        }
-    }
-
-    if (postaniTrenerLinkContainer) {
-        postaniTrenerLinkContainer.addEventListener("click", function(e) {
-            if (e.target && e.target.id === "postaniTrenerButton") {
-                e.preventDefault();
-                if (postaniTrenerOverlay) {
-                    const isVisible = postaniTrenerOverlay.style.display === 'flex';
-                    if (isVisible) {
-                        hidePostaniTrenerModal();
-                    } else {
-                        showPostaniTrenerModal();
-                    }
-                } else {
-                    console.error("Modal 'postaniTrenerOverlay' ni bil najden ob kliku na gumb.");
-                }
-            }
-        });
-    } else {
-        console.warn("Element 'postaniTrenerLinkContainer' ni bil najden za pripenjanje poslušalca dogodkov.");
-    }
+    // Naložimo športe takoj, ko je stran pripravljena
+    naloziSporte();
 
     if (postaniTrenerForm) {
         postaniTrenerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const postaniTrenerImeInput = document.querySelector("#imeInput")?.value || '';
-            const postaniTrenerPriimekInput = document.querySelector("#priimekInput")?.value || '';
-            const postaniTrenerTelefonInput = document.querySelector("#telefonInput")?.value || '';
-            const postaniTrenerUrnikInput = document.querySelector("#urnikInput")?.value || '';
-            const postaniTrenerOpisInput = document.querySelector("#opisInput")?.value || '';
-            const postaniTrenerEmailInput = document.querySelector("#emailInput")?.value || '';
 
-            const userString = sessionStorage.getItem("uporabnikInfo");
-            if (!userString) {
-                console.error("Uporabnik ni prijavljen (podatki manjkajo v sessionStorage). Prošnja za trenerja ne bo poslana.");
-                alert("Za pošiljanje prošnje morate biti prijavljeni.");
+            // Pridobimo žeton iz sessionStorage ali localStorage
+            const token = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken");
+
+            if (!token) {
+                alert("Za oddajo prošnje morate biti prijavljeni. Preusmerjam na prijavo.");
+                window.location.href = 'prijava.html'; // Preusmeritev na prijavo
                 return;
             }
-            const user = JSON.parse(userString);
 
-            if (!user || !user.email) {
-                console.error("Email uporabnika ni na voljo. Prošnja za trenerja ne bo poslana.");
-                alert("Napaka: Vaš email ni na voljo. Prosimo, poskusite se ponovno prijaviti.");
+            // Pravilno preberemo vrednosti iz obrazca
+            const ime = document.getElementById("imeInput").value;
+            const priimek = document.getElementById("priimekInput").value;
+            const kontakt_email = document.getElementById("emailInput").value;
+            const telefon = document.getElementById("telefonInput").value;
+            const lokacija = document.getElementById("lokacijaInput").value;
+            const urnik = document.getElementById("urnikInput").value;
+            const opis = document.getElementById("opisInput").value;
+
+            // Pridobimo vrednosti iz multi-select polja
+            const izbraniSporti = Array.from(sportiSelect.selectedOptions).map(option => option.value);
+
+            if (izbraniSporti.length === 0) {
+                alert("Izbrati morate vsaj en šport.");
                 return;
             }
 
             const dataToSend = {
-                email: user.email,
-                kontaktEmail: postaniTrenerEmailInput,
-                ime: postaniTrenerImeInput,
-                priimek: postaniTrenerPriimekInput,
-                telefon: postaniTrenerTelefonInput,
-                urnik: postaniTrenerUrnikInput,
-                opis: postaniTrenerOpisInput
+                ime: ime,
+                priimek: priimek,
+                kontakt_email: kontakt_email,
+                telefon: telefon,
+                lokacija: lokacija,
+                urnik: urnik,
+                opis: opis,
+                sporti: izbraniSporti // Pošljemo kot polje ID-jev
             };
 
-            console.log("Pošiljanje podatkov za 'Postani trener':", dataToSend);
+            console.log("Pošiljanje podatkov na /api/postaniTrener:", dataToSend);
 
             try {
-                const response = await fetch('http://localhost:3000/api/postaniTrener', {
+                const response = await fetch('/api/postaniTrener', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        // KLJUČEN DEL: Pošiljanje avtorizacijskega žetona
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(dataToSend)
                 });
 
+                const responseData = await response.json();
+
                 if (response.ok) {
-                    const res = await response.json();
-                    console.log("Odgovor strežnika (uspeh):", res);
-                    alert(res.message || "Prošnja za trenerja je bila uspešno poslana!");
-                    hidePostaniTrenerModal();
-                    if (postaniTrenerLinkContainer) {
-                        postaniTrenerLinkContainer.innerHTML = '<p class="text-success">Vaša prošnja za trenerja je v obdelavi.</p>';
-                        setTimeout(() => {
-                            if (document.body.contains(postaniTrenerLinkContainer)) {
-                                postaniTrenerLinkContainer.classList.add('d-none');
-                            }
-                        }, 3000);
+                    alert(responseData.message || "Uspešno ste postali trener! Vaše pravice so bile posodobljene.");
+
+                    // Posodobimo podatke v sessionStorage/localStorage z novim žetonom in podatki
+                    if (sessionStorage.getItem("accessToken")) {
+                        sessionStorage.setItem("accessToken", responseData.accessToken);
+                        sessionStorage.setItem("uporabnikInfo", JSON.stringify(responseData.uporabnik));
                     }
+                    if (localStorage.getItem("accessToken")) {
+                        localStorage.setItem("accessToken", responseData.accessToken);
+                        localStorage.setItem("uporabnikInfo", JSON.stringify(responseData.uporabnik));
+                    }
+
+                    // Preusmerimo na profilno stran ali domačo stran
+                    window.location.href = 'uredi-profil.html';
+
                 } else {
-                    const errorRes = await response.json().catch(() => ({ message: "Napaka pri obdelavi odgovora s strežnika." }));
-                    console.error("Napaka s strežnika:", response.status, errorRes);
-                    alert(`Napaka pri pošiljanju prošnje: ${errorRes.message || response.statusText}`);
+                    console.error("Napaka s strežnika:", response.status, responseData);
+                    alert(`Napaka pri pošiljanju prošnje: ${responseData.message || response.statusText}`);
                 }
             } catch (error) {
                 console.error("Napaka pri pošiljanju zahteve (fetch):", error);
                 alert("Prišlo je do napake pri komunikaciji s strežnikom. Poskusite znova kasneje.");
-            }
-        });
-    } else {
-        console.warn("Obrazec 'postaniTrenerForm' ni bil najden.");
-    }
-
-    if (postaniTrenerOverlay) {
-        const closeModalButton = postaniTrenerOverlay.querySelector('.close-modal-button');
-        if (closeModalButton) {
-            closeModalButton.addEventListener('click', function() {
-                hidePostaniTrenerModal();
-            });
-        }
-        postaniTrenerOverlay.addEventListener('click', function(event) {
-            if (event.target === postaniTrenerOverlay) {
-                hidePostaniTrenerModal();
             }
         });
     }

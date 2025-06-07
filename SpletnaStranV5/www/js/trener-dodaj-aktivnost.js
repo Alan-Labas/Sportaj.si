@@ -1,41 +1,4 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
-    if (!uporabnikInfoString) {
-        alert('Za dostop do te strani morate biti prijavljeni.');
-        return;
-    }
-
-    const uporabnik = JSON.parse(uporabnikInfoString);
-
-    if (uporabnik && typeof uporabnik.email !== 'string' && uporabnik.email.endsWith('@trener.si')) {
-        alert('Nimate dovoljenja za dostop do te strani. Ta stran je namenjena samo trenerjem.');
-        window.location.href = '/'; // Preusmeri na domačo stran
-        return;
-    }
-
-    const idPrijavljenegaTrenerja = uporabnik.id_trenerja;
-
-    // Pozdrav in odjava (elementi morajo obstajati v HTML)
-    const pozdravUporabnikaEl = document.getElementById('pozdravUporabnika');
-    if (pozdravUporabnikaEl) {
-        pozdravUporabnikaEl.textContent = `Trener: ${uporabnik.username || uporabnik.ime}`;
-    }
-
-    const odjavaBtn = document.getElementById('odjavaBtn');
-    if (odjavaBtn) {
-        odjavaBtn.addEventListener('click', () => {
-            // Funkcija odjava() mora biti na voljo globalno (npr. iz PrijavaInRegistracija.js)
-            if (typeof odjava === 'function') {
-                odjava(false, "Uspešno ste se odjavili.");
-            } else {
-                console.error('Funkcija za odjavo ni na voljo.');
-                sessionStorage.removeItem('uporabnikInfo');
-                sessionStorage.removeItem('token');
-                window.location.href = '/';
-            }
-        });
-    }
-
 
     const aktivnostForm = document.getElementById('aktivnostForm');
     const aktivnostNazivInput = document.getElementById('aktivnostNazivInput');
@@ -45,104 +8,121 @@ document.addEventListener('DOMContentLoaded', async () => {
     const aktivnostProstaMestaInput = document.getElementById('aktivnostProstaMestaInput');
     const aktivnostSlikaUploadInput = document.getElementById('aktivnostSlikaUploadInput');
     const aktivnostTipSelect = document.getElementById('aktivnostTipSelect');
-    // Polje za izbiro trenerja ni potrebno, saj bo ID trenerja samodejno dodeljen
+    const datumUreInput = document.getElementById('datumUreInput'); // Ujema se z ID-jem v HTML
+    const nacinIzvedbeSelect = document.getElementById('nacinIzvedbeSelect');
 
-    const shraniAktivnostBtn = document.getElementById('shraniAktivnostBtn');
-
-    // Funkcija za prikaz obvestil (mora biti definirana ali pa uporabite obstoječo)
-    function prikaziObvestilo(sporocilo, tip = 'success', elementId = 'obvestiloSporocilo') {
-        const container = document.getElementById(elementId);
+    function prikaziObvestilo(sporocilo, tip = 'success', timeout = 5000) {
+        const container = document.getElementById('obvestiloSporocilo');
         if (!container) {
-            console.warn(`Element z ID '${elementId}' za prikaz obvestil ne obstaja.`);
-            alert(sporocilo); // Fallback na alert
+            alert(sporocilo);
             return;
         }
         container.innerHTML = `<div class="alert alert-${tip}" role="alert">${sporocilo}</div>`;
-        setTimeout(() => {
-            container.innerHTML = '';
-        }, 5000); // Obvestilo izgine po 5 sekundah
+        setTimeout(() => { container.innerHTML = ''; }, timeout);
     }
 
-    // Naloži tipe aktivnosti (športe) v select polje
-    async function loadSportiZaSelect(selectElement) {
+    async function loadSportiZaSelect() {
         try {
-            const response = await fetch(`/api/vsi-sporti`);
+            const response = await fetch('/api/vsi-sporti');
             if (!response.ok) throw new Error('Napaka pri nalaganju športov.');
             const sporti = await response.json();
-            selectElement.innerHTML = '<option value="">Izberite tip...</option>'; //
-            sporti.forEach(s => {
-                selectElement.innerHTML += `<option value="${s.id}">${s.Sport}</option>`;
+
+            aktivnostTipSelect.innerHTML = '<option value="" disabled selected>Izberite tip...</option>';
+            sporti.forEach(sport => {
+                const option = document.createElement('option');
+                option.value = sport.id;
+                option.textContent = sport.ime_sporta; // V server.js je to 'ime_sporta'
+                aktivnostTipSelect.appendChild(option);
             });
         } catch (error) {
             console.error('Napaka pri nalaganju športov za select:', error);
-            prikaziObvestilo('Napaka pri nalaganju seznamov športov. Prosim, osvežite stran.', 'danger');
+            prikaziObvestilo('Napaka pri nalaganju seznama športov. Prosim, osvežite stran.', 'danger');
         }
     }
 
-    await loadSportiZaSelect(aktivnostTipSelect);
 
-    // Funkcija za shranjevanje aktivnosti
-    async function shraniAktivnost() {
-        const naziv = aktivnostNazivInput.value.trim();
-        const opis = aktivnostOpisInput.value.trim();
-        const lokacija = aktivnostLokacijaInput.value.trim();
-        const cena = aktivnostCenaInput.value;
-        const prostaMesta = aktivnostProstaMestaInput.value;
-        const tipAktivnosti = aktivnostTipSelect.value;
+    async function shraniAktivnost(event) {
+        event.preventDefault();
 
-        if (!naziv || !opis || !lokacija || cena === '' || prostaMesta === '' || !tipAktivnosti) {
-            prikaziObvestilo('Izpolnite vsa obvezna polja (*) pravilno.', 'warning');
-            return;
-        }
-        if (isNaN(parseFloat(cena)) || parseFloat(cena) < 0 || isNaN(parseInt(prostaMesta)) || parseInt(prostaMesta) < 0 || isNaN(parseInt(tipAktivnosti))) {
-            prikaziObvestilo('Cena, prosta mesta in tip aktivnosti morajo biti veljavna pozitivna števila.', 'warning');
+        const token = sessionStorage.getItem("accessToken");
+        if (!token) {
+            prikaziObvestilo('Za dodajanje aktivnosti morate biti prijavljeni.', 'danger');
+            // Možna preusmeritev na prijavo
+            window.location.href = 'prijava.html';
             return;
         }
 
+        // Zberemo podatke iz obrazca
         const formData = new FormData();
-        formData.append('Naziv', naziv);
-        formData.append('Opis', opis);
-        formData.append('Lokacija', lokacija);
-        formData.append('Cena', parseFloat(cena));
-        formData.append('ProstaMesta', parseInt(prostaMesta));
-        formData.append('TK_TipAktivnosti', parseInt(tipAktivnosti));
-        //formData.append('TK_Trener', idPrijavljenegaTrenerja); // Samodejno dodeli ID prijavljenega trenerja
+        formData.append('Naziv', aktivnostNazivInput.value.trim());
+        formData.append('Opis', aktivnostOpisInput.value.trim());
+        formData.append('Lokacija', aktivnostLokacijaInput.value.trim());
+        formData.append('Cena', aktivnostCenaInput.value);
+        formData.append('ProstaMesta', aktivnostProstaMestaInput.value);
+        formData.append('TK_TipAktivnosti', aktivnostTipSelect.value);
+        formData.append('Datum_Cas_Izvedbe', datumUreInput.value); // Strežnik pričakuje 'Datum_Cas_Izvedbe'
+        formData.append('Nacin_Izvedbe', nacinIzvedbeSelect.value);
 
-        if (aktivnostSlikaUploadInput.files.length > 0) {
-            formData.append('slikaAktivnosti', aktivnostSlikaUploadInput.files[0]);
+        const slikaFile = aktivnostSlikaUploadInput.files[0];
+        if (slikaFile) {
+            formData.append('slikaAktivnosti', slikaFile);
         }
 
-        const url = `/api/admin/aktivnosti`; // Uporabimo obstoječo pot, ki podpira trenerje
-        const method = 'POST';
+        // Validacija
+        if (!formData.get('Naziv') || !formData.get('Opis') || !formData.get('Lokacija') || !formData.get('Datum_Cas_Izvedbe') || !formData.get('TK_TipAktivnosti')) {
+            prikaziObvestilo('Prosimo, izpolnite vsa obvezna polja (*).', 'warning');
+            return;
+        }
 
         try {
-            // Funkcija fetchZAvtentikacijo mora biti na voljo globalno (npr. iz PrijavaInRegistracija.js)
-            if (typeof fetchZAvtentikacijo !== 'function') {
-                throw new Error('Funkcija fetchZAvtentikacijo ni na voljo.');
-            }
-            const response = await fetchZAvtentikacijo(url, {
-                method: method,
+            const response = await fetch('/api/admin/aktivnosti', {
+                method: 'POST',
+                headers: {
+                    // Content-Type se NE nastavlja ročno, ko uporabljamo FormData
+                    'Authorization': `Bearer ${token}`
+                },
                 body: formData
-                // Content-Type se ne nastavlja ročno pri FormData, brskalnik to stori sam
             });
 
-            const responseData = await response.json();
+            const result = await response.json();
+
             if (!response.ok) {
-                throw new Error(responseData.message || `Napaka pri shranjevanju aktivnosti: ${response.statusText}`);
+                // Če strežnik vrne napako, jo prikažemo
+                throw new Error(result.message || `Napaka strežnika: ${response.status}`);
             }
 
-            prikaziObvestilo(responseData.message || 'Aktivnost uspešno dodana.', 'success');
-            aktivnostForm.reset(); // Počisti obrazec po uspešnem dodajanju
-            await loadSportiZaSelect(aktivnostTipSelect); // Ponovno naloži, če se obrazec resetira
+            prikaziObvestilo('Aktivnost je bila uspešno dodana!', 'success');
+            aktivnostForm.reset(); // Počisti obrazec
+            // Po uspešnem dodajanju lahko preusmerimo uporabnika
+            setTimeout(() => {
+                const uporabnikInfo = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
+                if (uporabnikInfo && uporabnikInfo.trenerId) {
+                    window.location.href = `profilTrener.html?id=${uporabnikInfo.trenerId}`;
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }, 2000);
+
         } catch (error) {
             console.error('Napaka pri shranjevanju aktivnosti:', error);
-            prikaziObvestilo(error.message || 'Prišlo je do napake pri shranjevanju.', 'danger');
+            prikaziObvestilo(`Napaka: ${error.message}`, 'danger');
         }
     }
 
-    if (shraniAktivnostBtn) {
-        shraniAktivnostBtn.addEventListener('click', shraniAktivnost);
-    } else {
-        console.error("Gumb 'shraniAktivnostBtn' ni najden.");
+    const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
+    if (!uporabnikInfoString) {
+        document.querySelector('main').innerHTML = '<div class="alert alert-danger">Za dostop do te strani morate biti prijavljeni.</div>';
+        return;
     }
+    const uporabnik = JSON.parse(uporabnikInfoString);
+    if (!uporabnik.jeTrener && !uporabnik.JeAdmin) {
+        document.querySelector('main').innerHTML = '<div class="alert alert-danger">Nimate ustreznih pravic za dostop do te strani.</div>';
+        return;
+    }
+
+    await loadSportiZaSelect();
+    if (aktivnostForm) {
+        aktivnostForm.addEventListener('submit', shraniAktivnost);
+    }
+
 });

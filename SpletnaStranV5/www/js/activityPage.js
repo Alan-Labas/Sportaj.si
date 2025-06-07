@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityTrainerEmail = document.getElementById('activityTrainerEmail');
     const activityDescription = document.getElementById('activityDescription');
     const userCommentsSection = document.getElementById('activityUserCommentsSection');
-    
+
     const starsContainer = document.getElementById('activityStarRating');
     const currentRatingText = document.getElementById('activityCurrentRatingText');
     const commentForm = document.getElementById('activityCommentForm');
@@ -24,11 +24,16 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityDate = document.getElementById('activityDate');
     const activityLocation = document.getElementById('activityLocation')
     const similarActivitiesSection = document.getElementById('similarActivitiesSection');
-    
+    const aktivnostId = new URLSearchParams(window.location.search).get('id');
+
 
     const defaultProfilePicPath = '../slike/sporti/atlettrening.jfif';
 
     const isLoggedIn = !!sessionStorage.getItem('accessToken');
+
+    if (aktivnostId) {
+        naloziPodrobnostiAktivnosti(aktivnostId);
+    }
 
     if (!isLoggedIn) {
         if (ocenjevanjeInKomentiranjeCard) {
@@ -71,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
     activityTrainerCard.addEventListener('click', ()=>{
         window.location.href = `/html/profilTrener.html?id=${activityData.TK_Trener}`
     })
-    
+
     if (commentForm) {
         commentForm.addEventListener('submit', async(e)=>{
             e.preventDefault();
@@ -86,13 +91,13 @@ document.addEventListener('DOMContentLoaded', async() =>{
                 }
                 return;
             }
-            
+
             const comment = commentForm.querySelector('#activityCommentText').value;
-            const activityIdForm = commentForm.id; 
+            const activityIdForm = commentForm.id;
             console.log(activityIdForm)
             const user = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
             console.log(user);
-            
+
             try{
                 const response = await fetch(`${API_URL}/komentiraj`, {
                     method: 'POST',
@@ -107,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async() =>{
                     } else {
                         alert('Komentar uspešno dodan!');
                     }
-                    commentForm.querySelector('#activityCommentText').value = ''; 
+                    commentForm.querySelector('#activityCommentText').value = '';
                     // Optionally, refresh comments section
                     const params = new URLSearchParams({activityId : activityData.id});
                     const comments = await fetchData(`${API_URL}/getKomentarji?${params.toString()}`);
@@ -203,5 +208,127 @@ document.addEventListener('DOMContentLoaded', async() =>{
             userCommentsSection.innerHTML = '<p class="text-muted">Za to aktivnost še ni komentarjev.</p>';
         }
     }
-    
-})
+
+});
+
+async function fetchZAvtentikacijo(url, options = {}) {
+    const token = sessionStorage.getItem('accessToken');
+    if (token) {
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    } else {
+        options.headers = {
+            ...options.headers,
+            'Content-Type': 'application/json'
+        };
+    }
+    const response = await fetch(url, options);
+    // Osnovno obravnavanje napak, lahko razširiš
+    if (response.status === 401 && !options.skipAuthRedirect) {
+        // Uporabnik ni prijavljen, preusmeri ga
+        window.location.href = `/html/prijava.html?redirect=${window.location.pathname + window.location.search}`;
+    }
+    return response;
+}
+
+
+async function naloziPodrobnostiAktivnosti(id) {
+    try {
+        const response = await fetchZAvtentikacijo(`/api/aktivnost/${id}/details`);
+        if (!response.ok) {
+            throw new Error('Aktivnost ni bila najdena.');
+        }
+        const aktivnost = await response.json();
+
+        // Prikaz osnovnih podatkov (to kodo verjetno že imaš)
+        document.getElementById('naziv-aktivnosti').textContent = aktivnost.Naziv;
+        document.getElementById('opis-aktivnosti').textContent = aktivnost.Opis;
+        // ... ostali podatki ...
+
+        // --- NOVA LOGIKA ZA GUMB ---
+        prikaziGumbZaPrijavo(aktivnost);
+
+    } catch (error) {
+        console.error('Napaka pri nalaganju podrobnosti:', error);
+        document.getElementById('activity-details-container').innerHTML = `<p class="text-danger">${error.message}</p>`;
+    }
+}
+
+function prikaziGumbZaPrijavo(aktivnost) {
+    const container = document.getElementById('prijava-container');
+    if (!container) return;
+
+    container.innerHTML = ''; // Počisti prejšnjo vsebino
+    const uporabnikInfo = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
+
+    if (!uporabnikInfo) {
+        // Uporabnik ni prijavljen
+        container.innerHTML = `
+            <p class="text-muted">Za prijavo na aktivnost se morate <a href="/html/prijava.html?redirect=${window.location.pathname + window.location.search}">prijaviti</a>.</p>
+        `;
+        return;
+    }
+
+    if (aktivnost.ProstaMesta <= 0 && !aktivnost.jePrijavljen) {
+        // Ni prostih mest in uporabnik ni prijavljen
+        container.innerHTML = '<button class="btn btn-secondary" disabled>Ni prostih mest</button>';
+        return;
+    }
+
+    let gumbHTML = '';
+    if (aktivnost.jePrijavljen) {
+        gumbHTML = `<button class="btn btn-danger" id="btn-odjava">Odjavi se</button>`;
+    } else {
+        gumbHTML = `<button class="btn btn-primary" id="btn-prijava">Prijavi se na aktivnost</button>`;
+    }
+
+    container.innerHTML = gumbHTML + '<div id="prijava-sporocilo" class="mt-2"></div>';
+
+    // Dodaj event listenerje
+    if (aktivnost.jePrijavljen) {
+        document.getElementById('btn-odjava').addEventListener('click', () => obravnavajOdjavo(aktivnost.id));
+    } else {
+        document.getElementById('btn-prijava').addEventListener('click', () => obravnavajPrijavo(aktivnost.id));
+    }
+}
+
+async function obravnavajPrijavo(aktivnostId) {
+    const sporociloEl = document.getElementById('prijava-sporocilo');
+    sporociloEl.innerHTML = `<div class="spinner-border spinner-border-sm"></div>`;
+
+    try {
+        const response = await fetchZAvtentikacijo(`/api/aktivnosti/${aktivnostId}/prijava`, { method: 'POST' });
+        const data = await response.json();
+
+        if (response.ok) {
+            sporociloEl.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            naloziPodrobnostiAktivnosti(aktivnostId); // Osveži podatke na strani
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        sporociloEl.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    }
+}
+
+async function obravnavajOdjavo(aktivnostId) {
+    const sporociloEl = document.getElementById('prijava-sporocilo');
+    sporociloEl.innerHTML = `<div class="spinner-border spinner-border-sm"></div>`;
+
+    try {
+        const response = await fetchZAvtentikacijo(`/api/aktivnosti/${aktivnostId}/odjava`, { method: 'POST' });
+        const data = await response.json();
+
+        if (response.ok) {
+            sporociloEl.innerHTML = `<div class="alert alert-info">${data.message}</div>`;
+            naloziPodrobnostiAktivnosti(aktivnostId); // Osveži podatke na strani
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        sporociloEl.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+    }
+}

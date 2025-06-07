@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const currentRatingText = document.getElementById('currentRatingText');
     const commentForm = document.getElementById('commentForm');
     const commentTextElement = document.getElementById('commentText');
-    const defaultProfilePicPath = '/slike/default-profile.png';
+    const defaultProfilePicPath = '../slike/default-profile.png';
 
     const ocenaContainer = document.getElementById('ocenaContainer');
     const komentarFormContainer = document.getElementById('komentarFormContainer');
@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (mainContent) mainContent.innerHTML = '<p class="text-danger text-center display-6 mt-5">ID trenerja manjka ali ni veljaven. Prosimo, vrnite se na <a href="/">domačo stran</a> in poskusite znova.</p>';
         return;
     }
+
 
     async function fetchTrainerDetails(id) {
         try {
@@ -74,20 +75,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (trainerSchedule) trainerSchedule.textContent = trainerData.urnik || 'Ni podatka';
     if (trainerDescription) trainerDescription.textContent = trainerData.OpisProfila || 'Opis ni na voljo.';
 
-
     if (trainerActivitiesSection) {
             trainerActivitiesSection.innerHTML = '<h5>Poučevane športne aktivnosti:</h5>';
             if (trainerData.aktivnosti && trainerData.aktivnosti.length > 0) {
-                let activitiesHtml = '<div class="list-group">'; 
+                let activitiesHtml = '<div class="list-group">';
                 trainerData.aktivnosti.forEach(akt => {
-                    const slikaPath = akt.slika_aktivnosti || '/slike/default-sport.png';
+                    const slikaPath = akt.slika_aktivnosti || '../slike/default-profile.png';
                     const kratekOpis = `${akt.Naziv} (${akt.ime_sporta})`;
                     const cenaText = akt.Cena != null ? `${parseFloat(akt.Cena).toFixed(2)} €` : 'N/A';
 
                     activitiesHtml += `
                         <a href="/html/pregledAktivnosti.html?id=${akt.id}" class="list-group-item list-group-item-action flex-column align-items-start mb-2 shadow-sm" style="text-decoration: none; color: inherit;">
                             <div class="d-flex w-100">
-                                <img src="${slikaPath}" alt="${akt.Naziv}" class="me-3 rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img src="slikaPath" alt="${akt.Naziv}" class="me-3 rounded" style="width: 100px; height: 100px; object-fit: cover;">
                                 <div class="flex-grow-1">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1 fw-bold">${akt.Naziv}</h6>
@@ -118,13 +118,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function displayCommentsAndAverageRating(ocene) {
         if (userCommentsSection) {
-            userCommentsSection.innerHTML = ''; 
+            userCommentsSection.innerHTML = '';
             if (ocene && ocene.length > 0) {
-                ocene.forEach((ocena, index) => { 
+                ocene.forEach((ocena, index) => {
                     const commentDiv = document.createElement('div');
-                    commentDiv.classList.add('card', 'mb-2', `comment-card-${ocena.ocena_id || index}`); 
+                    commentDiv.classList.add('card', 'mb-2', `comment-card-${ocena.ocena_id || index}`);
                     const datumOcene = ocena.Datum ? new Date(ocena.Datum).toLocaleDateString('sl-SI') : 'Neznan datum';
-                    const starsHTML = generateStarsHTML(ocena.Ocena, false); 
+                    const starsHTML = generateStarsHTML(ocena.Ocena, false);
 
                     let adminDeleteButton = '';
                     if (isUserAdmin) {
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             const commentId = this.dataset.commentId;
                             const commentCard = userCommentsSection.querySelector(`.comment-card-${commentId}`);
                             if (commentCard) {
-                                commentCard.style.display = 'none'; 
+                                commentCard.style.display = 'none';
                                 console.log(`Komentar ${commentId} skrit (samo na front-endu).`);
                             }
                         });
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const sum = ocene.reduce((acc, o) => acc + (parseFloat(o.Ocena) || 0), 0);
             averageRating = sum / ocene.length;
         }
-        
+
         updateDisplayStars(averageRating, averageRating > 0 ? "Povprečna ocena:" : "Ni ocen", isLoggedIn);
     }
 
@@ -185,24 +185,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!isLoggedIn) {
         if (ocenaContainer) ocenaContainer.style.display = 'none';
         if (komentarFormContainer) komentarFormContainer.style.display = 'none';
-        
+
         if (hrBeforeOcenaContainer) hrBeforeOcenaContainer.style.display = 'none';
         if (hrBeforeKomentarFormContainer) hrBeforeKomentarFormContainer.style.display = 'none';
-        
-        // Odločitev, ali naj se skrije tudi <hr> nad komentarji uporabnikov, če komentarji niso prikazani
-        // ali pa če je `komentarjiUporabnikovContainer` prazen.
-        // Zaenkrat predpostavimo, da če ni prijave, se komentarji uporabnikov ne prikazujejo ali pa je ta sekcija prazna,
-        // zato skrijemo tudi ta <hr>. Če bi želeli, da je ta <hr> vedno viden, odstranite naslednji if.
+
         if (komentarjiUporabnikovContainer && (komentarjiUporabnikovContainer.offsetParent === null || userCommentsSection.innerHTML.includes('Trenutno ni komentarjev.'))) {
              if (hrBeforeKomentarjiUporabnikovContainer) hrBeforeKomentarjiUporabnikovContainer.style.display = 'none';
         } else if (hrBeforeKomentarjiUporabnikovContainer) {
-             // Če je komentarjiUporabnikovContainer viden in ima vsebino, naj bo hr tudi viden
              hrBeforeKomentarjiUporabnikovContainer.style.display = 'block';
         }
 
 
         if (starsContainer) {
-             starsContainer.style.pointerEvents = 'none'; 
+             starsContainer.style.pointerEvents = 'none';
         }
          if (currentRatingText && starsContainer.children.length > 0) {
             let avgRat = 0;
@@ -223,7 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    if (starsContainer && isLoggedIn) { 
+    if (starsContainer && isLoggedIn) {
         starsContainer.addEventListener('click', (event) => {
             const targetStar = event.target.closest('i[data-value]');
             if (targetStar) {
@@ -239,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const allStars = starsContainer.querySelectorAll('i');
                 allStars.forEach(s => {
                     const sValue = parseInt(s.dataset.value);
-                    if (sValue) { 
+                    if (sValue) {
                         s.className = sValue <= hoverValue ? 'fas fa-star' : 'far fa-star';
                     }
                 });
@@ -260,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (commentForm && commentTextElement && isLoggedIn) { 
+    if (commentForm && commentTextElement && isLoggedIn) {
         commentForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const komentar = commentTextElement.value.trim();
@@ -277,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             try {
-                const response = await fetchZAvtentikacijo(`/api/trener/${trainerId}/ocena`, { 
+                const response = await fetchZAvtentikacijo(`/api/trener/${trainerId}/ocena`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
@@ -289,7 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     alert(result.message || 'Ocena in komentar uspešno oddana!');
                     commentTextElement.value = '';
-                    currentUserRating = 0; 
+                    currentUserRating = 0;
                     const updatedTrainerData = await fetchTrainerDetails(trainerId);
                     if (updatedTrainerData) {
                         displayCommentsAndAverageRating(updatedTrainerData.ocene);
@@ -304,7 +299,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (typeof preveriPrijavo === "function") { 
+    if (typeof preveriPrijavo === "function") {
         preveriPrijavo();
+    }
+    const posljiSporociloBtn = document.getElementById('posljiSporociloBtn');
+    if (posljiSporociloBtn) {
+        if (!isLoggedIn || (uporabnikInfoString && JSON.parse(uporabnikInfoString).jeTrener)) {
+            posljiSporociloBtn.classList.add('d-none'); // Skrij gumb, če uporabnik ni prijavljen ali je sam trener
+        } else {
+            posljiSporociloBtn.href = `klepet.html?trenerId=${trainerId}`;
+        }
     }
 });

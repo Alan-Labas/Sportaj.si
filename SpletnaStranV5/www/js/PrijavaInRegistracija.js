@@ -31,7 +31,7 @@ async function osveziDostopniZeton(shraniUporabnika = false) {
                     email: data.uporabnik.email,
                     slika_base64: data.uporabnik.slika_base64,
                     JeAdmin: data.uporabnik.JeAdmin,
-                    isTrainer: data.uporabnik.isTrainer, ...(data.uporabnik.isTrainer && {
+                    jeTrener: data.uporabnik.jeTrener, ...(data.uporabnik.jeTrener && {
                         trenerId: data.uporabnik.trenerId,
                         trenerIme: data.uporabnik.trenerIme,
                         trenerPriimek: data.uporabnik.trenerPriimek
@@ -193,7 +193,7 @@ async function prijavaUporabnika() {
                         email: data.uporabnik.email,
                         slika_base64: data.uporabnik.slika_base64,
                         JeAdmin: data.uporabnik.JeAdmin,
-                        isTrainer: data.uporabnik.isTrainer, ...(data.uporabnik.isTrainer && {
+                        jeTrener: data.uporabnik.jeTrener, ...(data.uporabnik.jeTrener && {
                             trenerId: data.uporabnik.trenerId,
                             trenerIme: data.uporabnik.trenerIme,
                             trenerPriimek: data.uporabnik.trenerPriimek
@@ -311,7 +311,7 @@ async function registracijaUporabnika() {
                 if (regOverlay) regOverlay.style.display = 'none';
                 const msgEl = document.getElementById(messageElementId);
                 if (msgEl) msgEl.innerHTML = '';
-                showLoginModal();
+                window.location.href="../html/prijava.html";
             }, 2500);
         } else {
             let errorMessage = data.message || 'Registracija neuspešna.';
@@ -325,94 +325,125 @@ async function registracijaUporabnika() {
 
 async function preveriPrijavo() {
     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
-    const navRight = document.getElementById('navRight');
-    const loginSignUpButtons = document.getElementById('loginSignUpButtons');
-    const pozdravElement = document.getElementById('pozdrav');
-    const odjavaKontejner = document.getElementById('oddjava');
-    const adminPanelLinkContainer = document.getElementById('adminPanelLinkContainer');
-    const trenerDodajAktivnsotLinkContainer = document.getElementById('trenerDodajAktivnsotLinkContainer');
-    const postaniTrenerLinkContainer = document.getElementById('postaniTrenerLinkContainer');
+    const loginSignUpButtons = document.getElementById('loginSignUpButtons'); // Kontejner za gumba Prijava/Registracija
+    const userDropdownNavItem = document.getElementById('userDropdownNavItem'); // Kontejner za dropdown meni prijavljenega uporabnika
+
+    const userProfilePicNav = document.getElementById('userProfilePicNav');
+    const usernameNav = document.getElementById('usernameNav');
+    const urediProfilLinkNav = document.getElementById('urediProfilLinkNav');
+    const logoutLinkNav = document.getElementById('logoutLinkNav');
+    const adminPanelLinkContainerNav = document.getElementById('adminPanelLinkContainerNav');
+    const trenerDodajAktivnostLinkContainerNav = document.getElementById('trenerDodajAktivnostLinkContainerNav');
+    const postaniTrenerLinkContainerNav = document.getElementById('postaniTrenerLinkContainerNav');
+    // Gumb "Postani Trener" na index.html, če obstaja
+    const postaniTrenerIndexGumbContainer = document.getElementById('postaniTrenerIndexGumbContainer');
+
 
     if (uporabnikInfoString && sessionStorage.getItem('accessToken')) {
         const uporabnik = JSON.parse(uporabnikInfoString);
 
-        if (navRight) {
-            navRight.classList.remove('d-none');
-            navRight.classList.add('d-flex');
+        if (loginSignUpButtons) loginSignUpButtons.classList.add('d-none');
+        if (userDropdownNavItem) userDropdownNavItem.classList.remove('d-none');
+
+        if (userProfilePicNav) {
+            userProfilePicNav.src = uporabnik.slika_base64 || '../slike/default-profile.png'; // Privzeta slika, če ni na voljo
         }
-        if (loginSignUpButtons) {
-            loginSignUpButtons.classList.add('d-none');
-            loginSignUpButtons.classList.remove('d-flex');
+        if (usernameNav) {
+            usernameNav.textContent = uporabnik.username;
         }
 
-        if (pozdravElement) {
-            pozdravElement.textContent = `Pozdravljeni, ${uporabnik.username}!`;
-        }
-        if (odjavaKontejner) {
-            //odjavaKontejner.innerHTML = '<a href="#" id="logoutLink" class="btn btn-warning btn-sm">Odjava</a>';
-            const logoutLink = document.getElementById('logoutLink');
-            if (logoutLink) {
-                logoutLink.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await odjava(false, 'Uspešno ste se odjavili!');
-                });
+        if (urediProfilLinkNav) {
+            // Preverimo, ali smo že na uredi-profil.html, da se izognemo relativni poti, če ni potrebna
+            if (window.location.pathname.includes('uredi-profil.html') || window.location.pathname.endsWith('/')) {
+                urediProfilLinkNav.href = 'uredi-profil.html'; // Če smo v root ali že tam
+            } else if (window.location.pathname.startsWith('/html/')) {
+                urediProfilLinkNav.href = 'uredi-profil.html'; // Če smo v podmapi /html/
+            }
+            else {
+                urediProfilLinkNav.href = 'html/uredi-profil.html'; // Privzeta pot, če nismo v rootu
             }
         }
 
-        if (adminPanelLinkContainer) {
-            if (uporabnik.JeAdmin === 1) {
-                adminPanelLinkContainer.innerHTML = '<a href="/html/admin-panel.html" class="btn btn-secondary mb-1">Admin Panel</a>';
-                adminPanelLinkContainer.classList.remove('d-none');
+        if (logoutLinkNav) {
+            logoutLinkNav.removeEventListener('click', odjavaObKlikNav); // Odstranimo prejšnji listener, da preprečimo podvajanje
+            logoutLinkNav.addEventListener('click', odjavaObKlikNav);
+        }
+
+        if (adminPanelLinkContainerNav) {
+            if (uporabnik.JeAdmin) {
+                adminPanelLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="../html/admin-panel.html">Admin Panel</a></li>';
             } else {
-                adminPanelLinkContainer.innerHTML = '';
-                adminPanelLinkContainer.classList.add('d-none');
+                adminPanelLinkContainerNav.innerHTML = '';
             }
         }
 
-        if (trenerDodajAktivnsotLinkContainer) {
-            if (uporabnik && typeof uporabnik.email === 'string' && uporabnik.email.endsWith('@trener.si')){
-                trenerDodajAktivnsotLinkContainer.innerHTML = '<a href="../html/dodaj-aktivnost.html" class="btn btn-secondary mb-1">Dodaj aktivnost</a>';
-                trenerDodajAktivnsotLinkContainer.classList.remove('d-none');
+        if (trenerDodajAktivnostLinkContainerNav) {
+            if (uporabnik.jeTrener) { // Uporabimo jeTrener boolean
+                trenerDodajAktivnostLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="../html/dodaj-aktivnost.html">Dodaj Aktivnost</a></li>';
+                if(postaniTrenerIndexGumbContainer) postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-info" href="../html/dodaj-aktivnost.html">Dodaj Svojo Aktivnost &raquo;</a>';
+
             } else {
-                trenerDodajAktivnsotLinkContainer.innerHTML = '';
-                trenerDodajAktivnsotLinkContainer.classList.add('d-none');
+                trenerDodajAktivnostLinkContainerNav.innerHTML = '';
             }
         }
+        if (postaniTrenerLinkContainerNav) {
+            if (!uporabnik.jeTrener && !uporabnik.JeAdmin) { // Uporabnik ni trener in ni admin
+                postaniTrenerLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="#" id="postaniTrenerModalGumbNav">Postani Trener</a></li>';
 
-        if (postaniTrenerLinkContainer){
-            if (uporabnik && typeof uporabnik.email === 'string' && !uporabnik.email.endsWith('@trener.si') && uporabnik.JeAdmin !==1){
-                postaniTrenerLinkContainer.innerHTML ='<button id="postaniTrenerButton" class="btn btn-secondary mb-1">Postani trener</button>';
-                postaniTrenerLinkContainer.classList.remove('d-none');
-            } else {
-                postaniTrenerLinkContainer.innerHTML = '';
-                postaniTrenerLinkContainer.classList.add('d-none');
+                // Gumb na index.html, če uporabnik NI trener in NI admin
+                if(postaniTrenerIndexGumbContainer && !uporabnik.jeTrener && !uporabnik.JeAdmin) {
+                    postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="#" id="postaniTrenerModalGumbIndex">Postani Trener &raquo;</a>';
+                }
+
+
+                // Dodaj event listenerje za odpiranje modala (če obstaja) ali preusmeritev
+                const modalGumbNav = document.getElementById('postaniTrenerModalGumbNav');
+                if(modalGumbNav) {
+                    modalGumbNav.removeEventListener('click', obdelajKlikPostaniTrener);
+                    modalGumbNav.addEventListener('click', obdelajKlikPostaniTrener);
+                }
+                const modalGumbIndex = document.getElementById('postaniTrenerModalGumbIndex');
+                if(modalGumbIndex) {
+                    modalGumbIndex.removeEventListener('click', obdelajKlikPostaniTrener);
+                    modalGumbIndex.addEventListener('click', obdelajKlikPostaniTrener);
+                }
+
+            } else { // Če je trener ali admin, skrij možnost "Postani trener"
+                postaniTrenerLinkContainerNav.innerHTML = '';
+                // Če je trener ali admin, tudi na index.html ne sme biti tega gumba
+                if(postaniTrenerIndexGumbContainer && (uporabnik.jeTrener || uporabnik.JeAdmin === 1)) {
+                    postaniTrenerIndexGumbContainer.innerHTML = ''; // Počisti, če je admin ali že trener
+                }
             }
-        }
-
-        const urediProfilLink = document.getElementById('urediProfilLink');
-        if (urediProfilLink) {
-            urediProfilLink.href = (window.location.pathname.includes('uredi-profil.html') || window.location.pathname.includes('profilTrener.html')) ? '/html/uredi-profil.html' : 'html/uredi-profil.html';
         }
 
 
         resetTimerNeaktivnosti();
     } else {
-        if (navRight) {
-            navRight.classList.add('d-none');
-            navRight.classList.remove('d-flex');
+        if (loginSignUpButtons) loginSignUpButtons.classList.remove('d-none');
+        if (userDropdownNavItem) userDropdownNavItem.classList.add('d-none');
+
+        if (adminPanelLinkContainerNav) adminPanelLinkContainerNav.innerHTML = '';
+        if (trenerDodajAktivnostLinkContainerNav) trenerDodajAktivnostLinkContainerNav.innerHTML = '';
+        if (postaniTrenerLinkContainerNav) postaniTrenerLinkContainerNav.innerHTML = '';
+        // Na index.html, če uporabnik ni prijavljen, prikaži gumb za registracijo kot trener
+        if(postaniTrenerIndexGumbContainer) {
+            postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="/html/registracija.html">Registriraj se kot Trener &raquo;</a>';
         }
-        if (loginSignUpButtons) {
-            loginSignUpButtons.classList.remove('d-none');
-            loginSignUpButtons.classList.add('d-flex');
-        }
-        if (pozdravElement) pozdravElement.textContent = '';
-        if (odjavaKontejner) odjavaKontejner.innerHTML = '';
-        if (adminPanelLinkContainer) {
-            adminPanelLinkContainer.innerHTML = '';
-            adminPanelLinkContainer.classList.add('d-none');
-        }
+
+
         clearTimeout(neaktivonstTimer);
     }
+}
+
+async function odjavaObKlikNav(e){
+    e.preventDefault()
+    await odjava(false, 'Uspešno ste se odjavili!')
+}
+
+async function obdelajKlikPostaniTrener(e){
+    e.preventDefault()
+    window.location.href="/html/postani-trener.html";
 }
 
 async function odjava(forceStopTimers = false, sporocilo = null) {

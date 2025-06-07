@@ -1,196 +1,174 @@
-// V datoteki SpletnaStranV5/www/js/search-stran.js
 document.addEventListener('DOMContentLoaded', () => {
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.getElementById('searchInput');
-    const searchCategorySelect = document.getElementById('searchCategory');
-    const searchLocationInput = document.getElementById('searchLocation');
+    const searchQueryInput = document.getElementById('searchQuery');
+    const searchLocationInput = document.getElementById('location');
     const resultsContainer = document.getElementById('resultsContainer');
     const resultsTitle = document.getElementById('resultsTitle');
     const resultsPlaceholder = document.getElementById('resultsPlaceholder');
 
-    async function performSearch(searchTerm, category, location) {
-        if (resultsPlaceholder) resultsPlaceholder.style.display = 'block';
-        resultsContainer.innerHTML = '';
+    // Gumb za iskanje v search-form
+    const mainSearchButton = document.querySelector('.search-form .search-button-wrapper button');
+    if (mainSearchButton) {
+        mainSearchButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Preberemo vrednosti iz polj in jih damo v URL, nato kličemo performSearch
+            const urlParams = new URLSearchParams(window.location.search);
+            if (searchQueryInput) urlParams.set('term', searchQueryInput.value);
+            if (searchLocationInput) urlParams.set('location', searchLocationInput.value);
+            history.pushState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+            performSearch();
+        });
+    }
 
-        let queryParams = new URLSearchParams();
-        if (searchTerm) {
-            if (category === 'trenerji') queryParams.append('ime', searchTerm); // Lahko išče po imenu ali priimku, server podpira 'like'
-            else if (category === 'sport') queryParams.append('Sport', searchTerm);
-            else if (category === 'sportna_aktivnost') queryParams.append('Naziv', searchTerm);
-        }
-        if (location) {
-            queryParams.append('Lokacija', location);
-        }
+    const defaultProfileImg = '/slike/default-profile.png';
+    const defaultSportImg = '/slike/default-sport.png';
+    const defaultActivityImg = '/slike/default_activity.webp';
 
-        if (!category && searchCategorySelect) {
-            category = searchCategorySelect.value;
-        }
+    async function performSearch() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+        const term = urlParams.get('term') || '';
+        const location = urlParams.get('location') || '';
+        const tip = urlParams.get('tip');
+        const datum = urlParams.get('datum');
 
         if (!category) {
-            if (resultsPlaceholder) {
-                resultsPlaceholder.innerHTML = '<p class="text-center mt-2">Prosimo, izberite kategorijo za iskanje.</p>';
-                resultsPlaceholder.style.display = 'block';
-            }
-            resultsTitle.textContent = 'Iskanje';
+            resultsTitle.textContent = 'Kategorija iskanja ni določena.';
+            resultsContainer.innerHTML = '<p class="text-center">Prosimo, izberite kategorijo (Trenerji, Šport, Aktivnosti) preko navigacije.</p>';
+            if(resultsPlaceholder) resultsPlaceholder.style.display = 'none';
             return;
         }
 
-        const apiUrl = `/api/search/${category}?${queryParams.toString()}`;
+        if (resultsPlaceholder) resultsPlaceholder.style.display = 'block';
+        resultsTitle.textContent = 'Iskanje...';
+        resultsContainer.innerHTML = '';
 
         try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Napaka pri iskanju: ${response.statusText}`);
-            }
-            const data = await response.json();
-            const searchResults = data[0];
-            const appliedFilters = data[1];
+            const apiQueryParams = new URLSearchParams();
+            if (term) apiQueryParams.set('term', term);
+            if (location) apiQueryParams.set('location', location);
+            if (tip) apiQueryParams.set('tip', tip);
+            if (datum) apiQueryParams.set('datum', datum);
 
-            displayResults(searchResults, category, appliedFilters);
+            const response = await fetch(`/api/search/${category}?${apiQueryParams.toString()}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: "Napaka pri iskanju. Status: " + response.status }));
+                throw new Error(errorData.message || 'Neznana napaka');
+            }
+
+            const data = await response.json();
+            if (resultsPlaceholder) resultsPlaceholder.style.display = 'none';
+            displayResults(data, category);
+
         } catch (error) {
-            console.error('Napaka pri iskanju:', error);
-            resultsTitle.textContent = 'Napaka pri iskanju';
-            resultsContainer.innerHTML = `<p class="text-danger col-12">${error.message}</p>`;
-        } finally {
+            console.error('Napaka pri pridobivanju rezultatov iskanja:', error);
+            resultsTitle.textContent = 'Prišlo je do napake pri iskanju.';
             if (resultsPlaceholder) resultsPlaceholder.style.display = 'none';
         }
     }
 
-    function displayResults(results, category, filters) {
+    function displayResults(responseData, category) {
         resultsContainer.innerHTML = '';
 
-        let filterText = "";
-        if (filters && Object.keys(filters).length > 0) {
-            filterText = Object.entries(filters)
-                .filter(([key, value]) => value && value.trim() !== '')
-                .map(([key, value]) => `${value}`)
-                .join(', ');
+        if (!responseData || !Array.isArray(responseData) || responseData.length < 2) {
+            resultsTitle.textContent = 'Ni rezultatov za vaše iskanje ali pa je odgovor strežnika nepopoln.';
+            return;
         }
 
-        let categoryName = category;
-        if (category === 'sportna_aktivnost') categoryName = 'dejavnosti';
-        else if (category === 'sport') categoryName = 'športi';
-        else if (category === 'trenerji') categoryName = 'trenerji';
+        const results = responseData[0];
+        const filtersUsed = responseData[1];
 
+        let filterTextParts = [];
+        if (filtersUsed.term) filterTextParts.push(`izraz: "${filtersUsed.term}"`);
+        if (filtersUsed.location) filterTextParts.push(`lokacija: "${filtersUsed.location}"`);
+        if (filtersUsed.tip) filterTextParts.push(`tip: "${filtersUsed.tip}"`);
+        if (filtersUsed.datum === 'danes') filterTextParts.push(`datum: "danes"`);
 
-        resultsTitle.textContent = filterText ? `Rezultati iskanja za ${categoryName}: ${filterText}` : `Vsi rezultati za kategorijo: ${categoryName}`;
+        const filterString = filterTextParts.length > 0 ? ` (Filtri: ${filterTextParts.join(', ')})` : '';
 
-        if (!results || results.length === 0) {
-            resultsContainer.innerHTML = '<p class="text-muted col-12">Ni rezultatov za vaše iskanje.</p>';
+        let categoryName;
+        switch(category) {
+            case "trenerji": categoryName = "Trenerji"; break;
+            case "sport": categoryName = "Športi"; break;
+            case "Sportna_Aktivnost": categoryName = "Športne aktivnosti"; break;
+            default: categoryName = "Rezultati";
+        }
+
+        resultsTitle.textContent = results.length > 0 ? `Rezultati iskanja za "${categoryName}"${filterString}` : `Ni rezultatov za "${categoryName}"${filterString}`;
+
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<p class="text-center">Za izbrane kriterije ni bilo najdenih zadetkov.</p>';
             return;
         }
 
         results.forEach(item => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4 mb-4';
             let cardHtml = '';
+
             if (category === 'trenerji') {
-                // item.slika bi morala biti pravilna pot ali base64 iz strežnika
-                const imageUrl = item.slika || '/slike/profilne/default-profile.png';
+                const imageSrc = item.slika || defaultProfileImg;
                 cardHtml = `
-                    <div class="col">
-                        <div class="card h-100 shadow-sm clickable-card" data-type="trener" data-id="${item.id}">
-                            <img src="${imageUrl}" class="card-img-top card-img-top-search" alt="${item.ime} ${item.priimek}" onerror="this.src='/slike/profilne/default-profile.png';">
-                            <div class="card-body">
-                                <h5 class="card-title">${item.ime} ${item.priimek}</h5>
-                                <p class="card-text text-muted small">${(item.OpisProfila || 'Opis ni na voljo.').substring(0, 70)}...</p>
-                                ${item.povprecna_ocena ? `<p class="card-text"><small class="text-warning">${generateStars(item.povprecna_ocena)} (${parseFloat(item.povprecna_ocena).toFixed(1)})</small></p>` : '<p class="card-text"><small class="text-muted">Ni ocen</small></p>'}
-                            </div>
+                    <div class="card h-100 shadow-sm clickable-card" onclick="window.location.href='profilTrener.html?id=${item.id}'">
+                        <img src="${imageSrc}" class="card-img-top" alt="${item.ime} ${item.priimek}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.ime || ''} ${item.priimek || ''}</h5>
+                            <p class="card-text small text-muted">
+                                Specializacija: ${item.specializacija || 'Ni podatka'}<br>
+                                Lokacija: ${item.lokacija_trenerja || 'Ni podatka'}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                             <a href="profilTrener.html?id=${item.id}" class="btn btn-sm btn-outline-primary w-100">Ogled profila</a>
                         </div>
                     </div>`;
-            } else if (category === 'sport') {
-                // item.slika bi morala biti pot, ki jo je sestavil strežnik
-                const imageUrl = item.slika || '/slike/sporti/default-sport.png';
+            } else if (category === 'Sportna_Aktivnost') {
+                const imageSrc = item.slika || defaultActivityImg;
+                const cenaText = item.cena > 0 ? `${parseFloat(item.cena).toFixed(2)} €` : 'Brezplačno';
                 cardHtml = `
-                    <div class="col">
-                        <div class="card h-100 shadow-sm clickable-card" data-type="sport" data-id="${item.id}">
-                            <img src="${imageUrl}" class="card-img-top card-img-top-search" alt="${item.Sport}" onerror="this.src='/slike/sporti/default-sport.png';">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">${item.Sport}</h5>
-                            </div>
+                    <div class="card h-100 shadow-sm clickable-card" onclick="window.location.href='pregledAktivnosti.html?id=${item.id}'">
+                        <img src="${imageSrc}" class="card-img-top" alt="${item.ime_aktivnosti}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.ime_aktivnosti || 'Neznana aktivnost'}</h5>
+                            <p class="card-text small text-muted">
+                                Šport: ${item.ime_sporta || 'Ni podatka'}<br>
+                                Lokacija: ${item.lokacija_aktivnosti || 'Ni podatka'}<br>
+                                Trener: ${item.ime_trenerja || 'Ni navedeno'}
+                            </p>
                         </div>
-                    </div>`;
-            } else if (category === 'sportna_aktivnost') {
-                // item.slika bi morala biti pravilna pot ali base64 iz strežnika
-                const imageUrl = item.slika || '/slike/sporti/default-sport.png';
-                cardHtml = `
-                    <div class="col">
-                        <div class="card h-100 shadow-sm clickable-card" data-type="aktivnost" data-id="${item.id}">
-                            <img src="${imageUrl}" class="card-img-top card-img-top-search" alt="${item.Naziv}" onerror="this.src='/slike/sporti/default-sport.png';">
-                            <div class="card-body">
-                                <h5 class="card-title">${item.Naziv}</h5>
-                                <p class="card-text mb-1"><small class="text-muted">Lokacija: ${item.Lokacija || 'Neznana'}</small></p>
-                                <p class="card-text mb-1"><small>Šport: ${item.ime_sporta || 'Neznan'}</small></p>
-                                <p class="card-text"><small>Cena: ${item.Cena != null ? parseFloat(item.Cena).toFixed(2) + ' €' : 'N/A'}</small></p>
-                            </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                           <div class="d-flex justify-content-between align-items-center">
+                               <span class="price fw-bold">${cenaText}</span>
+                               <a href="pregledAktivnosti.html?id=${item.id}" class="btn btn-primary btn-sm">Odpri</a>
+                           </div>
                         </div>
                     </div>`;
             }
-            resultsContainer.insertAdjacentHTML('beforeend', cardHtml);
+            col.innerHTML = cardHtml;
+            resultsContainer.appendChild(col);
         });
     }
 
-    function generateStars(rating) {
-        const numStars = Math.round(parseFloat(rating));
-        if (isNaN(numStars) || numStars <= 0) return '☆☆☆☆☆';
-        return '★'.repeat(numStars) + '☆'.repeat(5 - numStars);
-    }
+    function initializePage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const category = urlParams.get('category');
+        const term = urlParams.get('term') || '';
+        const location = urlParams.get('location') || '';
 
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const searchTerm = searchInput.value.trim();
-        const category = searchCategorySelect.value;
-        const location = searchLocationInput.value.trim();
-
-        // Posodobimo URL ob iskanju preko forme
-        const currentParams = new URLSearchParams(window.location.search);
-        currentParams.set('category', category);
-        if (searchTerm) currentParams.set('term', searchTerm); else currentParams.delete('term');
-        if (location) currentParams.set('location', location); else currentParams.delete('location');
-        // Odstranimo sport_id, če izvajamo novo splošno iskanje
-        currentParams.delete('sport_id');
-
-        window.history.pushState({}, '', `${window.location.pathname}?${currentParams.toString()}`);
-        performSearch(searchTerm, category, location);
-    });
-
-    resultsContainer.addEventListener('click', (event) => {
-        const card = event.target.closest('.clickable-card');
-        if (card) {
-            const type = card.dataset.type;
-            const id = card.dataset.id;
-            if (type === 'trener') {
-                window.location.href = `profilTrener.html?id=${id}`;
-            } else if (type === 'aktivnost') {
-                window.location.href = `pregledAktivnosti.html?id=${id}`;
-            } else if (type === 'sport') {
-                // Preusmeritev na novo stran pregledSporta.html
-                window.location.href = `pregledSporta.html?id=${id}`;
+        if (!category) {
+            if(resultsPlaceholder) {
+                resultsPlaceholder.style.display = 'block';
+                resultsPlaceholder.innerHTML = '<p class="text-center mt-2">Prosimo, izberite kategorijo (Trenerji, Šport, Aktivnosti) preko navigacije za začetek iskanja.</p>';
             }
+            resultsContainer.innerHTML = '';
+            resultsTitle.textContent = 'Iskanje';
+            return;
         }
-    });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialCategory = urlParams.get('category');
-    const initialSearchTerm = urlParams.get('term');
-    const initialLocation = urlParams.get('location');
-    // const initialSportId = urlParams.get('sport_id'); // To bi obravnavala stran pregledSporta.html ali pa search-stran, če bi filtrirala aktivnosti
+        if (searchQueryInput) searchQueryInput.value = term;
+        if (searchLocationInput) searchLocationInput.value = location;
 
-    if (initialCategory) {
-        searchCategorySelect.value = initialCategory;
-        // Če je v URL term, ga vpišemo v iskalno polje
-        if (initialSearchTerm) {
-            searchInput.value = initialSearchTerm;
-        }
-        if (initialLocation) {
-            searchLocationInput.value = initialLocation;
-        }
-        performSearch(initialSearchTerm || '', initialCategory, initialLocation || '');
-    } else {
-        if (resultsPlaceholder) {
-            resultsPlaceholder.innerHTML = '<p class="text-center mt-2">Začnite z iskanjem ali izberite kategorijo preko navigacije.</p>';
-            resultsPlaceholder.style.display = 'block';
-        }
-        resultsContainer.innerHTML = '';
-        resultsTitle.textContent = 'Iskanje';
+        performSearch();
     }
+
+    initializePage();
 });

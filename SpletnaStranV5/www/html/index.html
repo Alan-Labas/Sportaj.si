@@ -3,276 +3,296 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sportaj.si - Dobrodošli</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link href="/css/style.css" rel="stylesheet"> <script src="/js/PrijavaInRegistracija.js" defer></script> <script src="/js/index-content.js" defer></script> </head>
-<body class="d-flex flex-column min-vh-100">
+  <meta name="description" content="Sportaj.si - Najdi najboljšega športnega trenerja v Sloveniji. Prebrskaj po aktivnostih, lokacijah in ocenah.">
+  <title>Sportaj.si - Najdi svojega trenerja</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="../js/PrijavaInRegistracija.js" defer></script>
+  <script src="../js/index-content.js" defer></script>
+</head>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/"> <img src="/slike/sportLifeicon.png" style="max-height: 40px;" alt="Sportaj.si Logotip"> Sportaj.si
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/html/search-stran.html?category=trenerji" data-page="trenerji">Trenerji</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/html/search-stran.html?category=sport" data-page="sport">Športi</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/html/search-stran.html?category=sportna_aktivnost" data-page="sportna_aktivnost">Dejavnosti</a>
-        </li>
-      </ul>
-      <ul class="navbar-nav position-absolute end-0 pe-3">
-        <li class="nav-item" id="loginSignUpButtonsNavItem">
-          <div id="loginSignUpButtons" class="d-flex">
-            <button class="btn btn-secondary btn-sm me-2" onclick="window.location.href='/html/prijava.html'">Prijava</button>
+<body>
+
+<header class="header">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand logo" href="index.html" style="text-decoration: none;"> <h1>Sportaj.si</h1> </a>
+      <button class="navbar-toggler mobile-menu-btn-bs" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavContent" aria-controls="navbarNavContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavContent">
+        <ul class="navbar-nav nav-center-bs mx-auto">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Domov</a>
+          </li>
+          <li class="nav-item">
+            <a href="search-stran.html?category=trenerji" class="nav-link">Trenerji</a>
+          </li>
+          <li class="nav-item">
+            <a href="search-stran.html?category=sport" class="nav-link">Šport</a>
+          </li>
+          <li class="nav-item">
+            <a href="search-stran.html?category=Sportna_Aktivnost" class="nav-link">Aktivnosti</a>
+          </li>
+        </ul>
+        <div class="navbar-nav nav-right-bs" id="loginSignUpButtons">
+          <div class="nav-item">
+            <a href="prijava.html" class="btn btn-outline"> <i class="fas fa-user"></i> Prijava</a>
           </div>
-        </li>
-        <li class="nav-item dropdown d-none" id="userDropdownNavItem">
-          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <span id="pozdravKratek"></span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="/html/uredi-profil.html" id="urediProfilLinkNav">Uredi Profil</a></li>
-            <li id="adminPanelLinkContainerNav"></li>
-            <li id="trenerDodajAktivnostLinkContainerNav"></li>
-            <li id="postaniTrenerLinkContainerNav"></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" id="logoutLinkNav">Odjava</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
-
-<main class="container mt-5 flex-grow-1">
-  <div class="bg-light p-5 rounded shadow">
-    <h1>Dobrodošli na Sportaj.si</h1>
-    <p>Iščeš svojo naslednjo športno avanturo? <br>Na <b>sportaj.si</b> ti ponujamo enostaven način za iskanje športnih dejavnosti, dogodkov ter trenerjev po vsej Sloveniji.</p>
-    <ul>
-      <li>🔍 Prebrskaj različne športe in dogodke</li>
-      <li>💬 Preberi ocene in komentarje drugih uporabnikov</li>
-      <li>👥 Poveži se s preverjenimi trenerji</li>
-      <li>📅 Prijavi se na treninge, turnirje in druge športne aktivnosti</li>
-    </ul>
-    <p>Naša platforma je ustvarjena za vse - od začetnikov do profesionalcev - ki želijo ostati aktivni, raziskovati nove športe in biti del športne skupnosti </p>
-  </div>
-
-  <div class="row mt-5">
-    <div class="col-md-4">
-      <h2>Iščete trenerja?</h2>
-      <p>Poiščite izkušenega trenerja za vaš najljubši šport.</p>
-      <p><a class="btn btn-secondary" href="/html/search-stran.html?category=trenerji" role="button">Odkrij Trenerje »</a></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Iščete najprimernejši šport?</h2>
-      <p>Raziščite široko paleto športov, ki so na voljo.</p>
-      <p><a class="btn btn-secondary" href="/html/search-stran.html?category=sport" role="button">Preveri Športe »</a></p>
-    </div>
-    <div class="col-md-4">
-      <h2>Pridruži se nam!</h2>
-      <p>Ste trener ali organizator športnih dejavnosti? Postanite del naše skupnosti.</p>
-      <div id="postaniTrenerIndexGumbContainer">
+          <div class="nav-item ms-lg-2 mt-2 mt-lg-0">
+            <a href="registracija.html" class="btn btn-primary">Registracija</a>
+          </div>
+        </div>
+        <div class="navbar-nav nav-right-bs d-none" id="userDropdownNavItem">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="../slike/default-profile.png" alt="Profilna slika" id="userProfilePicNav" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+              <span id="usernameNav">Uporabnik</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#" id="urediProfilLinkNav">Uredi Profil</a></li>
+              <li id="adminPanelLinkContainerNav"></li>
+              <li id="trenerDodajAktivnostLinkContainerNav"></li>
+              <li id="postaniTrenerLinkContainerNav"></li>
+              <li id="sporocilaLinkContainerNav"><a class="dropdown-item" href="klepet.html">Sporočila</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="logoutLinkNav">Odjava</a></li>
+            </ul>
+          </li>
+        </div>
       </div>
     </div>
-  </div>
+  </nav>
+</header>
 
-  <section class="mt-5 py-4 border-top">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Prihajajoče dejavnosti</h2>
-      <a href="/html/search-stran.html?category=sportna_aktivnost" class="btn btn-outline-primary btn-sm">Vse dejavnosti</a>
-    </div>
-    <div id="upcoming-activities-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-      <div class="col-12 placeholder-glow" id="upcoming-activities-placeholder">
-        <span class="placeholder col-12" style="height: 200px;"></span>
-      </div>
-    </div>
-  </section>
-
-  <section class="mt-5 py-4 border-top">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Top trenerji po oceni</h2>
-      <a href="/html/search-stran.html?category=trenerji" class="btn btn-outline-primary btn-sm">Vsi trenerji</a>
-    </div>
-    <div id="top-trainers-container" class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-      <div class="col-12 placeholder-glow" id="top-trainers-placeholder">
-        <span class="placeholder col-12" style="height: 200px;"></span>
-      </div>
-    </div>
-  </section>
-
-  <section class="mt-5 py-4 border-top">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Top športi</h2>
-      <a href="/html/search-stran.html?category=sport" class="btn btn-outline-primary btn-sm">Vsi športi</a>
-    </div>
-    <div id="top-sports-container" class="list-group">
-      <div class="list-group-item placeholder-glow" id="top-sports-placeholder">
-        <span class="placeholder col-8"></span>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer mt-auto py-3 bg-dark text-white text-center">
+<section class="search-section">
   <div class="container">
-    <p class="mb-1">&copy; <span id="currentYear"></span> Sportaj.si - Vse pravice pridržane.</p>
-    <ul class="list-inline mb-0">
-      <li class="list-inline-item"><a href="#" class="text-white-50">O nas</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Kontakt</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Pogoji uporabe</a></li>
-      <li class="list-inline-item"><a href="#" class="text-white-50">Politika zasebnosti</a></li>
-    </ul>
+    <div class="section-header">
+      <h2>Poiščite svojega idealnega športnega trenerja</h2>
+      <p>Odkrijte najboljše športne trenerje in aktivnosti v vaši okolici. Preberite ocene in komentarje drugih uporabnikov.</p>
+    </div>
+
+    <div class="search-form">
+      <div class="search-grid">
+        <div class="search-field">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchQuery" placeholder="Išči trenerja ali aktivnost...">
+        </div>
+
+        <div class="search-field">
+          <i class="fas fa-map-marker-alt"></i>
+          <input type="text" id="location" placeholder="Lokacija">
+        </div>
+
+        <div class="search-button-wrapper">
+          <button class="btn btn-primary w-100" onclick="searchTrainers()"> <i class="fas fa-search"></i> Išči
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-buttons">
+        <button class="btn btn-outline" onclick="filterByType('skupinsko')">
+          <i class="fas fa-users"></i> Skupinske aktivnosti
+        </button>
+        <button class="btn btn-outline" onclick="filterByType('individualno')">
+          <i class="fas fa-user"></i> Individualne aktivnosti
+        </button>
+        <button class="btn btn-outline" onclick="filterAvailableToday()">
+          <i class="fas fa-calendar"></i> Dostopno danes
+        </button>
+      </div>
+    </div>
+
+    <div class="row mt-5 text-center"> <div class="col-md-4 mb-4 mb-md-0"> <h2>Iščete trenerja?</h2>
+      <p>Poiščite izkušenega trenerja za vaš najljubši šport.</p>
+      <p><a class="btn btn-primary" href="search-stran.html?category=trenerji" role="button">Odkrij Trenerje »</a></p>
+    </div>
+      <div class="col-md-4 mb-4 mb-md-0"> <h2>Iščete najprimernejši šport?</h2>
+        <p>Raziščite široko paleto športov, ki so na voljo.</p>
+        <p><a class="btn btn-primary" href="search-stran.html?category=sport" role="button">Preveri Športe »</a></p>
+      </div>
+      <div class="col-md-4">
+        <h2>Iščete športno aktivnost?</h2>
+        <p>Poiščite športne aktivnosti v bližini.</p>
+        <p><a class="btn btn-primary" href="search-stran.html?category=Sportna_Aktivnost" role="button">Preveri Športne aktivnosti »</a></p>
+      </div>
+      </div>
+    </div>
+</section>
+
+<section class="trainers-section py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h3">Prihajajoče dejavnosti</h2>
+      <a href="search-stran.html?category=Sportna_Aktivnost" class="btn btn-outline-primary">Vse dejavnosti &rarr;</a>
+    </div>
+    <div id="upcoming-activities-container" class="row g-4">
+      <div class="col-12 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Nalaganje...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="trainers-section py-5 bg-light">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h3">Top Ocenjeni Trenerji</h2>
+      <a href="search-stran.html?category=trenerji" class="btn btn-outline-primary">Vsi trenerji &rarr;</a>
+    </div>
+    <div id="top-trainers-container" class="row g-4">
+      <div class="col-12 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Nalaganje...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-5 py-4 border-top">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Top športi</h2>
+    <a href="search-stran.html?category=sport" class="btn btn-outline-primary btn-sm">Vsi športi</a>
+  </div>
+  <div id="top-sports-container" class="list-group">
+    <div class="list-group-item placeholder-glow" id="top-sports-placeholder">
+      <span class="placeholder col-8"></span>
+    </div>
+  </div>
+</section>
+
+<section class="stats-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Zaupajo nam številni uporabniki</h2>
+      <p>Postali smo vodilna platforma za iskanje športnih trenerjev v Sloveniji</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-number" id="stevilo_Trenerjev"></div>
+        <div class="stat-label">Registriranih trenerjev</div>
+        <div class="stat-description">Strokovnjaki iz različnih športnih področij</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="stat-number" id="stevilo_Ocen"></div>
+        <div class="stat-label">Pozitivnih ocen</div>
+        <div class="stat-description">Zadovoljni uporabniki naših storitev</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div class="stat-number" id="stevilo_Mest">50+</div>
+        <div class="stat-label">Mest po Sloveniji</div>
+        <div class="stat-description">Pokrivamo celotno državo</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-calendar"></i>
+        </div>
+        <div class="stat-number" id="stevilo_Aktivnosti"></div>
+        <div class="stat-label">Aktivnosti mesečno</div>
+        <div class="stat-description">Rezervacije in izvedene aktivnosti</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-column">
+        <h3>Sportaj.si</h3>
+        <p>Vodilna platforma za iskanje in ocenjevanje športnih trenerjev v Sloveniji.</p>
+        <div class="social-links">
+          <a href="#" class="social-link facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-link twitter">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="social-link instagram">
+            <i class="fab fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-column">
+        <h4>Platforma</h4>
+        <ul>
+          <li><a href="/html/search-stran.html?category=trenerji">Išči trenerje</a></li>
+          <li><a href="registracija.html">Registracija</a></li>
+          <li><a href="/html/postani-trener.html">Postani trener</a></li>
+          <li><a href="#">Mobilna aplikacija</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Aktivnosti</h4>
+        <ul>
+          <li><a href="/html/search-stran.html?category=sport&q=Fitnes">Fitnes</a></li>
+          <li><a href="/html/search-stran.html?category=sport&q=CrossFit">CrossFit</a></li>
+          <li><a href="/html/search-stran.html?category=sport&q=Yoga">Yoga</a></li>
+          <li><a href="/html/search-stran.html?category=sport&q=Ples">Ples</a></li>
+          <li><a href="/html/search-stran.html?category=sport&q=Plezanje">Plezanje</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Podpora</h4>
+        <ul>
+          <li><a href="/html/pomoc.html">Pomoč</a></li>
+          <li><a href="/html/kontakt.html">Kontakt</a></li>
+          <li><a href="/html/pogoji-uporabe.html">Pogoji uporabe</a></li>
+          <li><a href="/html/varstvo-podatkov.html">Varstvo podatkov</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <span id="currentYear">2024</span> Sportaj.si. Vse pravice pridržane.</p> </div>
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/index-content.js" defer></script>
 <script>
-  if (document.getElementById('currentYear')) {
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+  const currentYearEl = document.getElementById('currentYear');
+  if (currentYearEl) {
+    currentYearEl.textContent = new Date().getFullYear();
   }
 
-  async function preveriPrijavoZaIndex() {
-    const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
-    const loginSignUpNavItem = document.getElementById('loginSignUpButtonsNavItem');
-    const userDropdownNavItem = document.getElementById('userDropdownNavItem');
-    const pozdravKratekEl = document.getElementById('pozdravKratek');
-    const logoutLinkNav = document.getElementById('logoutLinkNav');
-    const adminPanelLinkContainerNav = document.getElementById('adminPanelLinkContainerNav');
-    const trenerDodajAktivnostLinkContainerNav = document.getElementById('trenerDodajAktivnostLinkContainerNav');
-    const postaniTrenerLinkContainerNav = document.getElementById('postaniTrenerLinkContainerNav');
-    const postaniTrenerIndexGumbContainer = document.getElementById('postaniTrenerIndexGumbContainer');
-
-    if (uporabnikInfoString && sessionStorage.getItem('accessToken')) {
-      const uporabnik = JSON.parse(uporabnikInfoString);
-
-      if (loginSignUpNavItem) loginSignUpNavItem.classList.add('d-none');
-      if (userDropdownNavItem) userDropdownNavItem.classList.remove('d-none');
-      if (pozdravKratekEl) pozdravKratekEl.textContent = uporabnik.username;
-
-      if (logoutLinkNav) {
-        if (!logoutLinkNav.dataset.listenerAttached) {
-          logoutLinkNav.addEventListener('click', async (e) => {
-            e.preventDefault();
-            if (typeof odjava === 'function') { // odjava() mora biti definirana v PrijavaInRegistracija.js
-              await odjava(false, 'Uspešno ste se odjavili!');
-            } else { console.error('Funkcija odjava ni definirana.'); }
-            await preveriPrijavoZaIndex();
-            oznaciAktivnoStran();
-          });
-          logoutLinkNav.dataset.listenerAttached = 'true';
-        }
-      }
-
-      if (adminPanelLinkContainerNav) {
-        if (uporabnik.JeAdmin === 1) {
-          adminPanelLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="/html/admin-panel.html">Admin Panel</a></li>';
-        } else {
-          adminPanelLinkContainerNav.innerHTML = '';
-        }
-      }
-      if (trenerDodajAktivnostLinkContainerNav) {
-        if (uporabnik.isTrainer) {
-          trenerDodajAktivnostLinkContainerNav.innerHTML = '<li><a class="dropdown-item" href="/html/dodaj-aktivnost.html">Dodaj Aktivnost</a></li>';
-          if(postaniTrenerIndexGumbContainer) postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-info" href="/html/dodaj-aktivnost.html">Dodaj Svojo Aktivnost »</a>';
-        } else {
-          trenerDodajAktivnostLinkContainerNav.innerHTML = '';
-        }
-      }
-      if (postaniTrenerLinkContainerNav) {
-        if (!uporabnik.isTrainer && uporabnik.JeAdmin !== 1) {
-          postaniTrenerLinkContainerNav.innerHTML = '<a class="dropdown-item" href="/html/postani-trener.html" id="urediProfilLinkNav">Postani Trener</a>';
-          if(postaniTrenerIndexGumbContainer) postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="/html/postani-trener.html" id="postaniTrenerModalGumbIndex">Postani Trener »</a>';
-
-          const postaniTrenerModalGumbNav = document.getElementById('postaniTrenerModalGumbNav');
-          if(postaniTrenerModalGumbNav && !postaniTrenerModalGumbNav.dataset.listenerAttachedNav) {
-            postaniTrenerModalGumbNav.addEventListener('click', (e) => {
-              e.preventDefault();
-              if(typeof showPostaniTrenerModal === 'function') showPostaniTrenerModal(); // showPostaniTrenerModal() mora biti v PrijavaInRegistracija.js
-              else console.error('showPostaniTrenerModal ni definirana');
-            });
-            postaniTrenerModalGumbNav.dataset.listenerAttachedNav = 'true';
-          }
-          const postaniTrenerModalGumbIndex = document.getElementById('postaniTrenerModalGumbIndex');
-          if(postaniTrenerModalGumbIndex && !postaniTrenerModalGumbIndex.dataset.listenerAttachedIndex) {
-            postaniTrenerModalGumbIndex.addEventListener('click', (e) => {
-              e.preventDefault();
-              if(typeof showPostaniTrenerModal === 'function') showPostaniTrenerModal();
-              else console.error('showPostaniTrenerModal ni definirana');
-            });
-            postaniTrenerModalGumbIndex.dataset.listenerAttachedIndex = 'true';
-          }
-        } else {
-          postaniTrenerLinkContainerNav.innerHTML = '';
-          if(postaniTrenerIndexGumbContainer && !uporabnik.isTrainer && uporabnik.JeAdmin !== 1) {
-            postaniTrenerIndexGumbContainer.innerHTML = '';
-          } else if (postaniTrenerIndexGumbContainer && uporabnik.isTrainer) {
-            postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-info" href="/html/dodaj-aktivnost.html">Dodaj Svojo Aktivnost »</a>';
-          } else if (postaniTrenerIndexGumbContainer) {
-            postaniTrenerIndexGumbContainer.innerHTML = ''; // Za admina, ki ni trener, ali če je že trener in je zgornji if to pokril
-          }
-        }
-      }
-    } else { // Ni prijavljen
-      if (loginSignUpNavItem) loginSignUpNavItem.classList.remove('d-none');
-      if (userDropdownNavItem) userDropdownNavItem.classList.add('d-none');
-      if (pozdravKratekEl) pozdravKratekEl.textContent = '';
-      if (adminPanelLinkContainerNav) adminPanelLinkContainerNav.innerHTML = '';
-      if (trenerDodajAktivnostLinkContainerNav) trenerDodajAktivnostLinkContainerNav.innerHTML = '';
-      if (postaniTrenerLinkContainerNav) postaniTrenerLinkContainerNav.innerHTML = '';
-      if(postaniTrenerIndexGumbContainer) {
-        postaniTrenerIndexGumbContainer.innerHTML = '<a class="btn btn-success" href="#" id="registrirajSeKotTrenerGumbIndex">Registriraj se kot Trener »</a>';
-        const regTrenerGumb = document.getElementById('registrirajSeKotTrenerGumbIndex');
-        if (regTrenerGumb && !regTrenerGumb.dataset.listenerAttached) {
-          regTrenerGumb.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (typeof showRegistrationModal === 'function') showRegistrationModal('trener'); // showRegistrationModal() mora biti v PrijavaInRegistracija.js
-            else console.error('Funkcija za prikaz registracije trenerja ni definirana.');
-          });
-          regTrenerGumb.dataset.listenerAttached = 'true';
-        }
-      }
-    }
+  function searchTrainers() {
+    const query = document.getElementById('searchQuery').value;
+    const location = document.getElementById('location').value;
+    window.location.href = `search-stran.html?category=Sportna_Aktivnost&term=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`;
   }
 
-  function oznaciAktivnoStran() {
-    const trenutniPath = window.location.pathname; // Npr. "/" ali "/html/search-stran.html"
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category'); // Npr. "trenerji", "sport", "sportna_aktivnost"
-    const navLinks = document.querySelectorAll('#navbarNav .navbar-nav.mx-auto .nav-link');
-
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      // Dobimo celotno pot iz href atributa, vključno z domeno, nato vzamemo samo pathname
-      const linkHrefPath = new URL(link.href, window.location.origin).pathname; // Npr. "/html/search-stran.html"
-      const linkHrefCategory = new URL(link.href, window.location.origin).searchParams.get('category');
-
-      // Preverimo, če smo na search-stran.html in se kategorije ujemata
-      if (trenutniPath === '/html/search-stran.html' && linkHrefPath === '/html/search-stran.html' && category === linkHrefCategory) {
-        link.classList.add('active');
-      }
-      // Za druge strani (če bi imeli direktne linke v navbaru)
-      else if (trenutniPath === linkHrefPath && !category && !linkHrefCategory) {
-        link.classList.add('active');
-      }
-    });
-    // Če smo na domači strani (index.html, ki se servira na '/'), noben glavni link ni aktiven
-    if (trenutniPath === '/' || trenutniPath === '/html/index.html') {
-      navLinks.forEach(link => link.classList.remove('active'));
-    }
+  // Popravljeni funkciji za filtriranje
+  function filterByType(type) {
+    window.location.href = `search-stran.html?category=Sportna_Aktivnost&tip=${type}`;
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    await preveriPrijavoZaIndex();
-    oznaciAktivnoStran();
-  });
+  function filterAvailableToday() {
+    window.location.href = `search-stran.html?category=Sportna_Aktivnost&datum=danes`;
+  }
+
 </script>
 </body>
 </html>
