@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', async() =>{
     const activityTrainerEmail = document.getElementById('activityTrainerEmail');
     const activityDescription = document.getElementById('activityDescription');
     const userCommentsSection = document.getElementById('activityUserCommentsSection');
-
+    const activityProstaMesta = document.getElementById('activityProstaMesta')
     const starsContainer = document.getElementById('activityStarRating');
     const currentRatingText = document.getElementById('activityCurrentRatingText');
     const commentForm = document.getElementById('activityCommentForm');
     const commentTextElement = document.getElementById('activityCommentText');
-
+    const activityNacinIzvedbe = document.getElementById('activityNacinIzvedbe')
     const ocenjevanjeInKomentiranjeCard = document.getElementById('ocenjevanjeInKomentiranjeCard');
 
 
@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', async() =>{
 
     const activityData = await fetchData(`/api/aktivnost/${activityId}/details`);
     console.log(await activityData);
+    activityDate.textContent = activityData.Datum_Cas_Izvedbe
+    activityProstaMesta.textContent = activityData.ProstaMesta
+    activityNacinIzvedbe.textContent = activityData.Nacin_Izvedbe
     if(!activityData) return;
     activityData.slika = activityData.slika
     document.getElementById('activityCommentForm').id = activityId;
@@ -66,13 +69,13 @@ document.addEventListener('DOMContentLoaded', async() =>{
     }
     if (activityTrainerFullName) activityTrainerFullName.textContent = `${activityData.trener_ime} ${activityData.trener_priimek}`;
     if (activityTrainerPhone) activityTrainerPhone.innerHTML = activityData.trener_telefon ? `${activityData.trener_telefon}` : 'Ni podatka';
-    if (activityTrainerEmail) activityTrainerEmail.innerHTML = activityData.trainer_email ? `${trainerData.email}` : 'Ni podatka';
+    if (activityTrainerEmail) activityTrainerEmail.innerHTML = activityData.trener_kontakt_email ? `${activityData.trener_kontakt_email}` : 'Ni podatka';
 
     if(activityDescription) activityDescription.innerHTML = activityData.Opis ? `${activityData.Opis}` : 'Ni podatka';
     if(activityLocation) activityLocation.textContent = activityData.Lokacija ? `${activityData.Lokacija}` : 'Ni podatka';
     if(activityTrainerCard) activityTrainerCard.id = activityData.id;
     if(commentForm) commentForm.id = activityData.id;
-    document.getElementById('activitySport').textContent = activityData.ime_sporta;
+    document.getElementById('activitySport').textContent = activityData.ime_sporta_aktivnosti;
     activityTrainerCard.addEventListener('click', ()=>{
         window.location.href = `/html/profilTrener.html?id=${activityData.TK_Trener}`
     })
@@ -244,8 +247,8 @@ async function naloziPodrobnostiAktivnosti(id) {
         const aktivnost = await response.json();
 
         // Prikaz osnovnih podatkov (to kodo verjetno že imaš)
-        document.getElementById('naziv-aktivnosti').textContent = aktivnost.Naziv;
-        document.getElementById('opis-aktivnosti').textContent = aktivnost.Opis;
+        document.getElementById('activityNameTitle').textContent = aktivnost.Naziv;
+        document.getElementById('activityDescription').textContent = aktivnost.Opis;
         // ... ostali podatki ...
 
         // --- NOVA LOGIKA ZA GUMB ---
