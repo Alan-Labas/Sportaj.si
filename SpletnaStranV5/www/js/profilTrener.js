@@ -60,18 +60,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const trainerData = await fetchTrainerDetails(trainerId);
-
+    console.log(trainerData)
     if (!trainerData) return;
 
-
+    console.log(trainerData.slika)
     if (trainerNameTitle) trainerNameTitle.textContent = `Profil: ${trainerData.ime} ${trainerData.priimek}`;
     if (trainerImage) {
-        trainerImage.src = trainerData.slika ? `data:image/jpeg;base64,${trainerData.slika}` : defaultProfilePicPath;
+        if(trainerData.slika.startsWith("data:image/jpeg;base64,")){
+            trainerImage.src = trainerData.slika ? `data:image/jpeg;base64,${trainerData.slika}` : defaultProfilePicPath;
+        }else{
+            trainerImage.src = trainerData.slika ? `${trainerData.slika}` : defaultProfilePicPath;
+        }
+        
         trainerImage.alt = `Slika ${trainerData.ime} ${trainerData.priimek}`;
     }
     if (trainerFullName) trainerFullName.textContent = `${trainerData.ime} ${trainerData.priimek}`;
     if (trainerPhone) trainerPhone.innerHTML = trainerData.telefon ? `<a href="tel:${trainerData.telefon}">${trainerData.telefon}</a>` : 'Ni podatka';
-    if (trainerEmail) trainerEmail.innerHTML = trainerData.email ? `<a href="mailto:${trainerData.email}">${trainerData.email}</a>` : 'Ni podatka';
+    if (trainerEmail) trainerEmail.innerHTML = trainerData.kontakt_email ? `<a href="mailto:${trainerData.kontakt_email}">${trainerData.kontakt_email}</a>` : 'Ni podatka';
     if (trainerSchedule) trainerSchedule.textContent = trainerData.urnik || 'Ni podatka';
     if (trainerDescription) trainerDescription.textContent = trainerData.OpisProfila || 'Opis ni na voljo.';
 
@@ -79,22 +84,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             trainerActivitiesSection.innerHTML = '<h5>Poučevane športne aktivnosti:</h5>';
             if (trainerData.aktivnosti && trainerData.aktivnosti.length > 0) {
                 let activitiesHtml = '<div class="list-group">';
+                console.log(trainerData.aktivnosti)
                 trainerData.aktivnosti.forEach(akt => {
+                    console.log(akt.slika_aktivnosti)
                     const slikaPath = akt.slika_aktivnosti || '../slike/default-profile.png';
                     const kratekOpis = `${akt.Naziv} (${akt.ime_sporta})`;
-                    const cenaText = akt.Cena != null ? `${parseFloat(akt.Cena).toFixed(2)} €` : 'N/A';
+                    const cenaText = akt.cena != null ? `${parseFloat(akt.cena).toFixed(2)} €` : 'N/A';
 
                     activitiesHtml += `
                         <a href="/html/pregledAktivnosti.html?id=${akt.id}" class="list-group-item list-group-item-action flex-column align-items-start mb-2 shadow-sm" style="text-decoration: none; color: inherit;">
                             <div class="d-flex w-100">
-                                <img src="slikaPath" alt="${akt.Naziv}" class="me-3 rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                <img src="${slikaPath}" alt="${akt.ime_aktivnosti}" class="me-3 rounded" style="width: 100px; height: 100px; object-fit: cover;">
                                 <div class="flex-grow-1">
                                     <div class="d-flex w-100 justify-content-between">
-                                        <h6 class="mb-1 fw-bold">${akt.Naziv}</h6>
+                                        <h6 class="mb-1 fw-bold">${akt.ime_aktivnosti}</h6>
                                         <small class="text-muted">Cena: ${cenaText}</small>
                                     </div>
                                     <p class="mb-1"><small>${akt.ime_sporta}</small></p>
-                                    <p class="mb-1"><small class="text-muted">Lokacija: ${akt.Lokacija || 'Neznana lokacija'}</small></p>
+                                    <p class="mb-1"><small class="text-muted">Lokacija: ${akt.lokacija_aktivnosti || 'Neznana lokacija'}</small></p>
                                 </div>
                             </div>
                         </a>`;
@@ -123,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ocene.forEach((ocena, index) => {
                     const commentDiv = document.createElement('div');
                     commentDiv.classList.add('card', 'mb-2', `comment-card-${ocena.ocena_id || index}`);
-                    const datumOcene = ocena.Datum ? new Date(ocena.Datum).toLocaleDateString('sl-SI') : 'Neznan datum';
+                    const datumOcene =  new Date(ocena.datum_ocene).toLocaleDateString('sl-SI') ;
                     const starsHTML = generateStarsHTML(ocena.Ocena, false);
 
                     let adminDeleteButton = '';
@@ -134,11 +141,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     commentDiv.innerHTML = `
                         <div class="card-body">
                             <h6 class="card-subtitle mb-1 text-muted">
-                                ${ocena.username_uporabnika || 'Anonimen'} - <small>${datumOcene}</small>
+                                ${ocena.username_ocenjevalca || 'Anonimen'} - <small>${datumOcene}</small>
                                 ${adminDeleteButton}
                             </h6>
-                            <div class="mb-1" style="color: #ffc107;">${starsHTML} (${ocena.Ocena || 'N/A'})</div>
-                            <p class="card-text">${ocena.Komentar || 'Brez komentarja'}</p>
+                            <div class="mb-1" style="color: #ffc107;">${starsHTML} (${ocena.ocena_vrednost || 'N/A'})</div>
+                            <p class="card-text">${ocena.komentar_ocene || 'Brez komentarja'}</p>
                         </div>`;
                     userCommentsSection.appendChild(commentDiv);
                 });
@@ -170,6 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     displayCommentsAndAverageRating(trainerData.ocene);
+    console.log(trainerData.ocene)
 
     let currentUserRating = 0;
 

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const aktivnostTipSelect = document.getElementById('aktivnostTipSelect');
     const datumUreInput = document.getElementById('datumUreInput'); // Ujema se z ID-jem v HTML
     const nacinIzvedbeSelect = document.getElementById('nacinIzvedbeSelect');
-
+    console.log(JSON.parse(sessionStorage.getItem('uporabnikInfo')))
     function prikaziObvestilo(sporocilo, tip = 'success', timeout = 5000) {
         const container = document.getElementById('obvestiloSporocilo');
         if (!container) {
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function shraniAktivnost(event) {
         event.preventDefault();
-
+        const uporabnikInfo = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
         const token = sessionStorage.getItem("accessToken");
         if (!token) {
             prikaziObvestilo('Za dodajanje aktivnosti morate biti prijavljeni.', 'danger');
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('TK_TipAktivnosti', aktivnostTipSelect.value);
         formData.append('Datum_Cas_Izvedbe', datumUreInput.value); // Strežnik pričakuje 'Datum_Cas_Izvedbe'
         formData.append('Nacin_Izvedbe', nacinIzvedbeSelect.value);
+        
 
         const slikaFile = aktivnostSlikaUploadInput.files[0];
         if (slikaFile) {
@@ -85,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             const result = await response.json();
-
+            console.log(result)
             if (!response.ok) {
                 // Če strežnik vrne napako, jo prikažemo
                 throw new Error(result.message || `Napaka strežnika: ${response.status}`);
@@ -94,14 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             prikaziObvestilo('Aktivnost je bila uspešno dodana!', 'success');
             aktivnostForm.reset(); // Počisti obrazec
             // Po uspešnem dodajanju lahko preusmerimo uporabnika
-            setTimeout(() => {
-                const uporabnikInfo = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
-                if (uporabnikInfo && uporabnikInfo.trenerId) {
-                    window.location.href = `profilTrener.html?id=${uporabnikInfo.trenerId}`;
-                } else {
-                    window.location.href = 'index.html';
-                }
-            }, 2000);
+            //setTimeout(() => {
+                //const uporabnikInfo = JSON.parse(sessionStorage.getItem('uporabnikInfo'));
+                //if (uporabnikInfo && uporabnikInfo.trenerId) {
+                    //window.location.href = `profilTrener.html?id=${uporabnikInfo.trenerId}`;
+                //} else {
+                    //window.location.href = 'index.html';
+                //}
+            //}, 2000);
 
         } catch (error) {
             console.error('Napaka pri shranjevanju aktivnosti:', error);

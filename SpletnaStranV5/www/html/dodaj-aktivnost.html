@@ -44,7 +44,7 @@
         <div class="navbar-nav nav-right-bs d-none" id="userDropdownNavItem">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="/slike/profilne/default-profile.png" alt="Profilna slika" id="userProfilePicNav" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+              <img src="/slike/default-profile.png" alt="Profilna slika" id="userProfilePicNav" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
               <span id="usernameNav">Uporabnik</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -128,7 +128,7 @@
               </div>
 
               <div class="mt-4 d-flex justify-content-end">
-                <button type="button" class="btn btn-primary w-100" id="shraniAktivnostBtn">Shrani Aktivnost</button>
+                <button type="submit" onsubmit="shraniAktivnost(event)" class="btn btn-primary w-100" id="shraniAktivnostBtn">Shrani Aktivnost</button>
               </div>
             </form>
           </div>

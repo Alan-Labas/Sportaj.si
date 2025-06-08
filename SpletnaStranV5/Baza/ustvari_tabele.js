@@ -193,6 +193,7 @@ async function napolniBazo() {
             table.string('Naziv').notNullable();
             table.text('Opis').notNullable();
             table.string('Lokacija').notNullable();
+            
             table.decimal('Cena', 10, 2).notNullable().defaultTo(0.00);
             table.integer('ProstaMesta').notNullable().unsigned();
             table.enum('Nacin_Izvedbe', ['individualno', 'skupinsko']).defaultTo('skupinsko')

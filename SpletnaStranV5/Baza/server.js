@@ -1415,6 +1415,7 @@ app.delete('/api/admin/ocene/aktivnosti/:id', preveriZeton, preveriAdmin, async 
 });
 
 app.get('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req, res) => {
+    
     try {
         let query = knex('Sportna_Aktivnost as sa')
             .leftJoin('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
@@ -1434,6 +1435,7 @@ app.get('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req
         const aktivnosti = await query;
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
+            
             slika: normalizirajImgPath(a.slika, '../slike/default-sport.png')
         }));
         res.json(obdelaneAktivnosti);
@@ -1462,14 +1464,19 @@ app.post('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (re
     let dejanskiTrenerId = null;
     if (req.uporabnik.JeAdmin === 1 && TK_Trener_Select && TK_Trener_Select !== 'brez') {
         dejanskiTrenerId = parseInt(TK_Trener_Select);
-    } else if (req.uporabnik.jeTrener === 1) {
+    } else if (req.uporabnik.jeTrener) {
         const trenerInfo = await knex('Trenerji').where({TK_Uporabnik: req.uporabnik.userId}).first();
+        
         if (trenerInfo) {
             dejanskiTrenerId = trenerInfo.id;
+            console.log('Line 1472: ',dejanskiTrenerId)
         } else {
             return res.status(403).json({message: "Vaš trenerski profil ni pravilno nastavljen."});
         }
     }
+    console.log()
+    console.log(req.body)
+    console.log(req.uporabnik)
     try {
         const [id] = await knex('Sportna_Aktivnost').insert({
             Naziv, Opis, Lokacija, Cena: parseFloat(Cena), ProstaMesta: parseInt(ProstaMesta), slika: slikaBuffer,
