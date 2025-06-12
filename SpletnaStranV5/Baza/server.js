@@ -86,29 +86,41 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
-// POPRAVEK: Uporaba process.cwd() za zanesljivo pot
-const staticPath = path.join(process.cwd(), 'www');
-console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticPath}`);
-app.use(express.static(staticPath));
-
+// POPRAVEK: Uporaba __dirname za zanesljivo pot
+// __dirname je pot do mape, v kateri je server.js (torej /app/Baza)
+// '..' gre en nivo višje na /app
+// 'www' gre v mapo www
+const staticFilesPath = path.join(__dirname, '..', 'www');
+console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticFilesPath}`);
+app.use(express.static(staticFilesPath));
 
 // ===============================================
 // === API TOČKE (Endpoints) =====================
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
-// POPRAVEK: Uporaba process.cwd() za zanesljivo pot
+// POPRAVEK: Uporaba pravilne poti
 app.get('/', (req, res) => {
-    const indexPath = path.join(process.cwd(), 'www', 'html', 'index.html');
-    res.sendFile(indexPath, (err) => {
+    res.sendFile(path.join(__dirname, '..', 'www', 'html', 'index.html'));
+});
+
+// Potrebujemo tudi ostale poti, da delujejo direktni linki
+app.get('/*.html', (req, res) => {
+    const requestedHtml = req.params[0]; // Dobimo ime datoteke (npr. "prijava")
+    const filePath = path.join(__dirname, '..', 'www', 'html', `${requestedHtml}.html`);
+
+    // Preverimo, če datoteka obstaja, preden jo pošljemo
+    fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.error('[NAPAKA /] Napaka pri pošiljanju index.html:', err);
-            res.status(500).send('Napaka pri nalaganju spletne strani.');
+            console.warn(`[404] Datoteka ni najdena: ${filePath}`);
+            res.status(404).sendFile(path.join(__dirname, '..', 'www', 'html', '404.html')); // Predpostavimo, da imate 404.html
+        } else {
+            res.sendFile(filePath);
         }
     });
 });
 
-// Vsa ostala koda ostane nespremenjena
+
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
         return defaultPath;
