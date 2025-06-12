@@ -2330,3 +2330,4 @@ io.on('connection', (socket) => {
 // Zaganjanje strežnika
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Strežnik teče na localhost in je pripravljen za povezave.`);
+});
