@@ -86,9 +86,8 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
-// POPRAVEK: Pravilna pot do korenskega direktorija projekta
-const rootDir = path.resolve(__dirname, '..');
-const staticPath = path.join(rootDir, 'www');
+// POPRAVEK: Uporaba process.cwd() za zanesljivo pot
+const staticPath = path.join(process.cwd(), 'www');
 console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticPath}`);
 app.use(express.static(staticPath));
 
@@ -98,9 +97,9 @@ app.use(express.static(staticPath));
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
-// POPRAVEK: Uporaba pravilne korenskega direktorija
+// POPRAVEK: Uporaba process.cwd() za zanesljivo pot
 app.get('/', (req, res) => {
-    const indexPath = path.join(rootDir, 'www', 'html', 'index.html');
+    const indexPath = path.join(process.cwd(), 'www', 'html', 'index.html');
     res.sendFile(indexPath, (err) => {
         if (err) {
             console.error('[NAPAKA /] Napaka pri pošiljanju index.html:', err);
@@ -109,6 +108,7 @@ app.get('/', (req, res) => {
     });
 });
 
+// Vsa ostala koda ostane nespremenjena
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
         return defaultPath;
