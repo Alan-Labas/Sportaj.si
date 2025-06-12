@@ -86,6 +86,10 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
+// POPRAVEK: Uporaba __dirname za zanesljivo pot
+// __dirname je pot do mape, v kateri je server.js (torej /app/Baza)
+// '..' gre en nivo višje na /app
+// 'www' gre v mapo www
 const staticFilesPath = path.join(__dirname, '..', 'www');
 console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticFilesPath}`);
 app.use(express.static(staticFilesPath));
@@ -96,28 +100,40 @@ app.use(express.static(staticFilesPath));
 
 // --- Glavna pot, ki postreže index.html ---
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'www', 'html', 'index.html'));
-});
-
-// --- Pot za vse ostale .html strani ---
-app.get('/:pageName.html', (req, res) => {
-    const { pageName } = req.params;
-    const filePath = path.join(__dirname, '..', 'www', 'html', `${pageName}.html`);
-
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+    const indexPath = path.join(__dirname, '..', 'www', 'html', 'index.html');
+    fs.access(indexPath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.warn(`[404] HTML Datoteka ni najdena: ${filePath}`);
-             const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html');
-             res.status(404).sendFile(filePath404, (err404) => {
-                 if (err404) {
-                     res.status(404).send('404: Stran ni najdena');
-                 }
-             });
-        } else {
-            res.sendFile(filePath);
+            console.error(`[NAPAKA /] Datoteka index.html ni najdena na poti: ${indexPath}`);
+            return res.status(404).send('Datoteka index.html ni najdena.');
         }
+        res.sendFile(indexPath);
     });
 });
+
+// To bo ujelo vse zahteve za .html datoteke in jih pravilno postreglo
+// Hkrati pa se izognemo napaki "Missing parameter name"
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html')) {
+        const pageName = req.path.substring(1); // odstranimo prvo poševnico '/'
+        const filePath = path.join(__dirname, '..', 'www', pageName);
+        
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                console.warn(`[404] HTML Datoteka ni najdena: ${filePath}`);
+                const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html');
+                return res.status(404).sendFile(filePath404, (err404) => {
+                    if (err404) {
+                        return res.status(404).send('404: Stran ni najdena in 404.html manjka.');
+                    }
+                });
+            }
+            return res.sendFile(filePath);
+        });
+    } else {
+        next();
+    }
+});
+
 
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
@@ -221,7 +237,7 @@ function preveriTrener(req, res, next) {
     next();
 }
 
-// === API TOČKE ===
+// === API TOČKE ZA ŠPORTE ===
 app.get('/api/vsi-sporti', async (req, res) => {
     try {
         const sporti = await knex('Sport').select('id', 'Sport as ime_sporta', 'Opis as opis_sporta');
@@ -270,6 +286,7 @@ app.get('/api/sport/:id/details', async (req, res) => {
     }
 });
 
+// === API TOČKA ZA ISKANJE ===
 app.get('/api/search/:table', async (req, res) => {
     const { table } = req.params;
     const filters = { ...req.query };
@@ -2336,4 +2353,3 @@ io.on('connection', (socket) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Strežnik teče na vratih ${PORT} in je pripravljen za povezave.`);
 });
-
