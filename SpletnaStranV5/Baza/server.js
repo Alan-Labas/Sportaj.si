@@ -86,8 +86,9 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
-// Postrežemo celotno mapo 'www', vključno s podmapami (css, js, html, slike)
-const staticPath = path.join(__dirname, '../www');
+// POPRAVEK: Pravilna pot do korenskega direktorija projekta
+const rootDir = path.resolve(__dirname, '..');
+const staticPath = path.join(rootDir, 'www');
 console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticPath}`);
 app.use(express.static(staticPath));
 
@@ -97,9 +98,9 @@ app.use(express.static(staticPath));
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
-// To je ključno za delovanje na Railwayu
+// POPRAVEK: Uporaba pravilne korenskega direktorija
 app.get('/', (req, res) => {
-    const indexPath = path.join(__dirname, '../www/html/index.html');
+    const indexPath = path.join(rootDir, 'www', 'html', 'index.html');
     res.sendFile(indexPath, (err) => {
         if (err) {
             console.error('[NAPAKA /] Napaka pri pošiljanju index.html:', err);
@@ -107,10 +108,6 @@ app.get('/', (req, res) => {
         }
     });
 });
-
-// Ostale poti za .html datoteke niso več potrebne, ker jih bo
-// `express.static` samodejno postregel, če je pot pravilna
-// Npr. klic na /html/prijava.html bo deloval samodejno.
 
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
