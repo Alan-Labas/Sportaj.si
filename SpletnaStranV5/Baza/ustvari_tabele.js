@@ -1,11 +1,14 @@
+require('dotenv').config();
+
 const knex = require('knex')({
     client: 'mysql2',
     connection: {
         host: process.env.DB_HOST,
         user: process.env.DB_USER, // Vaš MySQL uporabnik
         password: process.env.DB_PASSWORD, // Vaše MySQL geslo
-        database: process.env.DB_DATABASE,
-        timezone: '00:00',
+        database: process.env.DBDATABASE,
+        PORT: process.env.DB_PORT,
+        timezone: 'UTC',
     }
 });
 const fs = require('fs');

@@ -27,11 +27,12 @@ const knexDriver = require('knex');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+require('dotenv').config();
 
 // --- Konstante iz .env datoteke ---
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'MocnoGeslo1';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'MocnoGeslo2';
 //const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const saltKodiranje = 12;
 
@@ -43,15 +44,16 @@ const knex = knexDriver({
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
+        port: process.env.DB_PORT,
         timezone: '+00:00',
     }
 });
 
 // Preverimo povezavo z bazo ob zagonu
 knex.raw('SELECT 1').then(() => {
-    console.log('Uspešno povezan z  bazo podatkov!');
+    console.log('Uspešno povezan z Azure bazo podatkov!');
 }).catch((err) => {
-    console.error('NAPAKA PRI POVEZOVANJU Z  BAZO PODATKOV:', err);
+    console.error('NAPAKA PRI POVEZOVANJU Z AZURE BAZO PODATKOV:', err);
     process.exit(1);
 });
 
@@ -2367,6 +2369,6 @@ io.on('connection', (socket) => {
 });
 
 // Zaganjanje strežnika
-server.listen(PORT, () => {
-    console.log(`Strežnik teče na localhost in je pripravljen za povezave.`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Strežnik teče na vratih ${PORT} in je pripravljen za povezave.`);
 });
