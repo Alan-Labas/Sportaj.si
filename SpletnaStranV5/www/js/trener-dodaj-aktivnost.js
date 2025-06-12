@@ -11,14 +11,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const datumUreInput = document.getElementById('datumUreInput'); // Ujema se z ID-jem v HTML
     const nacinIzvedbeSelect = document.getElementById('nacinIzvedbeSelect');
     console.log(JSON.parse(sessionStorage.getItem('uporabnikInfo')))
-    function prikaziObvestilo(sporocilo, tip = 'success', timeout = 5000) {
-        const container = document.getElementById('obvestiloSporocilo');
-        if (!container) {
-            alert(sporocilo);
-            return;
-        }
-        container.innerHTML = `<div class="alert alert-${tip}" role="alert">${sporocilo}</div>`;
-        setTimeout(() => { container.innerHTML = ''; }, timeout);
+    function prikaziObvestilo(sporocilo, tip = 'success') {
+        // Preverimo, ali je tip sporočila napaka ('danger' ali 'warning')
+        const jeNapaka = (tip === 'danger' || tip === 'warning');
+
+        // Kličemo našo standardno funkcijo za prikaz obvestil
+        showCustomAlert(sporocilo, jeNapaka);
     }
 
     async function loadSportiZaSelect() {

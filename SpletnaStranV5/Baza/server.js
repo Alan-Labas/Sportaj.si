@@ -21,7 +21,7 @@ const knexDriver = require('knex');
 
 // --- Konfiguracija okoljskih spremenljivk ---
 // To mora biti na samem vrhu, da so spremenljivke na voljo povsod
-require('dotenv').config();
+//require('dotenv').config();
 
 // --- Inicializacija Express in Socket.IO ---
 const app = express();
@@ -32,15 +32,8 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+//const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const saltKodiranje = 12;
-
-// Preverimo, ali so vse potrebne skrivnosti nastavljene
-if (!JWT_SECRET || !REFRESH_TOKEN_SECRET || !process.env.DB_PASSWORD || !process.env.EMAIL_PASS) {
-    console.error("KRITIČNA NAPAKA: Niso nastavljene vse potrebne okoljske spremenljivke (JWT_SECRET, REFRESH_TOKEN_SECRET, DB_PASSWORD, EMAIL_PASS). Preverite .env datoteko.");
-    process.exit(1); // Ustavimo zagon strežnika
-}
-
 
 // --- Nastavitev Knex povezave z Azure bazo ---
 const knex = knexDriver({
@@ -49,20 +42,16 @@ const knex = knexDriver({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
+        database: process.env.DB_DATABASE,
         timezone: '+00:00',
-        ssl: {
-            // Prebere SSL certifikat, ki je potreben za Azure
-            ca: fs.readFileSync(path.join(__dirname, 'DigiCertGlobalRootG2.crt.pem'))
-        }
     }
 });
 
 // Preverimo povezavo z bazo ob zagonu
 knex.raw('SELECT 1').then(() => {
-    console.log('Uspešno povezan z Azure bazo podatkov!');
+    console.log('Uspešno povezan z  bazo podatkov!');
 }).catch((err) => {
-    console.error('NAPAKA PRI POVEZOVANJU Z AZURE BAZO PODATKOV:', err);
+    console.error('NAPAKA PRI POVEZOVANJU Z  BAZO PODATKOV:', err);
     process.exit(1);
 });
 
@@ -210,6 +199,25 @@ function preveriZeton(req, res, next) {
         next();
     });
 }
+function preveriZetonOpcijsko(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) {
+        req.uporabnik = null; // Uporabnik ni prijavljen, a nadaljujemo
+        return next();
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, payload) => {
+        if (err || payload.type !== 'access') {
+            req.uporabnik = null; // Žeton je neveljaven, a nadaljujemo
+        } else {
+            req.uporabnik = payload; // Uporabnik je prijavljen
+        }
+        next();
+    });
+}
+
 
 function preveriAdmin(req, res, next) {
     if (!req.uporabnik) {
@@ -490,8 +498,10 @@ app.get('/api/vse-aktivnosti', async (req, res) => {
     }
 });
 
-app.get('/api/aktivnost/:id/details', async (req, res) => {
+app.get('/api/aktivnost/:id/details', preveriZetonOpcijsko, async (req, res) => {
     const { id } = req.params;
+    const userId = req.uporabnik ? req.uporabnik.userId : null;
+
     try {
         const aktivnost = await knex('Sportna_Aktivnost as sa')
             .where('sa.id', id)
@@ -506,29 +516,43 @@ app.get('/api/aktivnost/:id/details', async (req, res) => {
                 'u_trener.slika as slika_trenerja'
             )
             .first();
+
         if (!aktivnost) {
             return res.status(404).json({ message: 'Športna aktivnost ni najdena.' });
         }
+
         const ocene = await knex('Ocena_Sporta as os')
             .join('Uporabniki as u', 'os.TK_Uporabnik', 'u.id')
             .where({ 'os.TK_SportnaAktivnost': id })
             .select('os.id as ocena_id', 'os.Komentar as komentar_ocene', 'os.Ocena as ocena_vrednost', 'os.Datum as datum_ocene', 'u.username as username_uporabnika', 'u.id as uporabnik_id_ocene', 'u.slika as slika_uporabnika_ocene')
             .orderBy('os.Datum', 'desc');
+
+        let jePrijavljen = false;
+        if (userId) {
+            const prijava = await knex('PrijaveNaAktivnosti')
+                .where({ TK_Uporabnik: userId, TK_Aktivnost: id })
+                .first();
+            jePrijavljen = !!prijava;
+        }
+
         const obdelaneOcene = ocene.map(o => ({
             ...o,
             slika_uporabnika_ocene: normalizirajImgPath(o.slika_uporabnika_ocene, '../slike/default-profile.png')
         }));
+
         res.json({
             ...aktivnost,
             slika: normalizirajImgPath(aktivnost.slika, '../slike/default-sport.png'),
             slika_trenerja: normalizirajImgPath(aktivnost.slika_trenerja, '../slike/default-profile.png'),
-            ocene: obdelaneOcene
+            ocene: obdelaneOcene,
+            jePrijavljen: jePrijavljen // Dodan podatek o prijavi
         });
     } catch (error) {
         console.error(`Napaka pri pridobivanju podrobnosti aktivnosti ${id}:`, error);
         res.status(500).json({ message: 'Napaka na strežniku.' });
     }
 });
+
 
 // === API TOČKE ZA TRENERJE (javne, za search-stran) ===
 app.get('/api/vsi-trenerji', async (req, res) => {
@@ -963,7 +987,7 @@ app.post('/api/token/refresh', async (req, res) => {
             user_id: userId, hashiranToken: hashiranNovOsvezilniToken, expires_at: novDatumPoteka
         });
         const novAccesTokenPayload = {
-            userId: uporabnik.id,
+            userId: userId,
             username: uporabnik.username,
             email: uporabnik.email,
             type: 'access',
@@ -1153,24 +1177,39 @@ app.post('/api/trener/:id/ocena', preveriZeton, async (req, res) => {
     }
 });
 
-app.post('/api/aktivnost/:id/ocena', preveriZeton, async (req, res) => {
+app.get('/api/aktivnosti/:id/ocene', async (req, res) => {
+    try {
+        const ocene = await knex('Ocene_Aktivnosti')
+            .join('Uporabniki', 'Ocene_Aktivnosti.TK_Uporabnik', 'Uporabniki.id')
+            .select('Ocene_Aktivnosti.*', 'Uporabniki.uporabnisko_ime')
+            .where('TK_Aktivnost', req.params.id)
+            .orderBy('Datum', 'desc');
+        res.json(ocene);
+    } catch (error) {
+        console.error("Napaka pri pridobivanju ocen:", error);
+        res.status(500).json({ message: 'Napaka na strežniku' });
+    }
+});
+
+app.post('/api/aktivnosti/:id/ocene', preveriZeton, async (req, res) => {
     const aktivnostId = req.params.id;
     const uporabnikId = req.uporabnik.userId;
     const { ocena, komentar } = req.body;
-    if (ocena === undefined || ocena < 0 || ocena > 5) {
-        return res.status(400).json({ message: 'Ocena mora biti število med 0 in 5.' });
+
+    if (ocena === undefined || ocena < 1 || ocena > 5) {
+        return res.status(400).json({ message: 'Ocena (število zvezdic) je obvezna in mora biti med 1 in 5.' });
     }
-    if (ocena === 0 && (!komentar || komentar.trim() === '')) {
-        return res.status(400).json({ message: 'Če je ocena 0, je komentar obvezen.' });
-    }
+
     try {
-        const aktivnost = await knex('Sportna_Aktivnost').where({id: aktivnostId}).first();
+        const aktivnost = await knex('Sportna_Aktivnost').where({ id: aktivnostId }).first();
         if (!aktivnost) {
             return res.status(404).json({ message: 'Aktivnost s tem ID-jem ni najdena.' });
         }
+
         const obstojecaOcena = await knex('Ocena_Sporta')
             .where({ TK_SportnaAktivnost: aktivnostId, TK_Uporabnik: uporabnikId })
             .first();
+
         if (obstojecaOcena) {
             await knex('Ocena_Sporta')
                 .where({ id: obstojecaOcena.id })
@@ -1178,7 +1217,11 @@ app.post('/api/aktivnost/:id/ocena', preveriZeton, async (req, res) => {
             res.status(200).json({ message: 'Ocena aktivnosti uspešno posodobljena.' });
         } else {
             await knex('Ocena_Sporta').insert({
-                TK_SportnaAktivnost: aktivnostId, TK_Uporabnik: uporabnikId, Ocena: ocena, Komentar: komentar || null, Datum: new Date()
+                TK_SportnaAktivnost: aktivnostId,
+                TK_Uporabnik: uporabnikId,
+                Ocena: ocena,
+                Komentar: komentar || null,
+                Datum: new Date()
             });
             res.status(201).json({ message: 'Ocena aktivnosti uspešno oddana.' });
         }
@@ -1187,6 +1230,7 @@ app.post('/api/aktivnost/:id/ocena', preveriZeton, async (req, res) => {
         res.status(500).json({ message: 'Napaka na strežniku pri oddaji ocene aktivnosti.' });
     }
 });
+
 
 app.post('/api/postaniTrener', preveriZeton, async (req, res) => {
     // Podatki iz obrazca
@@ -1317,7 +1361,7 @@ app.get('/api/index/dejavnosti/prihajajoce', async (req, res) => {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .where('sa.Datum_Cas_Izvedbe', '>=', knex.raw('NOW()'))
-            .select('sa.id as Aktivnosti_ID', 'sa.Naziv as naziv', 'sa.Opis as opis', 'sa.Datum_Cas_Izvedbe as datum_cas_izvedbe', 'sa.Lokacija as lokacija_naziv', 'sa.slika', 's.Sport as ime_sporta', 'sa.Cena as cena')
+            .select('sa.id as Aktivnosti_ID', 'sa.Naziv as naziv', 'sa.Opis as opis', 'sa.Datum_Cas_Izvedbe as datum_cas_izvedbe', 'sa.Lokacija as lokacija_naziv', 'sa.slika', 's.Sport as ime_sporta', 'sa.Cena as cena', 'sa.ProstaMesta', 'sa.MaxMesta')
             .orderBy('sa.Datum_Cas_Izvedbe', 'asc')
             .limit(limit);
         const obdelaneAktivnosti = aktivnosti.map(a => ({
@@ -1331,6 +1375,7 @@ app.get('/api/index/dejavnosti/prihajajoce', async (req, res) => {
         res.status(500).json({ message: 'Napaka na strežniku pri pridobivanju prihajajočih dejavnosti.' });
     }
 });
+
 
 app.get('/api/index/trenerji/top', async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
@@ -2099,7 +2144,7 @@ app.post('/api/pozabljeno-geslo', async (req, res) => {
             );
 
             // === TUKAJ JE POPRAVEK ===
-            const resetLink = `${BASE_URL}/html/ponastavi-geslo.html?token=${resetToken}`;
+            const resetLink = `/html/ponastavi-geslo.html?token=${resetToken}`;
 
             const mailOptions = {
                 from: `"Sportaj.si" <${process.env.EMAIL_USER}>`,
@@ -2187,15 +2232,16 @@ app.post('/api/aktivnosti/:id/prijava', preveriZeton, async (req, res) => {
 
     const trx = await knex.transaction();
     try {
-        // Zaklenemo vrstico aktivnosti za posodobitev, da preprečimo race conditions
         const aktivnost = await trx('Sportna_Aktivnost').where('id', aktivnostId).forUpdate().first();
 
         if (!aktivnost) {
-            throw new Error('Aktivnost ni najdena.');
+            await trx.rollback();
+            return res.status(404).json({ message: 'Aktivnost ni najdena.' });
         }
 
         if (aktivnost.ProstaMesta <= 0) {
-            throw new Error('Za to aktivnost ni več prostih mest.');
+            await trx.rollback();
+            return res.status(400).json({ message: 'Za to aktivnost ni več prostih mest.' });
         }
 
         const obstojecaPrijava = await trx('PrijaveNaAktivnosti')
@@ -2203,27 +2249,51 @@ app.post('/api/aktivnosti/:id/prijava', preveriZeton, async (req, res) => {
             .first();
 
         if (obstojecaPrijava) {
-            throw new Error('Na to aktivnost ste že prijavljeni.');
+            await trx.rollback();
+            return res.status(409).json({ message: 'Na to aktivnost ste že prijavljeni.' });
         }
 
-        // Vstavi prijavo
         await trx('PrijaveNaAktivnosti').insert({
             TK_Uporabnik: userId,
             TK_Aktivnost: aktivnostId
         });
 
-        // Zmanjšaj število prostih mest
-        await trx('Sportna_Aktivnost').where('id', aktivnostId).decrement('ProstaMesta', 1);
+        const novaProstaMesta = aktivnost.ProstaMesta - 1;
+        await trx('Sportna_Aktivnost').where('id', aktivnostId).update({ ProstaMesta: novaProstaMesta });
 
         await trx.commit();
-        res.status(200).json({ message: 'Uspešno ste se prijavili na aktivnost!' });
+
+        io.emit('spots-updated', {
+            aktivnostId: aktivnostId,
+            prostaMesta: novaProstaMesta
+        });
+
+        const uporabnik = await knex('Uporabniki').where('id', userId).first();
+        if (uporabnik) {
+            const mailOptions = {
+                from: `"Sportaj.si" <vunic.alan@gmail.com>`,
+                to: uporabnik.email,
+                subject: `Potrditev prijave na ${aktivnost.Naziv}`,
+                html: `<h1>Pozdravljeni, ${uporabnik.username}!</h1><p>Uspešno ste se prijavili na aktivnost: <strong>${aktivnost.Naziv}</strong>.</p><p>Hvala za prijavo!</p><p>Ekipa Sportaj.si</p>`
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) console.error("Napaka pri pošiljanju emaila:", error);
+                else console.log('Email poslan: ' + info.response);
+            });
+        }
+
+        res.status(200).json({
+            message: 'Uspešno ste se prijavili na aktivnost!',
+            prostaMesta: novaProstaMesta
+        });
 
     } catch (error) {
         await trx.rollback();
-        console.error('Napaka pri prijavi na aktivnost:', error.message);
+        console.error('Napaka pri prijavi na aktivnost:', error);
         res.status(400).json({ message: error.message || 'Napaka na strežniku.' });
     }
 });
+
 
 // Pot za odjavo uporabnika z aktivnosti
 app.post('/api/aktivnosti/:id/odjava', preveriZeton, async (req, res) => {
@@ -2240,14 +2310,24 @@ app.post('/api/aktivnosti/:id/odjava', preveriZeton, async (req, res) => {
             throw new Error('Niste prijavljeni na to aktivnost.');
         }
 
-        // Izbriši prijavo
         await trx('PrijaveNaAktivnosti').where('id', prijava.id).del();
-
-        // Povečaj število prostih mest
         await trx('Sportna_Aktivnost').where('id', aktivnostId).increment('ProstaMesta', 1);
 
+        const posodobljenaAktivnost = await trx('Sportna_Aktivnost').where('id', aktivnostId).first();
+        const novaProstaMesta = posodobljenaAktivnost.ProstaMesta;
+
+
         await trx.commit();
-        res.status(200).json({ message: 'Uspešno ste se odjavili z aktivnosti.' });
+
+        io.emit('spots-updated', {
+            aktivnostId: aktivnostId,
+            prostaMesta: novaProstaMesta
+        });
+
+        res.status(200).json({
+            message: 'Uspešno ste se odjavili z aktivnosti.',
+            prostaMesta: novaProstaMesta
+        });
 
     } catch (error) {
         await trx.rollback();
@@ -2288,5 +2368,5 @@ io.on('connection', (socket) => {
 
 // Zaganjanje strežnika
 server.listen(PORT, () => {
-    console.log(`Strežnik teče na ${BASE_URL} in je pripravljen za povezave.`);
+    console.log(`Strežnik teče na localhost in je pripravljen za povezave.`);
 });

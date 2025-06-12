@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const token = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken");
 
             if (!token) {
-                alert("Za oddajo prošnje morate biti prijavljeni. Preusmerjam na prijavo.");
+                showCustomAlert("Za oddajo prošnje morate biti prijavljeni. Preusmerjam na prijavo.");
                 window.location.href = 'prijava.html'; // Preusmeritev na prijavo
                 return;
             }
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const izbraniSporti = Array.from(sportiSelect.selectedOptions).map(option => option.value);
 
             if (izbraniSporti.length === 0) {
-                alert("Izbrati morate vsaj en šport.");
+                showCustomAlert("Izbrati morate vsaj en šport.");
                 return;
             }
 
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 const responseData = await response.json();
 
                 if (response.ok) {
-                    alert(responseData.message || "Uspešno ste postali trener! Vaše pravice so bile posodobljene.");
+                    showCustomAlert(responseData.message || "Uspešno ste postali trener! Vaše pravice so bile posodobljene.");
 
                     // Posodobimo podatke v sessionStorage/localStorage z novim žetonom in podatki
                     if (sessionStorage.getItem("accessToken")) {
@@ -100,11 +100,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 } else {
                     console.error("Napaka s strežnika:", response.status, responseData);
-                    alert(`Napaka pri pošiljanju prošnje: ${responseData.message || response.statusText}`);
+                    showCustomAlert(`Napaka pri pošiljanju prošnje: ${responseData.message || response.statusText}`);
                 }
             } catch (error) {
                 console.error("Napaka pri pošiljanju zahteve (fetch):", error);
-                alert("Prišlo je do napake pri komunikaciji s strežnikom. Poskusite znova kasneje.");
+                showCustomAlert("Prišlo je do napake pri komunikaciji s strežnikom. Poskusite znova kasneje.");
             }
         });
     }

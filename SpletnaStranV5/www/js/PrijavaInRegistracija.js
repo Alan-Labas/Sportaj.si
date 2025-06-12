@@ -468,9 +468,9 @@ async function odjava(forceStopTimers = false, sporocilo = null) {
     if (sporocilo) {
         const globalAlert = document.getElementById('globalAlertMessage');
         if (globalAlert) {
-            prikaziObvestilo(sporocilo, 'globalAlertMessage', 'text-success', 3000);
+            prikaziObvestilo(sporocilo, 'globalAlertMessage', 'text-success', 2000);
         } else {
-            alert(sporocilo);
+            showCustomAlert(sporocilo);
         }
     }
 

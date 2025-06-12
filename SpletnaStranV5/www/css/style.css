@@ -12,6 +12,28 @@ body {
     background-color: #fff;
 }
 
+.custom-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 8px;
+    background-color: #2c3e50;
+    color: white;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.5s, top 0.5s;
+}
+
+.custom-alert.show {
+    top: 50px;
+    opacity: 1;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -996,4 +1018,69 @@ body.no-scroll{
     .klepet-container.mobile-chat-view .okno-klepeta {
         transform: translateX(-100%);
     }
+}
+
+.ocene-container {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.komentar {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+
+.komentar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.komentar-avtor {
+    font-weight: bold;
+}
+
+.komentar-zvezdice .fa-star {
+    color: #f39c12;
+}
+
+.komentar-telo {
+    color: #333;
+}
+
+.oceni-form-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
 }

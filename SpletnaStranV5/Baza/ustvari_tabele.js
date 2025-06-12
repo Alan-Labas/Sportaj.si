@@ -1,11 +1,11 @@
 const knex = require('knex')({
     client: 'mysql2',
     connection: {
-        host: '127.0.0.1',
-        user: 'root', // Vaš MySQL uporabnik
-        password: 'Smetar245', // Vaše MySQL geslo
-        database: 'sportaj_si',
-        timezone: 'UTC',
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER, // Vaš MySQL uporabnik
+        password: process.env.DB_PASSWORD, // Vaše MySQL geslo
+        database: process.env.DB_DATABASE,
+        timezone: '00:00',
     }
 });
 const fs = require('fs');
@@ -18,7 +18,7 @@ async function napolniBazo() {
         console.log("Začenja se brisanje obstoječih tabel...");
         await knex.schema.dropTableIfExists('PrijaveNaAktivnosti');
         await knex.schema.dropTableIfExists('Sporočila');
-        await knex.schema.dropTableIfExists('Ocena_Sporta'); // Zamenjan vrstni red zaradi odvisnosti
+        await knex.schema.dropTableIfExists('Ocena_Sporta');
         await knex.schema.dropTableIfExists('Ocena_Trenerja');
         await knex.schema.dropTableIfExists('Komentarji');
         await knex.schema.dropTableIfExists('osvezilniTokens');
@@ -102,6 +102,7 @@ async function napolniBazo() {
             table.string('Lokacija').notNullable();
             table.decimal('Cena', 10, 2).notNullable().defaultTo(0.00);
             table.integer('ProstaMesta').notNullable().unsigned();
+            table.integer('MaxMesta').unsigned().notNullable().defaultTo(0); // ODSTRANJENA METODA .after()
             table.enum('Nacin_Izvedbe', ['individualno', 'skupinsko']).defaultTo('skupinsko');
             table.specificType('slika', 'LONGBLOB').nullable();
             table.dateTime('Datum_Cas_Izvedbe').notNullable();
@@ -110,6 +111,7 @@ async function napolniBazo() {
             table.timestamps(true, true);
         });
         console.log("Tabela Sportna_Aktivnost je bila uspešno ustvarjena.");
+
 
         // Tabela Komentarji
         await knex.schema.createTable('Komentarji', (table) => {
@@ -381,9 +383,15 @@ async function napolniBazo() {
             }
 
             processedAktivnosti.push({
-                Naziv: act.Naziv, Opis: act.Opis, Lokacija: act.Lokacija, Cena: act.Cena, ProstaMesta: act.ProstaMesta,
-                Nacin_Izvedbe: act.Nacin_Izvedbe || 'skupinsko', // Zagotovimo default vrednost
-                slika: imageBuffer, Datum_Cas_Izvedbe: act.Datum_Cas_Izvedbe,
+                Naziv: act.Naziv,
+                Opis: act.Opis,
+                Lokacija: act.Lokacija,
+                Cena: act.Cena,
+                ProstaMesta: act.ProstaMesta,
+                MaxMesta: act.ProstaMesta,
+                Nacin_Izvedbe: act.Nacin_Izvedbe || 'skupinsko',
+                slika: imageBuffer,
+                Datum_Cas_Izvedbe: act.Datum_Cas_Izvedbe,
                 TK_TipAktivnosti: act.TK_TipAktivnosti,
                 TK_Trener: act.TK_Trener,
             });

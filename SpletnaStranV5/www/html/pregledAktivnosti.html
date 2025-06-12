@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+
 </head>
 
 <body>
@@ -116,14 +116,22 @@
 
                 <div class="card shadow-sm" id="ocenjevanjeInKomentiranjeCard">
                     <div class="card-body">
-                        <h5>Vaša ocena</h5>
-                        <div id="activityStarRating" class="d-flex justify-content-start mb-2" style="cursor: pointer; font-size: 1.5rem; color: #ffc107;">
-                            <i class="far fa-star" data-value="1"></i><i class="far fa-star" data-value="2"></i><i class="far fa-star" data-value="3"></i><i class="far fa-star" data-value="4"></i><i class="far fa-star" data-value="5"></i>
-                        </div>
-                        <h5>Dodaj komentar</h5>
                         <form id="activityCommentForm">
-                            <textarea id="activityCommentText" class="form-control mb-2" rows="3" placeholder="Dodaj komentar..."></textarea>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Objavi</button>
+                            <div class="mb-3">
+                                <label class="form-label">Tvoja ocena:</label>
+                                <div class="star-rating">
+                                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">&#9733;</label>
+                                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">&#9733;</label>
+                                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">&#9733;</label>
+                                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">&#9733;</label>
+                                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">&#9733;</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="activityCommentText" class="form-label">Tvoj komentar:</label>
+                                <textarea class="form-control" id="activityCommentText" placeholder="Napiši komentar..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Objavi</button>
                         </form>
                     </div>
                 </div>
@@ -193,9 +201,12 @@
     </div>
 </footer>
 
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../js/activityPage.js"></script>
 <script src="../js/PrijavaInRegistracija.js" defer></script>
+<script src="../js/script.js" defer></script>
+
 <script>
 
     // Za prikaz trenutnega leta v nogi

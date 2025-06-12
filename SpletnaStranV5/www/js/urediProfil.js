@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Preverjanje prijave pred nalaganjem podatkov
     if (!sessionStorage.getItem('accessToken') && !localStorage.getItem('refreshToken')) {
-        alert('Za dostop do te strani morate biti prijavljeni.');
+        showCustomAlert('Za dostop do te strani morate biti prijavljeni.');
         window.location.href = 'prijava.html'; // Preusmeri na prijavo
         return; // Ustavi izvajanje skripte, če ni prijavljen
     }
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert(data.message || 'Profilna slika uspešno posodobljena!');
+                    showCustomAlert(data.message || 'Profilna slika uspešno posodobljena!');
                     if (data.slika_base64) { // Strežnik vrne base64 nove slike
                         if (profileImagePreview) profileImagePreview.src = data.slika_base64; // Uporabi base64
                         // Posodobi tudi v sessionStorage in navigaciji
@@ -188,10 +188,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     }
                 } else {
-                    alert(`Napaka: ${data.message || 'Slike ni bilo mogoče naložiti.'}`);
+                    showCustomAlert(`Napaka: ${data.message || 'Slike ni bilo mogoče naložiti.'}`);
                 }
             } else {
-                alert('Prosimo, izberite sliko za nalaganje.');
+                showCustomAlert('Prosimo, izberite sliko za nalaganje.');
             }
         });
     }
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const data = await response.json();
             if (response.ok) {
-                alert(data.message || 'Podatki uspešno posodobljeni!');
+                showCustomAlert(data.message || 'Podatki uspešno posodobljeni!');
                 if (data.accessToken && data.uporabnik) {
                     sessionStorage.setItem('accessToken', data.accessToken);
                     sessionStorage.setItem('uporabnikInfo', JSON.stringify(data.uporabnik));
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (typeof preveriPrijavo === "function") await preveriPrijavo();
                 }
             } else {
-                alert(`Napaka: ${data.message || 'Podatkov ni bilo mogoče posodobiti.'}`);
+                showCustomAlert(`Napaka: ${data.message || 'Podatkov ni bilo mogoče posodobiti.'}`);
             }
         });
     }
@@ -253,13 +253,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const confirmNewPassword = confirmNewPasswordInput ? confirmNewPasswordInput.value : '';
 
             if (newPassword !== confirmNewPassword) {
-                alert('Novi gesli se ne ujemata!');
+                showCustomAlert('Novi gesli se ne ujemata!');
                 return;
             }
 
             const gesloRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
             if (!gesloRegex.test(newPassword)) {
-                alert('Novo geslo mora vsebovati vsaj 6 znakov, eno veliko črko in eno številko!');
+                showCustomAlert('Novo geslo mora vsebovati vsaj 6 znakov, eno veliko črko in eno številko!');
                 return;
             }
 
@@ -270,10 +270,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const data = await response.json();
             if (response.ok) {
-                alert(data.message || 'Geslo uspešno spremenjeno!');
+                showCustomAlert(data.message || 'Geslo uspešno spremenjeno!');
                 passwordChangeForm.reset();
             } else {
-                alert(`Napaka: ${data.message || 'Gesla ni bilo mogoče spremeniti.'}`);
+                showCustomAlert(`Napaka: ${data.message || 'Gesla ni bilo mogoče spremeniti.'}`);
             }
         });
     }

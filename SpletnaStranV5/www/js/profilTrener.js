@@ -269,13 +269,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const komentar = commentTextElement.value.trim();
 
             if (!sessionStorage.getItem('accessToken')) {
-                alert('Za oddajo ocene in komentarja se morate prijaviti.');
+                showCustomshowCustomAlert('Za oddajo ocene in komentarja se morate prijaviti.');
                 if (typeof showLoginModal === "function") showLoginModal();
                 return;
             }
 
             if (currentUserRating === 0) {
-                alert('Prosimo, najprej ocenite trenerja s klikom na zvezdice.');
+                showCustomshowCustomAlert('Prosimo, najprej ocenite trenerja s klikom na zvezdice.');
                 return;
             }
 
@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    alert(result.message || 'Ocena in komentar uspešno oddana!');
+                    showCustomAlert(result.message || 'Ocena in komentar uspešno oddana!');
                     commentTextElement.value = '';
                     currentUserRating = 0;
                     const updatedTrainerData = await fetchTrainerDetails(trainerId);
@@ -298,11 +298,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         displayCommentsAndAverageRating(updatedTrainerData.ocene);
                     }
                 } else {
-                    alert(`Napaka: ${result.message || 'Ocene ni bilo mogoče oddati.'}`);
+                    showCustomAlert(`Napaka: ${result.message || 'Ocene ni bilo mogoče oddati.'}`);
                 }
             } catch (error) {
                 console.error('Napaka pri oddaji ocene/komentarja:', error);
-                alert('Prišlo je do napake pri komunikaciji s strežnikom.');
+                showCustomAlert('Prišlo je do napake pri komunikaciji s strežnikom.');
             }
         });
     }

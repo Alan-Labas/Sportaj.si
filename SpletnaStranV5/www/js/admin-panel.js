@@ -1,3 +1,5 @@
+// === ZAČETEK KODE ZA admin-panel.js ===
+
 const aktivnostSlikaUploadInput = document.getElementById('aktivnostSlikaUploadInput');
 const aktivnostOdstraniSlikoGroup = document.getElementById('aktivnostOdstraniSlikoGroup');
 const aktivnostOdstraniSlikoCheckbox = document.getElementById('aktivnostOdstraniSlikoCheckbox');
@@ -5,13 +7,13 @@ const aktivnostOdstraniSlikoCheckbox = document.getElementById('aktivnostOdstran
 document.addEventListener('DOMContentLoaded', async () => {
     const uporabnikInfoString = sessionStorage.getItem('uporabnikInfo');
     if (!uporabnikInfoString) {
-        alert('Za dostop do te strani morate biti prijavljeni.');
+        showCustomAlert('Za dostop do te strani morate biti prijavljeni.');
         window.location.href = '/';
         return;
     }
     const uporabnik = JSON.parse(uporabnikInfoString);
     if (!uporabnik.JeAdmin) {
-        alert('Nimate dovoljenja za dostop do te strani.');
+        showCustomAlert('Nimate dovoljenja za dostop do te strani.');
         window.location.href = '/';
         return;
     }
@@ -112,25 +114,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function prikaziObvestiloAdmin(sporocilo, tip = 'success', timeout = 3000) {
-        const alertContainer = document.getElementById('globalAlertMessageFixed');
-        if (!alertContainer) return;
+    /**
+     * Prikaže potrditveno modalno okno in izvede akcijo ob potrditvi.
+     * @param {string} vprasanje - Vprašanje, ki se prikaže uporabniku.
+     * @param {function} onConfirmCallback - Funkcija, ki se izvede, če uporabnik klikne "Potrdi".
+     */
+    function prikaziPotrditvenoOkno(vprasanje, onConfirmCallback) {
+        const confirmationModalElement = document.getElementById('confirmationModal');
+        const confirmationModal = bootstrap.Modal.getOrCreateInstance(confirmationModalElement);
+        const confirmBtn = document.getElementById('confirmActionBtn');
 
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${tip} alert-dismissible fade show`;
-        alertDiv.role = 'alert';
-        alertDiv.innerHTML = `
-            ${sporocilo}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        alertContainer.appendChild(alertDiv);
+        document.getElementById('confirmationModalBody').textContent = vprasanje;
 
-        if (timeout) {
-            setTimeout(() => {
-                const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
-                if (bsAlert) bsAlert.close();
-            }, timeout);
-        }
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        document.getElementById('confirmActionBtn').addEventListener('click', () => {
+            onConfirmCallback();
+            confirmationModal.hide();
+        }, { once: true });
+
+        confirmationModal.show();
+    }
+
+    function prikaziObvestiloAdmin(sporocilo, tip = 'success') {
+        const jeNapaka = (tip === 'danger' || tip === 'warning');
+        showCustomAlert(sporocilo, jeNapaka);
     }
 
 
@@ -295,12 +304,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         document.querySelectorAll('.btn-izbrisi-oceno').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = e.target.dataset.id;
                 const type = e.target.dataset.type;
-                if (confirm(`Ali ste prepričani, da želite izbrisati to oceno (${type})?`)) {
+                prikaziPotrditvenoOkno(`Ali ste prepričani, da želite izbrisati to oceno (${type})?`, async () => {
                     await izbrisiOceno(id, type);
-                }
+                });
             });
         });
     }
@@ -320,11 +329,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         document.querySelectorAll('.btn-izbrisi-aktivnost').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = e.target.dataset.id;
-                if (confirm('Ali ste prepričani, da želite izbrisati to aktivnost? Povezane ocene bodo tudi izbrisane.')) {
+                prikaziPotrditvenoOkno('Ali ste prepričani, da želite izbrisati to aktivnost? Povezane ocene bodo tudi izbrisane.', async () => {
                     await izbrisiAktivnost(id);
-                }
+                });
             });
         });
     }
@@ -345,11 +354,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         document.querySelectorAll('.btn-izbrisi-trenerja').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 const id = e.target.dataset.id;
-                if (confirm('Ali ste prepričani, da želite izbrisati tega trenerja? Povezan uporabniški račun bo prav tako izbrisan! Njegove aktivnosti bodo ostale brez trenerja.')) {
+                prikaziPotrditvenoOkno('Ali ste prepričani, da želite izbrisati tega trenerja? Povezan uporabniški račun bo prav tako izbrisan! Njegove aktivnosti bodo ostale brez trenerja.', async () => {
                     await izbrisiTrenerja(id);
-                }
+                });
             });
         });
     }
@@ -403,12 +412,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function shraniAktivnost() {
         const id = aktivnostIdInput.value;
 
-        // Validacija osnovnih polj pred ustvarjanjem FormData
         const naziv = aktivnostNazivInput.value.trim();
         const opis = aktivnostOpisInput.value.trim();
         const lokacija = aktivnostLokacijaInput.value.trim();
-        const cena = aktivnostCenaInput.value; // Validacija na strežniku
-        const prostaMesta = aktivnostProstaMestaInput.value; // Validacija na strežniku
+        const cena = aktivnostCenaInput.value;
+        const prostaMesta = aktivnostProstaMestaInput.value;
         const tipAktivnosti = aktivnostTipSelect.value;
         const datumCas = aktivnostDatumInput.value;
         const nacinIzvedbe = nacinIzvedbeSelect.value;
@@ -450,17 +458,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetchZAvtentikacijo(url, {
                 method: method,
                 body: formData
-                // NE nastavljajte Content-Type headerja, ko uporabljate FormData!
             });
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({ message: `Strežnik je vrnil napako ${response.status}` }));
                 throw new Error(errData.message || `Napaka pri shranjevanju aktivnosti: ${response.statusText}`);
             }
-            const data = await response.json(); // Preberemo odgovor, če je bil uspešen
+            const data = await response.json();
             prikaziObvestiloAdmin(data.message || `Aktivnost uspešno ${id ? 'posodobljena' : 'dodana'}.`);
             aktivnostModal.hide();
-            await loadAktivnosti(); // Ponovno naloži tabelo aktivnosti
+            await loadAktivnosti();
         } catch (error) {
             console.error('Napaka pri klicu shraniAktivnost:', error);
             prikaziObvestiloAdmin(error.message || 'Prišlo je do napake.', 'danger');
@@ -474,7 +481,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'none';
         if (aktivnostOdstraniSlikoCheckbox) aktivnostOdstraniSlikoCheckbox.checked = false;
         if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = '';
-        // Pazi, da imaš v HTML-ju element z ID-jem 'aktivnostModal'
         const modalElement = document.getElementById('aktivnostModal');
         if (modalElement) {
             const bootstrapModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
@@ -482,7 +488,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    async function prikaziAktivnostModalZaUrejanje(aktivnost) { // Dodan async, ker morda kličemo API
+    async function prikaziAktivnostModalZaUrejanje(aktivnost) {
         aktivnostForm.reset();
         aktivnostIdInput.value = aktivnost.id;
         document.getElementById('aktivnostModalLabel').textContent = 'Uredi Aktivnost';
@@ -502,7 +508,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         aktivnostTipSelect.value = aktivnost.TK_TipAktivnosti || '';
         aktivnostTrenerSelect.value = aktivnost.TK_Trener || '';
 
-        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = ''; // Počisti prejšnjo izbiro datoteke
+        if (aktivnostSlikaUploadInput) aktivnostSlikaUploadInput.value = '';
 
         if (aktivnost.imaSliko) {
             if (aktivnostOdstraniSlikoGroup) aktivnostOdstraniSlikoGroup.style.display = 'block';
@@ -630,3 +636,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     loadDataForSection('ocene-trenerjev');
 });
+
+
+// === KONEC KODE ===

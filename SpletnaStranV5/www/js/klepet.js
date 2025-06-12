@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         options.headers = { ...options.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
         const response = await fetch(url, options);
         if (response.status === 401) {
-            alert("Vaša seja je potekla, prosimo prijavite se ponovno.");
+            showCustomAlert("Vaša seja je potekla, prosimo prijavite se ponovno.");
             window.location.href = 'prijava.html?sessionExpired=true';
         }
         return response;

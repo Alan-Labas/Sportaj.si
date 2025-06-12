@@ -3,7 +3,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultSportImg = '../slike/default-sport.png';     // Predpostavimo, da ta slika obstaja v /www/slike/
     const defaultTrainerImg = '../slike/default-profile.png'; // Predpostavimo, da ta slika obstaja v /www/slike/profilne/
 
+    async function fetchWithCacheBust(url) {
+        // Dodamo parameter, ki se spreminja, da preprečimo predpomnjenje
+        const urlWithCacheBust = new URL(url, window.location.origin);
+        urlWithCacheBust.searchParams.append('t', new Date().getTime());
+        return fetch(urlWithCacheBust);
+    }
 
+    async function prikazStatistike(url, elementId) {
+        const prikazElement = document.getElementById(elementId);
+        if (!prikazElement) return;
+
+        try {
+            const response = await fetchWithCacheBust(url);
+            if (!response.ok) throw new Error(`Network response was not ok for ${url}`);
+            const data = await response.json();
+            const key = Object.keys(data)[0]; // Predpostavimo, da je v odgovoru samo en ključ
+            if (data && typeof data[key] !== 'undefined') {
+                prikazElement.textContent = data[key];
+            } else {
+                prikazElement.textContent = 'N/A';
+            }
+        } catch (error) {
+            console.error(`Napaka pri pridobivanju statistike (${url}):`, error);
+            prikazElement.textContent = 'NAPAKA';
+        }
+    }
 
 
     async function prikazSteviloTrenerjev (){
@@ -97,66 +122,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     await prikazSteviloSportnihAktivnosti()
 
     // Funkcija za prikaz prihajajočih dejavnosti
-    async function displayUpcomingActivities(limit = 6) {
+    async function displayUpcomingActivities() {
         const container = document.getElementById('upcoming-activities-container');
         if (!container) return;
+        container.innerHTML = `<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Nalaganje...</span></div></div>`;
 
         try {
-            const response = await fetch('/api/index/dejavnosti/prihajajoce?limit=6');
+            const response = await fetchWithCacheBust('/api/index/dejavnosti/prihajajoce?limit=6');
             if (!response.ok) throw new Error('Network response was not ok');
             const activities = await response.json();
 
-            container.innerHTML = ''; // Počisti vsebino pred dodajanjem
+            container.innerHTML = '';
             if (activities.length === 0) {
-                container.innerHTML = '<p class="text-center">Trenutno ni na voljo prihajajočih dejavnosti.</p>';
+                container.innerHTML = '<p class="text-center col-12">Trenutno ni na voljo prihajajočih dejavnosti.</p>';
                 return;
             }
 
             activities.forEach(activity => {
-                const imgSrc = activity.slika_url || '/slike/default_activity.webp';
-                // Zagotovimo, da je cena numerična vrednost in jo pravilno formatiramo
-                //const cenaValue = parseFloat(activity.cena);
-                const cenaText = activity.cena> 0 ? `${parseFloat(activity.cena).toFixed(2)} €` : 'Brezplačno';
+                const imgSrc = activity.slika_url || defaultActivityImg;
+                const cenaText = activity.cena > 0 ? `${parseFloat(activity.cena).toFixed(2)} €` : 'Brezplačno';
+
+                // POPRAVEK: Logika za prikaz mest
+                const mestaText = activity.MaxMesta ? `${activity.ProstaMesta} / ${activity.MaxMesta}` : `${activity.ProstaMesta} prostih`;
+                const mestaIcon = activity.ProstaMesta > 0 ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
 
                 const cardHtml = `
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100 trainer-card shadow-sm" style="cursor: pointer;" onclick="window.location.href='/html/pregledAktivnosti.html?id=${activity.Aktivnosti_ID}'">
-                    <img src="${imgSrc}" class="card-img-top" alt="${activity.naziv}" style="height: 200px; object-fit: cover;">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">${activity.naziv}</h5>
-                        <p class="card-text text-muted small">${activity.ime_sporta}</p>
-                        <ul class="list-unstyled text-muted small mt-auto">
-                            <li><i class="fas fa-map-marker-alt fa-fw me-2"></i>${activity.lokacija_naziv || 'Neznana lokacija'}</li>
-                            <li><i class="fas fa-calendar-alt fa-fw me-2"></i>${new Date(activity.datum_cas_izvedbe).toLocaleDateString('sl-SI')}</li>
-                        </ul>
-                    </div>
-                    <div class="card-footer bg-white border-0 pb-3">
-                       <div class="d-flex justify-content-between align-items-center">
-                           <span class="price fw-bold">${cenaText}</span>
-                           <a href="/html/pregledAktivnosti.html?id=${activity.Aktivnosti_ID}" class="btn btn-primary btn-sm">Odpri</a>
-                       </div>
-                    </div>
-                </div>
-            </div>`;
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 trainer-card shadow-sm" style="cursor: pointer;" onclick="window.location.href='/html/pregledAktivnosti.html?id=${activity.Aktivnosti_ID}'">
+                            <img src="${imgSrc}" class="card-img-top" alt="${activity.naziv}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">${activity.naziv}</h5>
+                                <p class="card-text text-muted small">${activity.ime_sporta}</p>
+                                <ul class="list-unstyled text-muted small mt-auto">
+                                    <li><i class="fas fa-map-marker-alt fa-fw me-2"></i>${activity.lokacija_naziv || 'Neznana lokacija'}</li>
+                                    <li><i class="fas fa-calendar-alt fa-fw me-2"></i>${new Date(activity.datum_cas_izvedbe).toLocaleDateString('sl-SI')}</li>
+                                    <li><i class="fas ${mestaIcon} fa-fw me-2"></i>Prosta mesta: ${mestaText}</li>
+                                </ul>
+                            </div>
+                            <div class="card-footer bg-white border-0 pb-3">
+                               <div class="d-flex justify-content-between align-items-center">
+                                   <span class="price fw-bold">${cenaText}</span>
+                                   <a href="/html/pregledAktivnosti.html?id=${activity.Aktivnosti_ID}" class="btn btn-primary btn-sm">Odpri</a>
+                               </div>
+                            </div>
+                        </div>
+                    </div>`;
                 container.innerHTML += cardHtml;
             });
         } catch (error) {
             console.error('Error fetching upcoming activities:', error);
-            if (container) container.innerHTML = '<p class="text-center text-danger">Napaka pri nalaganju dejavnosti.</p>';
+            if (container) container.innerHTML = '<p class="text-center text-danger col-12">Napaka pri nalaganju dejavnosti.</p>';
         }
     }
 
     // Funkcija za prikaz top trenerjev
-    async function displayTopTrainers(limit = 6) {
+    async function displayTopTrainers() {
         const container = document.getElementById('top-trainers-container');
         if (!container) return;
+        container.innerHTML = `<div class="col-12 text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Nalaganje...</span></div></div>`;
 
         try {
-            const response = await fetch(`/api/index/trenerji/top?limit=${limit}`);
+            const response = await fetchWithCacheBust('/api/index/trenerji/top?limit=3');
             if (!response.ok) throw new Error('Napaka pri nalaganju trenerjev.');
             const trainers = await response.json();
 
-            container.innerHTML = ''; // Počisti placeholder
+            container.innerHTML = '';
             if (trainers.length === 0) {
                 container.innerHTML = '<p class="text-center col-12">Trenutno ni na voljo nobenih trenerjev.</p>';
                 return;
@@ -198,41 +228,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     // Funkcija za prikaz top športov
-    async function displayTopSports(sports) {
-        const container = document.getElementById('top-sports-container'); // Pravilen ID iz index.html
-        if (!container) {
-            console.error('Element z ID-jem "top-sports-container" ne obstaja.');
-            return;
-        }
-        container.innerHTML = ''; // Počisti obstoječo vsebino (placeholder bo izginil)
-
+    async function displayTopSports() {
+        const container = document.getElementById('top-sports-container');
+        if (!container) return;
         const placeholder = document.getElementById('top-sports-placeholder');
-        if (placeholder) placeholder.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'block';
 
-        if (!sports || sports.length === 0) {
-            container.innerHTML = '<a href="#" class="list-group-item list-group-item-action text-center">Ni športov za prikaz.</a>';
-            return;
+        try {
+            const response = await fetchWithCacheBust('/api/index/sporti/top?limit=5');
+            if (!response.ok) throw new Error('Napaka pri nalaganju športov.');
+            const sports = await response.json();
+
+            if (placeholder) placeholder.style.display = 'none';
+            container.innerHTML = '';
+
+            if (sports.length === 0) {
+                container.innerHTML = '<a href="#" class="list-group-item list-group-item-action text-center">Ni športov za prikaz.</a>';
+                return;
+            }
+
+            sports.forEach(sport => {
+                const imgSrc = sport.slika || defaultSportImg;
+                const sportElement = document.createElement('a');
+                sportElement.href = `/html/pregledSporta.html?id=${sport.Sport_ID}`;
+                sportElement.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                sportElement.innerHTML = `
+                    <span>
+                        <img src="${imgSrc}" alt="${sport.Naziv_Sporta}" style="width: 32px; height: 32px; object-fit: cover; margin-right: 10px; border-radius: 0.25rem;" onerror="this.src='${defaultSportImg}';">
+                        ${sport.Naziv_Sporta}
+                    </span>
+                    <span class="badge bg-primary rounded-pill">${sport.stevilo_aktivnosti || 0}</span>
+                `;
+                container.appendChild(sportElement);
+            });
+        } catch(error) {
+            console.error('Napaka pri nalaganju športov:', error);
+            if (placeholder) placeholder.style.display = 'none';
+            container.innerHTML = '<a href="#" class="list-group-item list-group-item-action text-center text-danger">Napaka pri nalaganju športov.</a>';
         }
-
-        sports.forEach(sport => {
-            const sportElement = document.createElement('a');
-            sportElement.href = `/html/pregledSporta.html?id=${sport.Sport_ID}`;
-            sportElement.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center clickable-card';
-            sportElement.dataset.id = sport.Sport_ID;
-            sportElement.dataset.type = 'sport';
-
-            // Privzeta slika, če `sport.slika` ni na voljo ali je pot neveljavna
-            const imgSrc = sport.slika || defaultSportImg;
-
-            sportElement.innerHTML = `
-                <span>
-                    <img src="${imgSrc}" alt="${sport.Naziv_Sporta}" style="width: 32px; height: 32px; object-fit: cover; margin-right: 10px; border-radius: 0.25rem;" onerror="this.onerror=null;this.src='${defaultSportImg}';">
-                    ${sport.Naziv_Sporta}
-                </span>
-                <span class="badge bg-primary rounded-pill">${sport.stevilo_aktivnosti || 0}</span>
-            `;
-            container.appendChild(sportElement);
-        });
     }
 
     // Nalaganje vsebine za index.html
@@ -308,4 +341,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+    // Poženemo vse funkcije
+    await Promise.all([
+        prikazStatistike('/api/trener/count', 'stevilo_Trenerjev'),
+        prikazStatistike('/api/ocene/count', 'stevilo_Ocen'),
+        prikazStatistike('/api/aktivnost/count', 'stevilo_Aktivnosti'),
+        displayUpcomingActivities(),
+        displayTopTrainers(),
+        displayTopSports()
+    ]);
 });
