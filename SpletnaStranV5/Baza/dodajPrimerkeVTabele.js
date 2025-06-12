@@ -5,10 +5,13 @@ const knex = require('knex')({
         user: 'root',
         password: 'Smetar245',
         database: 'sportaj_si',
+        timezone: 'UTC'
     }
 });
 const fs = require('fs')
 const path = require('path')
+const { hashiranjeObstojecihGesel } = require('./hashiranje_obsojecih_gesel.js');
+
 async function posodobiBazo(){
     console.log('Začenja se dodajanje primerkov v tabele')
     try{
@@ -131,6 +134,7 @@ async function posodobiBazo(){
         }
         
         console.log('Dodajanje 30 novih dejavnosti')
+        await hashiranjeObstojecihGesel();
         await knex('sportna_aktivnost').insert(Sportna_Aktivnost).then(()=>{
             console.log('Uspešno dodanih 30 novih dejavnosti')
         })

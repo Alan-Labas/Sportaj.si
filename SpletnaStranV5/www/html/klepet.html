@@ -7,20 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <style>
-    /* Ta del stilov lahko ostane tukaj ali pa se premesti v glavno style.css datoteko */
-    main.container.my-5 { position: relative; } /* Za pravilno delovanje mobilnega pogleda */
-    .klepet-container { height: 75vh; border: 1px solid #dee2e6; display: flex; position: relative; overflow: hidden; }
-    .seznam-klepetov { flex-shrink: 0; width: 35%; border-right: 1px solid #dee2e6; height: 100%; overflow-y: auto; }
-    .okno-klepeta { flex-shrink: 0; width: 65%; display: flex; flex-direction: column; height: 100%; background-color: white; }
-    .glava-klepeta { padding: 1rem; border-bottom: 1px solid #dee2e6; background-color: #f8f9fa; display: flex; align-items: center; }
-    .telo-klepeta { flex-grow: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; }
-    .noga-klepeta { padding: 1rem; border-top: 1px solid #dee2e6; background-color: #f8f9fa;}
-    .sporocilo { max-width: 75%; padding: 0.5rem 1rem; border-radius: 1rem; margin-bottom: 0.5rem; word-wrap: break-word; }
-    .poslano { background-color: #0d6efd; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
-    .prejeto { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 0; }
-    .seznam-klepetov .list-group-item.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
-  </style>
 </head>
 <body>
 <header class="header">
@@ -60,7 +46,7 @@
               <span id="usernameNav">Uporabnik</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="#" id="urediProfilLinkNav">Uredi Profil</a></li>
+              <li><a class="dropdown-item" href="uredi-profil.html" id="urediProfilLinkNav">Uredi Profil</a></li>
               <li id="adminPanelLinkContainerNav"></li>
               <li id="trenerDodajAktivnostLinkContainerNav"></li>
               <li id="postaniTrenerLinkContainerNav"></li>
@@ -76,36 +62,46 @@
 </header>
 
 <main class="container my-5">
-  <h1 class="mb-4">Moja Sporočila</h1>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Moja Sporočila</h1>
+  </div>
   <div id="globalAlertMessage"></div>
 
-  <div class="klepet-container" id="klepet-container">
-    <div class="seznam-klepetov" id="seznam-klepetov-container">
-      <div class="list-group list-group-flush">
-        <p class="p-3 text-muted">Nalagam pogovore...</p>
+  <div class="klepet-container-wrapper">
+    <div class="klepet-container" id="klepet-container">
+      <div class="seznam-klepetov" id="seznam-klepetov-container">
+        <div class="list-group list-group-flush">
+          <p class="p-3 text-muted">Nalagam pogovore...</p>
+        </div>
       </div>
-    </div>
 
-    <div class="okno-klepeta" id="okno-klepet-container">
-      <div id="zacetni-pogled" class="d-flex align-items-center justify-content-center h-100">
-        <p class="text-muted">Izberite pogovor na levi strani.</p>
-      </div>
-      <div id="aktivni-klepet-view" class="d-none h-100" style="display: flex; flex-direction: column;">
-        <div class="glava-klepeta">
-          <button class="btn btn-light btn-sm me-2 btn-nazaj" id="btn-nazaj-na-seznam">
-            <i class="fas fa-arrow-left"></i>
-          </button>
-          <h5 id="ime-sogovornika" class="mb-0"></h5>
+      <div class="okno-klepeta" id="okno-klepet-container">
+        <div id="zacetni-pogled" class="d-flex flex-column align-items-center justify-content-center h-100 text-center">
+          <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+          <p class="text-muted">Izberite pogovor na levi strani, da se prikaže tukaj.</p>
         </div>
-        <div class="telo-klepeta" id="telo-klepeta-body">
-        </div>
-        <div class="noga-klepeta">
-          <form id="sporocilo-form">
-            <div class="input-group">
-              <input type="text" id="vnos-sporocila-input" class="form-control" placeholder="Napišite sporočilo..." autocomplete="off" required>
-              <button class="btn btn-primary" type="submit" id="btn-poslji-sporocilo">Pošlji</button>
+        <div id="aktivni-klepet-view" class="d-none h-100">
+          <div class="glava-klepeta">
+            <button class="btn btn-light me-2 btn-nazaj d-lg-none" id="btn-nazaj-na-seznam">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="d-flex align-items-center">
+              <img id="sogovornik-slika" src="../slike/default-profile.png" alt="sogovornik" class="rounded-circle me-2" width="40" height="40">
+              <h5 id="ime-sogovornika" class="mb-0"></h5>
             </div>
-          </form>
+          </div>
+          <div class="telo-klepeta" id="telo-klepeta-body">
+          </div>
+          <div class="noga-klepeta">
+            <form id="sporocilo-form" class="w-100">
+              <div class="input-group">
+                <input type="text" id="vnos-sporocila-input" class="form-control" placeholder="Napišite sporočilo..." autocomplete="off" required>
+                <button class="btn btn-primary" type="submit" id="btn-poslji-sporocilo">
+                  <i class="fas fa-paper-plane"></i> <span class="d-none d-sm-inline">Pošlji</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -119,18 +115,11 @@
         <h3>Sportaj.si</h3>
         <p>Vodilna platforma za iskanje in ocenjevanje športnih trenerjev v Sloveniji.</p>
         <div class="social-links">
-          <a href="#" class="social-link facebook">
-            <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" class="social-link twitter">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" class="social-link instagram">
-            <i class="fab fa-instagram"></i>
-          </a>
+          <a href="#" class="social-link facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link instagram"><i class="fab fa-instagram"></i></a>
         </div>
       </div>
-
       <div class="footer-column">
         <h4>Platforma</h4>
         <ul>
@@ -140,7 +129,6 @@
           <li><a href="#">Mobilna aplikacija</a></li>
         </ul>
       </div>
-
       <div class="footer-column">
         <h4>Aktivnosti</h4>
         <ul>
@@ -151,7 +139,6 @@
           <li><a href="/html/search-stran.html?category=sport&q=Plezanje">Plezanje</a></li>
         </ul>
       </div>
-
       <div class="footer-column">
         <h4>Podpora</h4>
         <ul>
@@ -162,9 +149,9 @@
         </ul>
       </div>
     </div>
-
     <div class="footer-bottom">
-      <p>&copy; <span id="currentYear">2024</span> Sportaj.si. Vse pravice pridržane.</p> </div>
+      <p>&copy; <span id="currentYear">2024</span> Sportaj.si. Vse pravice pridržane.</p>
+    </div>
   </div>
 </footer>
 

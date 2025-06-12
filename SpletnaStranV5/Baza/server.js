@@ -340,6 +340,78 @@ app.get('/api/search/:table', async (req, res) => {
     }
 });
 
+/*app.get('/api/search/:category', (req, res) => {
+    const { category } = req.params;
+    const { term, location, tip, datum } = req.query;
+
+    let query = '';
+    const queryParams = [];
+    const whereClauses = [];
+
+    const filtersUsed = { term, location, tip, datum };
+
+    switch (category) {
+        case 'sport':
+            query = 'SELECT id, ime, opis FROM sporti';
+            if (term) {
+                whereClauses.push('ime LIKE ?');
+                queryParams.push(`%${term}%`);
+            }
+            break;
+        case 'trenerji':
+            query = 'SELECT id, ime, priimek, specializacija, lokacija_trenerja, slika FROM trenerji';
+            if (term) {
+                whereClauses.push('(ime LIKE ? OR priimek LIKE ?)');
+                queryParams.push(`%${term}%`, `%${term}%`);
+            }
+            if (location) {
+                whereClauses.push('lokacija_trenerja LIKE ?');
+                queryParams.push(`%${location}%`);
+            }
+            break;
+        case 'Sportna_Aktivnost':
+            query = `
+                SELECT sa.id, sa.ime_aktivnosti, sa.lokacija_aktivnosti, sa.cena, sa.slika, 
+                       s.ime as ime_sporta, 
+                       CONCAT(t.ime, ' ', t.priimek) as ime_trenerja
+                FROM Sportna_Aktivnost sa
+                LEFT JOIN sporti s ON sa.sport_id = s.id
+                LEFT JOIN trenerji t ON sa.trener_id = t.id
+            `;
+            if (term) {
+                whereClauses.push('(sa.ime_aktivnosti LIKE ? OR s.ime LIKE ?)');
+                queryParams.push(`%${term}%`, `%${term}%`);
+            }
+            if (location) {
+                whereClauses.push('sa.lokacija_aktivnosti LIKE ?');
+                queryParams.push(`%${location}%`);
+            }
+            if (tip) {
+                whereClauses.push('sa.tip_aktivnosti = ?');
+                queryParams.push(tip);
+            }
+            if (datum && datum === 'danes') {
+                whereClauses.push('DATE(sa.cas_aktivnosti) = CURDATE()');
+            }
+            break;
+        default:
+            return res.status(400).json({ message: 'Neznana kategorija' });
+    }
+
+    if (whereClauses.length > 0) {
+        query += ' WHERE ' + whereClauses.join(' AND ');
+    }
+
+    db.query(query, queryParams, (err, results) => {
+        if (err) {
+            console.error(`Error searching in category ${category}:`, err);
+            return res.status(500).json({ message: 'Napaka na strežniku pri iskanju.' });
+        }
+        // Vrnemo rezultate in uporabljene filtre, kot pričakuje frontend
+        res.json([results, filtersUsed]);
+    });
+});*/
+
 // === API TOČKE ZA KOMENTARJE ===
 app.post('/api/komentiraj', preveriZeton, async (req, res) => {
     try {
@@ -1265,7 +1337,7 @@ app.get('/api/index/dejavnosti/prihajajoce', async (req, res) => {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
             .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
             .where('sa.Datum_Cas_Izvedbe', '>=', knex.raw('NOW()'))
-            .select('sa.id as Aktivnosti_ID', 'sa.Naziv as naziv', 'sa.Opis as opis', 'sa.Datum_Cas_Izvedbe as datum_cas_izvedbe', 'sa.Lokacija as lokacija_naziv', 'sa.slika', 's.Sport as ime_sporta')
+            .select('sa.id as Aktivnosti_ID', 'sa.Naziv as naziv', 'sa.Opis as opis', 'sa.Datum_Cas_Izvedbe as datum_cas_izvedbe', 'sa.Lokacija as lokacija_naziv', 'sa.slika', 's.Sport as ime_sporta', 'sa.Cena as cena')
             .orderBy('sa.Datum_Cas_Izvedbe', 'asc')
             .limit(limit);
         const obdelaneAktivnosti = aktivnosti.map(a => ({
@@ -1291,7 +1363,7 @@ app.get('/api/index/trenerji/top', async (req, res) => {
         const trenerji = await knex('Trenerji as t')
             .join('Uporabniki as u', 't.TK_Uporabnik', 'u.id')
             .leftJoin(subqueryOcene, 't.id', 'o.TK_Trener')
-            .select('t.id as TrenerID', 't.ime as Ime', 't.priimek as Priimek', 't.OpisProfila as Specializacija', 'u.slika as slika_profila_buffer', 'o.povprecna_ocena_numeric as PovprecnaOcena')
+            .select('t.id as TrenerID', 't.ime as Ime', 't.priimek as Priimek', 't.OpisProfila as Specializacija', 'u.slika as slika_profila_buffer', 'o.povprecna_ocena_numeric as PovprecnaOcena', ' t.Lokacija as lokacija_trenerja')
             .orderByRaw('COALESCE(o.povprecna_ocena_numeric, 0) DESC, t.priimek ASC, t.ime ASC')
             .limit(limit);
         const obdelaniTrenerji = trenerji.map(t => ({

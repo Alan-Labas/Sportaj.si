@@ -142,7 +142,23 @@ document.addEventListener('DOMContentLoaded', () => {
                            </div>
                         </div>
                     </div>`;
+
+            }else if (category === 'sport') {
+                const imageSrc = item.slika || defaultSportImg; // Uporabi sliko športa ali privzeto
+                cardHtml = `
+                    <div class="card h-100 shadow-sm clickable-card" onclick="window.location.href='pregledSporta.html?id=${item.id}'">
+                        <img src="${imageSrc}" class="card-img-top" alt="${item.Sport}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">${item.ime_sporta || 'Neznan šport'}</h5>
+                            <p class="card-text small text-muted">${item.opis_sporta || 'Ni opisa.'}</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                             <a href="pregledSporta.html?id=${item.id}" class="btn btn-sm btn-outline-primary w-100">Več o športu</a>
+                        </div>
+                    </div>`;
             }
+
+
             col.innerHTML = cardHtml;
             resultsContainer.appendChild(col);
         });

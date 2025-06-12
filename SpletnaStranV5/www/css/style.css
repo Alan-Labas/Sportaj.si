@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.6;
     color: #333;
     background-color: #fff;
@@ -22,7 +22,7 @@ body {
 .header {
     background: white;
     border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -851,4 +851,149 @@ body.no-scroll{
     border-radius: 9999px;
     font-size: 0.8rem;
     font-weight: 500;
+}
+
+.klepet-container-wrapper {
+    height: 75vh;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+    background-color: #f8f9fa;
+}
+
+.klepet-container {
+    display: flex;
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.seznam-klepetov {
+    flex-shrink: 0;
+    width: 35%;
+    min-width: 280px;
+    border-right: 1px solid #dee2e6;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #fff;
+    transition: transform 0.3s ease-in-out;
+}
+
+.seznam-klepetov .list-group-item {
+    border-bottom: 1px solid #eee;
+}
+
+.seznam-klepetov .list-group-item.active {
+    background-color: #e9f5ff;
+    color: #0d6efd;
+    border-right: 3px solid #0d6efd;
+    font-weight: bold;
+}
+
+.seznam-klepetov .list-group-item:not(.active):hover {
+    background-color: #f8f9fa;
+}
+
+.okno-klepeta {
+    flex-grow: 1;
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #f8f9fa;
+    transition: transform 0.3s ease-in-out;
+}
+
+#aktivni-klepet-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.glava-klepeta {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.telo-klepeta {
+    flex-grow: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f7f9;
+}
+
+.noga-klepeta {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #dee2e6;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+.noga-klepeta .form-control {
+    border-radius: 20px 0 0 20px;
+    border-right: 0;
+}
+.noga-klepeta .btn {
+    border-radius: 0 20px 20px 0;
+}
+
+
+.sporocilo {
+    max-width: 75%;
+    padding: 0.6rem 1rem;
+    border-radius: 1.2rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.poslano {
+    background-color: #0d6efd;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.prejeto {
+    background-color: #ffffff;
+    color: #212529;
+    border-bottom-left-radius: 0.25rem;
+    border: 1px solid #e9ecef;
+}
+
+/* --- Stili za odzivnost klepeta --- */
+@media (max-width: 991.98px) {
+    .klepet-container-wrapper {
+        height: 80vh; /* Malo več višine na mobilnih */
+    }
+    .seznam-klepetov {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+
+    .okno-klepeta {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 100%;
+        z-index: 20;
+        transform: translateX(0);
+    }
+
+    /* Ko je chat odprt, se seznam umakne levo, chat pa prikaže */
+    .klepet-container.mobile-chat-view .seznam-klepetov {
+        transform: translateX(-100%);
+    }
+
+    .klepet-container.mobile-chat-view .okno-klepeta {
+        transform: translateX(-100%);
+    }
 }

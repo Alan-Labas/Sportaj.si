@@ -115,8 +115,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             activities.forEach(activity => {
                 const imgSrc = activity.slika_url || '/slike/default_activity.webp';
                 // Zagotovimo, da je cena numerična vrednost in jo pravilno formatiramo
-                const cenaValue = parseFloat(activity.cena);
-                const cenaText = !isNaN(cenaValue) && cenaValue > 0 ? `${cenaValue.toFixed(2)} €` : 'Brezplačno';
+                //const cenaValue = parseFloat(activity.cena);
+                const cenaText = activity.cena> 0 ? `${parseFloat(activity.cena).toFixed(2)} €` : 'Brezplačno';
 
                 const cardHtml = `
             <div class="col-lg-4 col-md-6 mb-4">
@@ -237,9 +237,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Nalaganje vsebine za index.html
     try {
-        // Placeholders so že v HTML-ju, zato jih ni treba dinamično dodajati tukaj
-        // Njihov display bo spremenjen v 'none' znotraj vsake display funkcije
-
         const [activitiesRes, trainersRes, sportsRes] = await Promise.all([
             fetch('/api/index/dejavnosti/prihajajoce?limit=6'), // Popravljena pot
             fetch('/api/index/trenerji/top?limit=3'),         // Popravljena pot
