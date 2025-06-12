@@ -86,10 +86,6 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
-// POPRAVEK: Uporaba __dirname za zanesljivo pot
-// __dirname je pot do mape, v kateri je server.js (torej /app/Baza)
-// '..' gre en nivo višje na /app
-// 'www' gre v mapo www
 const staticFilesPath = path.join(__dirname, '..', 'www');
 console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticFilesPath}`);
 app.use(express.static(staticFilesPath));
@@ -99,21 +95,27 @@ app.use(express.static(staticFilesPath));
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
-// POPRAVEK: Uporaba pravilne poti
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'www', 'html', 'index.html'));
 });
 
-// Potrebujemo tudi ostale poti, da delujejo direktni linki
-app.get('/*.html', (req, res) => {
-    const requestedHtml = req.params[0]; // Dobimo ime datoteke (npr. "prijava")
-    const filePath = path.join(__dirname, '..', 'www', 'html', `${requestedHtml}.html`);
+// --- Pot za vse ostale .html strani ---
+// To ujame zahteve, kot so /prijava.html, /registracija.html itd.
+app.get('/:pageName.html', (req, res) => {
+    const { pageName } = req.params;
+    const filePath = path.join(__dirname, '..', 'www', 'html', `${pageName}.html`);
 
-    // Preverimo, če datoteka obstaja, preden jo pošljemo
+    // Preverimo, ali datoteka obstaja, preden jo pošljemo
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-            console.warn(`[404] Datoteka ni najdena: ${filePath}`);
-            res.status(404).sendFile(path.join(__dirname, '..', 'www', 'html', '404.html')); // Predpostavimo, da imate 404.html
+            console.warn(`[404] HTML Datoteka ni najdena: ${filePath}`);
+            // Če datoteka ne obstaja, pošljemo 404 stran
+             const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html');
+             res.status(404).sendFile(filePath404, (err404) => {
+                 if (err404) {
+                     res.status(404).send('404: Stran ni najdena');
+                 }
+             });
         } else {
             res.sendFile(filePath);
         }
