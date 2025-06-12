@@ -100,16 +100,14 @@ app.get('/', (req, res) => {
 });
 
 // --- Pot za vse ostale .html strani ---
-// To ujame zahteve, kot so /prijava.html, /registracija.html itd.
 app.get('/:pageName.html', (req, res) => {
     const { pageName } = req.params;
     const filePath = path.join(__dirname, '..', 'www', 'html', `${pageName}.html`);
 
-    // Preverimo, ali datoteka obstaja, preden jo pošljemo
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             console.warn(`[404] HTML Datoteka ni najdena: ${filePath}`);
-            const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html'); // Predpostavimo, da imate 404.html
+             const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html');
              res.status(404).sendFile(filePath404, (err404) => {
                  if (err404) {
                      res.status(404).send('404: Stran ni najdena');
@@ -223,7 +221,7 @@ function preveriTrener(req, res, next) {
     next();
 }
 
-// === API TOČKE ZA ŠPORTE ===
+// === API TOČKE ===
 app.get('/api/vsi-sporti', async (req, res) => {
     try {
         const sporti = await knex('Sport').select('id', 'Sport as ime_sporta', 'Opis as opis_sporta');
@@ -272,7 +270,6 @@ app.get('/api/sport/:id/details', async (req, res) => {
     }
 });
 
-// === API TOČKA ZA ISKANJE ===
 app.get('/api/search/:table', async (req, res) => {
     const { table } = req.params;
     const filters = { ...req.query };
@@ -409,7 +406,6 @@ app.get('/api/getKomentarji', async (req, res) => {
     }
 });
 
-// === API TOČKE ZA ŠPORTNE AKTIVNOSTI (javne, za search-stran) ===
 app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
     try {
         const aktivnosti = await knex('Sportna_Aktivnost as sa')
@@ -515,7 +511,7 @@ app.get('/api/aktivnost/:id/details', preveriZetonOpcijsko, async (req, res) => 
             slika: normalizirajImgPath(aktivnost.slika, '/slike/default-sport.png'),
             slika_trenerja: normalizirajImgPath(aktivnost.slika_trenerja, '/slike/default-profile.png'),
             ocene: obdelaneOcene,
-            jePrijavljen: jePrijavljen // Dodan podatek o prijavi
+            jePrijavljen: jePrijavljen
         });
     } catch (error) {
         console.error(`Napaka pri pridobivanju podrobnosti aktivnosti ${id}:`, error);
@@ -2340,3 +2336,4 @@ io.on('connection', (socket) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Strežnik teče na vratih ${PORT} in je pripravljen za povezave.`);
 });
+
