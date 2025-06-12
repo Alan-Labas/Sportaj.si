@@ -1,6 +1,5 @@
 // ==========================================================
-// server.js - POPRAVLJENA IN VARNA RAZLIČICA ZA PRODUKCIJO
-// Uporablja okoljske spremenljivke in varno SSL povezavo z Azure
+// server.js - RAZLIČICA ZA DIAGNOZO TEŽAV S POTMI
 // ==========================================================
 
 // --- Osnovni moduli ---
@@ -17,26 +16,23 @@ const fileUpload = require('express-fileupload');
 
 // --- Komunikacija in Baza ---
 const nodemailer = require('nodemailer');
-const knexDriver = require('knex');
+const knexDriver =require('knex');
 
-// --- Konfiguracija okoljskih spremenljivk ---
-// To mora biti na samem vrhu, da so spremenljivke na voljo povsod
-//require('dotenv').config();
+// Naložimo okoljske spremenljivke
+require('dotenv').config();
 
 // --- Inicializacija Express in Socket.IO ---
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-require('dotenv').config();
 
 // --- Konstante iz .env datoteke ---
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'MocnoGeslo1';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'MocnoGeslo2';
-//const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const saltKodiranje = 12;
 
-// --- Nastavitev Knex povezave z Azure bazo ---
+// --- Nastavitev Knex povezave z bazo ---
 const knex = knexDriver({
     client: 'mysql2',
     connection: {
@@ -44,16 +40,16 @@ const knex = knexDriver({
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        port: process.env.DB_PORT,
-        timezone: '+00:00',
+        port: process.env.DB_PORT || 3306,
+        timezone: 'UTC'
     }
 });
 
 // Preverimo povezavo z bazo ob zagonu
 knex.raw('SELECT 1').then(() => {
-    console.log('Uspešno povezan z Azure bazo podatkov!');
+    console.log('Uspešno povezan z Railway bazo podatkov!');
 }).catch((err) => {
-    console.error('NAPAKA PRI POVEZOVANJU Z AZURE BAZO PODATKOV:', err);
+    console.error('NAPAKA PRI POVEZOVANJU Z RAILWAY BAZO PODATKOV:', err);
     process.exit(1);
 });
 
@@ -63,7 +59,7 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS // Uporabite App Password, če imate 2FA
+        pass: process.env.EMAIL_PASS
     },
     tls: {
         rejectUnauthorized: false
@@ -90,28 +86,26 @@ app.use((req, res, next) => {
 });
 
 // Postrežba statičnih datotek iz 'www' mape
-app.use(express.static(path.join(__dirname, '../www')));
+// __dirname je /app/Baza, zato z '../www' pridemo do /app/www
+const staticPath = path.join(__dirname, '../www');
+console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticPath}`);
+app.use(express.static(staticPath));
 
 
 // ===============================================
 // === API TOČKE (Endpoints) =====================
 // ===============================================
-// Vsa vaša obstoječa koda za API točke pride sem.
-// Ker se ta del ni spreminjal, ga lahko preprosto
-// prekopirate iz vaše obstoječe datoteke.
-// Začnite od:
-// app.get('/', (req, res) => { ... });
-// in končajte pred:
-// io.on('connection', (socket) => { ... });
-// ===============================================
 
-// Za primer sem vključil eno pot, da vidite, kje se začne
+// === DIAGNOSTIČNA TOČKA ===
+// To je spremenjena točka, da preverimo, ali health check deluje
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/index.html'));
+    console.log('[HEALTH CHECK] Prejet zahtevek na pot /');
+    res.status(200).send('Strežnik deluje! Health check uspešen.');
 });
 
-// ... TUKAJ VSTAVITE VSE VAŠE OBSTOJEČE app.get, app.post, app.put, app.delete TOČKE ...
-// (Pustil sem originalno kodo od tukaj naprej, kot ste jo poslali)
+// Vse ostale vaše poti ostanejo nespremenjene
+// ... TUKAJ JE VSA VAŠA OBSTOJEČA KODA ZA API ...
+// (Kopiral sem jo iz vaše prejšnje datoteke, da vam prihranim delo)
 
 app.get('/index.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../www/html/index.html'));
@@ -2370,5 +2364,5 @@ io.on('connection', (socket) => {
 
 // Zaganjanje strežnika
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Strežnik teče na vratih ${PORT} in je pripravljen za povezave.`);
+    console.log(`Strežnik teče na localhost in je pripravljen za povezave.`);
 });
