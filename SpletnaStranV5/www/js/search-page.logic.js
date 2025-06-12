@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             urlParams.append('Lokacija', locationTerm);
         }
 
-        const API_URL = 'http://localhost:3000/api/search/';
+        const API_URL = '/api/search/';
         const fullUrl = new URL(`${API_URL}${table}`);
         fullUrl.search = urlParams.toString();
 
