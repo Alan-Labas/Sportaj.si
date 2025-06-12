@@ -91,7 +91,7 @@ console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticFilesPa
 app.use(express.static(staticFilesPath));
 
 // ===============================================
-// === API TOČKE (Endpoints) =====================
+// === HTML IN API TOČKE (Endpoints) =============
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
@@ -109,8 +109,7 @@ app.get('/:pageName.html', (req, res) => {
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             console.warn(`[404] HTML Datoteka ni najdena: ${filePath}`);
-            // Če datoteka ne obstaja, pošljemo 404 stran
-             const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html');
+            const filePath404 = path.join(__dirname, '..', 'www', 'html', '404.html'); // Predpostavimo, da imate 404.html
              res.status(404).sendFile(filePath404, (err404) => {
                  if (err404) {
                      res.status(404).send('404: Stran ni najdena');
@@ -121,7 +120,6 @@ app.get('/:pageName.html', (req, res) => {
         }
     });
 });
-
 
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
