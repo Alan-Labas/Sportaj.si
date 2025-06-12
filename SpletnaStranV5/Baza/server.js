@@ -1,5 +1,5 @@
 // ==========================================================
-// server.js - RAZLIČICA ZA DIAGNOZO TEŽAV S POTMI
+// server.js - PRODUKCIJSKA RAZLIČICA ZA RAILWAY
 // ==========================================================
 
 // --- Osnovni moduli ---
@@ -16,7 +16,7 @@ const fileUpload = require('express-fileupload');
 
 // --- Komunikacija in Baza ---
 const nodemailer = require('nodemailer');
-const knexDriver =require('knex');
+const knexDriver = require('knex');
 
 // Naložimo okoljske spremenljivke
 require('dotenv').config();
@@ -85,8 +85,8 @@ app.use((req, res, next) => {
     next();
 });
 
-// Postrežba statičnih datotek iz 'www' mape
-// __dirname je /app/Baza, zato z '../www' pridemo do /app/www
+// --- Postrežba statičnih datotek ---
+// Postrežemo celotno mapo 'www', vključno s podmapami (css, js, html, slike)
 const staticPath = path.join(__dirname, '../www');
 console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticPath}`);
 app.use(express.static(staticPath));
@@ -96,56 +96,21 @@ app.use(express.static(staticPath));
 // === API TOČKE (Endpoints) =====================
 // ===============================================
 
-// === DIAGNOSTIČNA TOČKA ===
-// To je spremenjena točka, da preverimo, ali health check deluje
+// --- Glavna pot, ki postreže index.html ---
+// To je ključno za delovanje na Railwayu
 app.get('/', (req, res) => {
-    console.log('[HEALTH CHECK] Prejet zahtevek na pot /');
-    res.status(200).send('Strežnik deluje! Health check uspešen.');
+    const indexPath = path.join(__dirname, '../www/html/index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            console.error('[NAPAKA /] Napaka pri pošiljanju index.html:', err);
+            res.status(500).send('Napaka pri nalaganju spletne strani.');
+        }
+    });
 });
 
-// Vse ostale vaše poti ostanejo nespremenjene
-// ... TUKAJ JE VSA VAŠA OBSTOJEČA KODA ZA API ...
-// (Kopiral sem jo iz vaše prejšnje datoteke, da vam prihranim delo)
-
-app.get('/index.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/index.html'));
-});
-app.get('/uredi-profil.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/uredi-profil.html'));
-});
-app.get('/prijava.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/prijava.html'));
-});
-app.get('/registracija.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/registracija.html'));
-});
-app.get('/pozabljeno-geslo.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/pozabljeno-geslo.html'));
-});
-app.get('/ponastavi-geslo.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/ponastavi-geslo.html'));
-});
-app.get('/search-stran.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/search-stran.html'));
-});
-app.get('/profilTrener.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/profilTrener.html'));
-});
-app.get('/admin-panel.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/admin-panel.html'));
-});
-app.get('/pregledAktivnosti.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/pregledAktivnosti.html'));
-});
-app.get('/pregledSporta.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/pregledSporta.html'));
-});
-app.get('/postani-trener.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/postani-trener.html'));
-});
-app.get('/dodaj-aktivnost.html', (req, res) => {
-    res.sendFile(path.join(__dirname, '../www/html/dodaj-aktivnost.html'));
-});
+// Ostale poti za .html datoteke niso več potrebne, ker jih bo
+// `express.static` samodejno postregel, če je pot pravilna
+// Npr. klic na /html/prijava.html bo deloval samodejno.
 
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
@@ -257,7 +222,7 @@ app.get('/api/vsi-sporti', async (req, res) => {
             const imageName = s.ime_sporta.toLowerCase().replace(/\s+/g, '-').replace(/[čć]/g, 'c').replace(/[š]/g, 's').replace(/[ž]/g, 'z');
             return {
                 ...s,
-                slika: normalizirajImgPath(`../slike/${imageName}.png`, '../slike/default-sport.png')
+                slika: normalizirajImgPath(`/slike/${imageName}.png`, '/slike/default-sport.png')
             };
         });
         res.json(sportiSlike);
@@ -288,8 +253,8 @@ app.get('/api/sport/:id/details', async (req, res) => {
             .limit(10);
         const aktivnostiSpremenjeneSlike = aktivnosti.map(akt => ({
             ...akt,
-            slika_aktivnosti: normalizirajImgPath(akt.slika_aktivnosti, '../slike/default-sport.png'),
-            slika_trenerja_profilna: normalizirajImgPath(akt.slika_trenerja_profilna, '../slike/default-profile.png')
+            slika_aktivnosti: normalizirajImgPath(akt.slika_aktivnosti, '/slike/default-sport.png'),
+            slika_trenerja_profilna: normalizirajImgPath(akt.slika_trenerja_profilna, '/slike/default-profile.png')
         }));
         res.json({ ...sportDetails, aktivnosti: aktivnostiSpremenjeneSlike });
     } catch (error) {
@@ -311,7 +276,7 @@ app.get('/api/search/:table', async (req, res) => {
         let defaultImgPath = '/slike/placeholder.png';
 
         if (table === 'trenerji') {
-            defaultImgPath = '../slike/default-profile.png';
+            defaultImgPath = '/slike/default-profile.png';
             queryBuilder = knex('Trenerji as t')
                 .join('Uporabniki as u', 't.TK_Uporabnik', 'u.id')
                 .select('t.id', 't.ime', 't.priimek', 't.OpisProfila as specializacija', 't.urnik', 't.email as kontakt_email', 't.telefon', 't.Lokacija as lokacija_trenerja', 'u.username as uporabnisko_ime_prijave', 'u.slika as slika_profila');
@@ -335,7 +300,7 @@ app.get('/api/search/:table', async (req, res) => {
                 });
             }
         } else if (table === 'Sportna_Aktivnost') {
-            defaultImgPath = '../slike/default-sport.png';
+            defaultImgPath = '/slike/default-sport.png';
             queryBuilder = knex('Sportna_Aktivnost as sa')
                 .join('Sport as s', 'sa.TK_TipAktivnosti', 's.id')
                 .leftJoin('Trenerji as t', 'sa.TK_Trener', 't.id')
@@ -362,7 +327,7 @@ app.get('/api/search/:table', async (req, res) => {
             }
 
         } else if (table === 'sport') {
-            defaultImgPath = '../slike/default-sport.png';
+            defaultImgPath = '/slike/default-sport.png';
             queryBuilder = knex('Sport').select('id', 'Sport as ime_sporta', 'Opis as opis_sporta');
             if (filters.term) {
                 queryBuilder.where(builder =>
@@ -378,14 +343,14 @@ app.get('/api/search/:table', async (req, res) => {
         const searchResult = await queryBuilder;
         const formattedResult = searchResult.map(item => {
             let itemDefaultImg = defaultImgPath;
-            if (table === 'trenerji') itemDefaultImg = '../slike/default-profile.png';
-            else if (table === 'Sportna_Aktivnost') itemDefaultImg = '../slike/default-sport.png';
-            else if (table === 'sport') itemDefaultImg = '../slike/default-sport.png';
+            if (table === 'trenerji') itemDefaultImg = '/slike/default-profile.png';
+            else if (table === 'Sportna_Aktivnost') itemDefaultImg = '/slike/default-sport.png';
+            else if (table === 'sport') itemDefaultImg = '/slike/default-sport.png';
             let finalSlikaPath;
             const slikaField = table === 'trenerji' ? item.slika_profila : item.slika;
             if (table === 'sport') {
                 const imageName = item.ime_sporta ? item.ime_sporta.toLowerCase().replace(/\s+/g, '-').replace(/[čć]/g, 'c').replace(/[š]/g, 's').replace(/[ž]/g, 'z') : 'default-sport';
-                finalSlikaPath = normalizirajImgPath(`../slike/${imageName}.png`, itemDefaultImg);
+                finalSlikaPath = normalizirajImgPath(`/slike/${imageName}.png`, itemDefaultImg);
             } else {
                 finalSlikaPath = normalizirajImgPath(slikaField, itemDefaultImg);
             }
@@ -426,7 +391,7 @@ app.get('/api/getKomentarji', async (req, res) => {
             .orderBy('Komentarji.Datum_Komentarja', 'desc');
         const processedComments = comments.map(comment => ({
             ...comment,
-            slika_uporabnika: normalizirajImgPath(comment.slika_uporabnika, '../slike/default-profile.png')
+            slika_uporabnika: normalizirajImgPath(comment.slika_uporabnika, '/slike/default-profile.png')
         }));
         res.json(processedComments);
     } catch (error) {
@@ -446,7 +411,7 @@ app.get('/api/prihajajoce-dejavnosti', async (req, res) => {
             .limit(12);
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
-            slika: normalizirajImgPath(a.slika, '../slike/default-sport.png')
+            slika: normalizirajImgPath(a.slika, '/slike/default-sport.png')
         }));
         res.json(obdelaneAktivnosti);
     } catch (error) {
@@ -468,7 +433,7 @@ app.get('/api/dejavnosti-okolica', async (req, res) => {
         const aktivnosti = await query;
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
-            slika: normalizirajImgPath(a.slika, '../slike/default-sport.png')
+            slika: normalizirajImgPath(a.slika, '/slike/default-sport.png')
         }));
         res.json(obdelaneAktivnosti);
     } catch (error) {
@@ -485,7 +450,7 @@ app.get('/api/vse-aktivnosti', async (req, res) => {
             .orderBy('sa.Naziv', 'asc');
         const obdelaneAktivnosti = vseAktivnosti.map(a => ({
             ...a,
-            slika: normalizirajImgPath(a.slika, '../slike/default-sport.png')
+            slika: normalizirajImgPath(a.slika, '/slike/default-sport.png')
         }));
         res.json(obdelaneAktivnosti);
     } catch (err) {
@@ -533,13 +498,13 @@ app.get('/api/aktivnost/:id/details', preveriZetonOpcijsko, async (req, res) => 
 
         const obdelaneOcene = ocene.map(o => ({
             ...o,
-            slika_uporabnika_ocene: normalizirajImgPath(o.slika_uporabnika_ocene, '../slike/default-profile.png')
+            slika_uporabnika_ocene: normalizirajImgPath(o.slika_uporabnika_ocene, '/slike/default-profile.png')
         }));
 
         res.json({
             ...aktivnost,
-            slika: normalizirajImgPath(aktivnost.slika, '../slike/default-sport.png'),
-            slika_trenerja: normalizirajImgPath(aktivnost.slika_trenerja, '../slike/default-profile.png'),
+            slika: normalizirajImgPath(aktivnost.slika, '/slike/default-sport.png'),
+            slika_trenerja: normalizirajImgPath(aktivnost.slika_trenerja, '/slike/default-profile.png'),
             ocene: obdelaneOcene,
             jePrijavljen: jePrijavljen // Dodan podatek o prijavi
         });
@@ -568,7 +533,7 @@ app.get('/api/vsi-trenerji', async (req, res) => {
             .orderByRaw('COALESCE(o.povprecna_ocena, 0) DESC, t.priimek ASC, t.ime ASC');
         const obdelaniTrenerji = trenerji.map(t => ({
             ...t,
-            slika: normalizirajImgPath(t.slika_profila, '../slike/default-profile.png'),
+            slika: normalizirajImgPath(t.slika_profila, '/slike/default-profile.png'),
             povprecna_ocena: t.povprecna_ocena ? parseFloat(t.povprecna_ocena).toFixed(1) : null
         }));
         res.json(obdelaniTrenerji);
@@ -594,7 +559,7 @@ app.get('/api/priporoceni-trenerji', async (req, res) => {
             .limit(12);
         const obdelaniTrenerji = trenerji.map(t => ({
             ...t,
-            slika: normalizirajImgPath(t.slika_profila, '../slike/default-profile.png'),
+            slika: normalizirajImgPath(t.slika_profila, '/slike/default-profile.png'),
             povprecna_ocena: t.povprecna_ocena ? parseFloat(t.povprecna_ocena).toFixed(1) : null
         }));
         res.json(obdelaniTrenerji);
@@ -624,7 +589,7 @@ app.get('/api/trenerji-okolica', async (req, res) => {
         const trenerji = await query;
         const obdelaniTrenerji = trenerji.map(t => ({
             ...t,
-            slika: normalizirajImgPath(t.slika_profila, '../slike/default-profile.png'),
+            slika: normalizirajImgPath(t.slika_profila, '/slike/default-profile.png'),
             povprecna_ocena: t.povprecna_ocena ? parseFloat(t.povprecna_ocena).toFixed(1) : null
         }));
         res.json(obdelaniTrenerji);
@@ -651,7 +616,7 @@ app.get('/api/trener/:id/details', async (req, res) => {
             .select('sa.id', 'sa.Naziv as ime_aktivnosti', 'sa.Lokacija as lokacija_aktivnosti', 'sa.Cena as cena', 's.Sport as ime_sporta', 'sa.slika as slika_aktivnosti', 'sa.Datum_Cas_Izvedbe as datum_zacetka_aktivnosti');
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
-            slika_aktivnosti: normalizirajImgPath(a.slika_aktivnosti, '../slike/default-sport.png')
+            slika_aktivnosti: normalizirajImgPath(a.slika_aktivnosti, '/slike/default-sport.png')
         }));
         const ocene = await knex('Ocena_Trenerja as ot')
             .join('Uporabniki as u_ocenjevalec', 'ot.TK_Uporabnik', 'u_ocenjevalec.id')
@@ -660,7 +625,7 @@ app.get('/api/trener/:id/details', async (req, res) => {
             .orderBy('ot.Datum', 'desc');
         const obdelaneOcene = ocene.map(o => ({
             ...o,
-            slika_ocenjevalca: normalizirajImgPath(o.slika_ocenjevalca, '../slike/default-profile.png')
+            slika_ocenjevalca: normalizirajImgPath(o.slika_ocenjevalca, '/slike/default-profile.png')
         }));
         const sportiTrenerja = await knex('TrenerSport as ts')
             .join('Sport as s', 'ts.TK_Sport', 's.id')
@@ -668,7 +633,7 @@ app.get('/api/trener/:id/details', async (req, res) => {
             .select('s.Sport as ime_sporta', 's.id as sport_id');
         const trenerZaPosiljanje = {
             ...trener,
-            slika: normalizirajImgPath(trener.slika_uporabnika, '../slike/default-profile.png'),
+            slika: normalizirajImgPath(trener.slika_uporabnika, '/slike/default-profile.png'),
             aktivnosti: obdelaneAktivnosti,
             ocene: obdelaneOcene,
             sporti: sportiTrenerja,
@@ -701,7 +666,7 @@ app.get('/api/profil', preveriZeton, async (req, res) => {
             userId: uporabnikOsnovno.id,
             username: uporabnikOsnovno.username,
             email: uporabnikOsnovno.email,
-            slika_base64: normalizirajImgPath(uporabnikOsnovno.slika, '../slike/default-profile.png'),
+            slika_base64: normalizirajImgPath(uporabnikOsnovno.slika, '/slike/default-profile.png'),
             JeAdmin: uporabnikOsnovno.JeAdmin === 1,
             jeTrener: uporabnikOsnovno.jeTrener === 1
         };
@@ -798,7 +763,7 @@ app.put('/api/profil/info', preveriZeton, async (req, res) => {
             userId: userId,
             username: posodobljenUporabnikRaw.username,
             email: posodobljenUporabnikRaw.email,
-            slika_base64: normalizirajImgPath(posodobljenUporabnikRaw.slika, '../slike/default-profile.png'),
+            slika_base64: normalizirajImgPath(posodobljenUporabnikRaw.slika, '/slike/default-profile.png'),
             JeAdmin: posodobljenUporabnikRaw.JeAdmin === 1,
             jeTrener: posodobljenUporabnikRaw.jeTrener === 1
         };
@@ -867,7 +832,7 @@ app.post('/api/profil/slika', preveriZeton, async (req, res) => {
     }
     try {
         await knex('Uporabniki').where({ id: userId }).update({ slika: slikaBuffer });
-        const formattedSlikaZaOdziv = normalizirajImgPath(slikaBuffer, '../slike/default-profile.png');
+        const formattedSlikaZaOdziv = normalizirajImgPath(slikaBuffer, '/slike/default-profile.png');
         res.json({ message: 'Profilna slika uspešno naložena v bazo.', slika_base64: formattedSlikaZaOdziv });
     } catch (dbError) {
         console.error('Napaka pri shranjevanju slike v bazo:', dbError);
@@ -912,7 +877,7 @@ app.post('/api/prijava', async (req, res) => {
                     userId: uporabnik.id,
                     username: uporabnik.username,
                     email: uporabnik.email,
-                    slika_base64: normalizirajImgPath(uporabnik.slika, '../slike/default-profile.png'),
+                    slika_base64: normalizirajImgPath(uporabnik.slika, '/slike/default-profile.png'),
                     JeAdmin: uporabnik.JeAdmin === 1,
                     jeTrener: uporabnik.jeTrener === 1
                 };
@@ -995,7 +960,7 @@ app.post('/api/token/refresh', async (req, res) => {
             userId: uporabnik.id,
             username: uporabnik.username,
             email: uporabnik.email,
-            slika_base64: normalizirajImgPath(uporabnik.slika, '../slike/default-profile.png'),
+            slika_base64: normalizirajImgPath(uporabnik.slika, '/slike/default-profile.png'),
             JeAdmin: uporabnik.JeAdmin === 1,
             jeTrener: uporabnik.jeTrener === 1
         };
@@ -1333,7 +1298,7 @@ app.post('/api/postaniTrener', preveriZeton, async (req, res) => {
             userId: userId,
             username: originalUser.username,
             email: finalTrainerEmail, // Tudi v odgovor damo nov email
-            slika_base64: normalizirajImgPath(originalUser.slika, '../slike/default-profile.png'),
+            slika_base64: normalizirajImgPath(originalUser.slika, '/slike/default-profile.png'),
             JeAdmin: originalUser.JeAdmin === 1,
             jeTrener: true,
             trenerId: trenerId,
@@ -1362,7 +1327,7 @@ app.get('/api/index/dejavnosti/prihajajoce', async (req, res) => {
             .limit(limit);
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
-            slika_url: normalizirajImgPath(a.slika, '../slike/default-sport.png'),
+            slika_url: normalizirajImgPath(a.slika, '/slike/default-sport.png'),
             slika: undefined
         }));
         res.json(obdelaneAktivnosti);
@@ -1390,7 +1355,7 @@ app.get('/api/index/trenerji/top', async (req, res) => {
         const obdelaniTrenerji = trenerji.map(t => ({
             ...t,
             PovprecnaOcena: t.PovprecnaOcena ? parseFloat(t.PovprecnaOcena).toFixed(1) : null,
-            ProfilnaSlikaURL: normalizirajImgPath(t.slika_profila_buffer, '../slike/default-profile.png'),
+            ProfilnaSlikaURL: normalizirajImgPath(t.slika_profila_buffer, '/slike/default-profile.png'),
             slika_profila_buffer: undefined
         }));
         res.json(obdelaniTrenerji);
@@ -1414,7 +1379,7 @@ app.get('/api/index/sporti/top', async (req, res) => {
             const imageName = s.Naziv_Sporta.toLowerCase().replace(/\s+/g, '-').replace(/[čć]/g, 'c').replace(/[š]/g, 's').replace(/[ž]/g, 'z');
             return {
                 ...s,
-                slika: normalizirajImgPath(`../slike/${imageName}.png`, '../slike/default-sport.png')
+                slika: normalizirajImgPath(`/slike/${imageName}.png`, '/slike/default-sport.png')
             };
         });
         res.json(sportiSlike);
@@ -1529,7 +1494,7 @@ app.get('/api/admin/aktivnosti', preveriZeton, preveriAdminAliTrener, async (req
         const obdelaneAktivnosti = aktivnosti.map(a => ({
             ...a,
 
-            slika: normalizirajImgPath(a.slika, '../slike/default-sport.png')
+            slika: normalizirajImgPath(a.slika, '/slike/default-sport.png')
         }));
         res.json(obdelaneAktivnosti);
     } catch (error) {
@@ -1662,7 +1627,7 @@ app.get('/api/admin/trenerji', preveriZeton, preveriAdmin, async (req, res) => {
             .orderBy('t.priimek', 'asc');
         const obdelaniTrenerji = trenerji.map(t => ({
             ...t,
-            slika_profila_base64: normalizirajImgPath(t.slika_profila_buffer, '../slike/default-profile.png'),
+            slika_profila_base64: normalizirajImgPath(t.slika_profila_buffer, '/slike/default-profile.png'),
             JeAdmin: t.JeAdmin === 1, jeTrener: t.jeTrener === 1
         }));
         res.json(obdelaniTrenerji);
@@ -1827,7 +1792,7 @@ app.get('/api/admin/uporabniki', preveriZeton, preveriAdmin, async (req, res) =>
             .select('id', 'username', 'email', 'JeAdmin', 'jeTrener', 'created_at', 'updated_at', 'slika')
             .orderBy('id', 'asc');
         const obdelaniUporabniki = uporabniki.map(u => ({
-            ...u, slika_base64: normalizirajImgPath(u.slika, '../slike/default-profile.png'),
+            ...u, slika_base64: normalizirajImgPath(u.slika, '/slike/default-profile.png'),
             JeAdmin: u.JeAdmin === 1, jeTrener: u.jeTrener === 1, slika: undefined
         }));
         res.json(obdelaniUporabniki);
@@ -2365,4 +2330,3 @@ io.on('connection', (socket) => {
 // Zaganjanje strežnika
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`Strežnik teče na localhost in je pripravljen za povezave.`);
-});
