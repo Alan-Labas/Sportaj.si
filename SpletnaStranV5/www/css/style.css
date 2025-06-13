@@ -712,37 +712,6 @@ html, body {
     background-color: #f1f0f0; /* Svetlo siva za prejeta sporočila */
     color: #333;
 }
-
-.rounded-circle {
-    border-radius: 50% !important; /* Zagotovi, da so slike res okrogle */
-    object-fit: cover; /* Slike se ne popačijo */
-}
-
-.message-profile-pic { /* Če si že imel ta razred v prejšnji iteraciji */
-    width: 30px;
-    height: 30px;
-    flex-shrink: 0; /* Prepreči, da se slika skrči */
-}
-
-/* Za usklajenost med sliko in besedilom */
-.d-flex.justify-content-end .rounded-circle { /* Slika na desni za poslana sporocila */
-    margin-left: 10px;
-    margin-right: 0;
-}
-
-.d-flex.justify-content-start .rounded-circle { /* Slika na levi za prejeta sporocila */
-    margin-right: 10px;
-    margin-left: 0;
-}
-
-/* Prilagoditev sporocil, da se prilagodijo slikam */
-.d-flex.mb-2 {
-    align-items: flex-end; /* Sporočila in slika poravnana po dnu */
-}
-.sporocilo small {
-    font-size: 0.7em;
-    color: #666;
-}
 .seznam-klepetov-container .list-group-item {
     cursor: pointer;
 }
