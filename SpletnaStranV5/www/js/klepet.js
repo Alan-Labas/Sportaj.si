@@ -66,36 +66,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function prikaziSeznamKlepetov(klepeti) {
-        seznamKlepetovContainer.innerHTML = ''; // Počisti prejšnjo vsebino
-        if (!klepeti || klepeti.length === 0) {
-            seznamKlepetovContainer.innerHTML = '<p class="p-3 text-muted">Nimate še nobenih sporočil.</p>';
-            return;
+    function prikaziEnoSporocilo(sporocilo) {
+        // Prepreči brisanje vsebine, če se ne odpre nov klepet
+        // To je logiko že imel, le potrdimo, da ostane.
+        if (aktivniKlepetView.dataset.isNew === 'true') {
+            teloKlepetEl.innerHTML = '';
+            aktivniKlepetView.dataset.isNew = 'false';
         }
-        const listGroup = document.createElement('div');
-        listGroup.className = 'list-group list-group-flush';
-        klepeti.forEach(klepet => {
-            const zadnjeSporociloText = klepet.zadnje_sporocilo ? klepet.zadnje_sporocilo.vsebina.substring(0, 35) + '...' : '<i>Začnite pogovor...</i>';
-            const slikaPath = klepet.sogovornik.slika || '../slike/default-profile.png';
-            const klepetEl = document.createElement('a');
-            klepetEl.href = '#';
-            klepetEl.className = 'list-group-item list-group-item-action d-flex align-items-center';
-            klepetEl.dataset.klepetId = klepet.klepet_id;
 
-            klepetEl.innerHTML = `
-                <img src="${slikaPath}" alt="${klepet.sogovornik.ime}" class="rounded-circle me-3" width="50" height="50">
-                <div class="flex-grow-1">
-                    <h6 class="mb-1">${klepet.sogovornik.ime}</h6>
-                    <small class="text-muted">${zadnjeSporociloText}</small>
-                </div>`;
+        const jePoslano = sporocilo.posiljatelj_id === prijavljenUporabnik.userId;
+        const div = document.createElement('div');
+        // Dodamo razred 'message-container' za lažje stiliziranje flexbox-a
+        div.className = `message-container d-flex ${jePoslano ? 'justify-content-end' : 'justify-content-start'} mb-2`;
 
-            klepetEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                odpriKlepet(klepet.klepet_id, klepet.sogovornik.ime, klepet.sogovornik.id, klepet.sogovornik.slika);
-            });
-            listGroup.appendChild(klepetEl);
-        });
-        seznamKlepetovContainer.appendChild(listGroup);
+        // Uporabi sliko pošiljatelja (ki jo dobimo iz backend-a)
+        // Predpostavljamo, da sporocilo.posiljatelj_slika že vsebuje pravilen URL/base64,
+        // ker smo to uredili v server.js
+        const slikaPosiljatelja = sporocilo.posiljatelj_slika;
+
+        // Ustvarimo HTML strukturo sporočila znotraj funkcije
+        div.innerHTML = `
+            ${!jePoslano ? `
+                <img src="${slikaPosiljatelja}" alt="Profilna slika" class="message-profile-pic rounded-circle me-2">
+            ` : ''}
+            <div class="sporocilo ${jePoslano ? 'poslano' : 'prejeto'} d-flex flex-column">
+                <span class="message-text">${sporocilo.vsebina}</span>
+                <small class="align-self-end text-muted mt-1">${new Date(sporocilo.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+            </div>
+            ${jePoslano ? `
+                <img src="${prijavljenUporabnik.slika_base64}" alt="Profilna slika" class="message-profile-pic rounded-circle ms-2">
+            ` : ''}
+        `;
+
+        teloKlepetEl.appendChild(div);
+        teloKlepetEl.scrollTop = teloKlepetEl.scrollHeight; // Vedno se pomakni na dno
     }
 
     function prikaziEnoSporocilo(sporocilo) {
