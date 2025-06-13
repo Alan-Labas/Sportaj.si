@@ -75,7 +75,6 @@ transporter.verify((error, success) => {
 });
 
 
-// --- Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(fileUpload({ createParentPath: true }));
@@ -86,19 +85,21 @@ app.use((req, res, next) => {
 });
 
 // --- Postrežba statičnih datotek ---
-// POPRAVEK: Uporaba __dirname za zanesljivo pot
-// __dirname je pot do mape, v kateri je server.js (torej /app/Baza)
-// '..' gre en nivo višje na /app
-// 'www' gre v mapo www
-const staticFilesPath = path.join(__dirname, '..', 'www');
-console.log(`[INFO] Pot do statičnih datotek je nastavljena na: ${staticFilesPath}`);
-app.use(express.static(staticFilesPath));
+// Glavna mapa za HTML datoteke, ki se dostopajo neposredno (npr. /search-stran.html)
+app.use(express.static(path.join(__dirname, '../www/html')));
+
+// Specifične mape za druge statične vire, dostopne preko prefixov
+app.use('/css', express.static(path.join(__dirname, '../www/css')));
+app.use('/js', express.static(path.join(__dirname, '../www/js')));
+app.use('/slike', express.static(path.join(__dirname, '../www/slike')));
 
 // ===============================================
 // === HTML IN API TOČKE (Endpoints) =============
 // ===============================================
 
 // --- Glavna pot, ki postreže index.html ---
+// Ta lahko ostane, saj je specifična za root, čeprav jo bo zgornji express.static že ujel.
+// Je pa dobra za eksplicitno definiranje, da se root prikaže kot index.html.
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, '..', 'www', 'html', 'index.html');
     fs.access(indexPath, fs.constants.F_OK, (err) => {
