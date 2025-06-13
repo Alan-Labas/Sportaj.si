@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node Baza/server.js ustvari_tabele.js",
+    "start": "node Baza/server.js",
+    "db:init": "node Baza/ustvari_tabele.js"
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
