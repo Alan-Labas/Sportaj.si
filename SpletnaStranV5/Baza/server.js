@@ -134,6 +134,11 @@ app.use((req, res, next) => {
     }
 });
 
+app.use(express.static(path.join(__dirname, '../www/html'))); // Glavna mapa za HTML
+app.use('/css', express.static(path.join(__dirname, '../www/css')));
+app.use('/js', express.static(path.join(__dirname, '../www/js')));
+app.use('/slike', express.static(path.join(__dirname, '../www/slike')));
+
 
 function normalizirajImgPath(originalPath, defaultPath = '/slike/placeholder.png') {
     if (originalPath === null || originalPath === undefined) {
