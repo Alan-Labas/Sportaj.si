@@ -694,24 +694,11 @@ html, body {
 }
 
 /* Uporabimo stile za sporočila iz prejšnjega koraka */
-.sporocilo {
-    max-width: 70%; /* Omeji širino sporočila */
-    padding: 8px 12px;
-    border-radius: 15px;
-    word-wrap: break-word; /* Za dolga besedila */
-    font-size: 0.95em;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Majhna senca za vizualni efekt */
-}
+.sporocilo { max-width: 75%; padding: 0.5rem 1rem; border-radius: 1rem; margin-bottom: 0.5rem; word-wrap: break-word; }
+.poslano { background-color: #0d6efd; color: white; margin-left: auto; border-bottom-right-radius: 0; }
+.prejeto { background-color: #e9ecef; color: #212529; margin-right: auto; border-bottom-left-radius: 0; }
 
-.poslano {
-    background-color: #dcf8c6; /* Svetlo zelena za poslana sporočila */
-    color: #333;
-}
 
-.prejeto {
-    background-color: #f1f0f0; /* Svetlo siva za prejeta sporočila */
-    color: #333;
-}
 .seznam-klepetov-container .list-group-item {
     cursor: pointer;
 }
