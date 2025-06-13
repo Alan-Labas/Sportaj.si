@@ -694,10 +694,55 @@ html, body {
 }
 
 /* Uporabimo stile za sporočila iz prejšnjega koraka */
-.sporocilo { max-width: 75%; padding: 0.5rem 1rem; border-radius: 1rem; margin-bottom: 0.5rem; word-wrap: break-word; }
-.poslano { background-color: #0d6efd; color: white; margin-left: auto; border-bottom-right-radius: 0; }
-.prejeto { background-color: #e9ecef; color: #212529; margin-right: auto; border-bottom-left-radius: 0; }
+.sporocilo {
+    max-width: 70%; /* Omeji širino sporočila */
+    padding: 8px 12px;
+    border-radius: 15px;
+    word-wrap: break-word; /* Za dolga besedila */
+    font-size: 0.95em;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Majhna senca za vizualni efekt */
+}
 
+.poslano {
+    background-color: #dcf8c6; /* Svetlo zelena za poslana sporočila */
+    color: #333;
+}
+
+.prejeto {
+    background-color: #f1f0f0; /* Svetlo siva za prejeta sporočila */
+    color: #333;
+}
+
+.rounded-circle {
+    border-radius: 50% !important; /* Zagotovi, da so slike res okrogle */
+    object-fit: cover; /* Slike se ne popačijo */
+}
+
+.message-profile-pic { /* Če si že imel ta razred v prejšnji iteraciji */
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0; /* Prepreči, da se slika skrči */
+}
+
+/* Za usklajenost med sliko in besedilom */
+.d-flex.justify-content-end .rounded-circle { /* Slika na desni za poslana sporocila */
+    margin-left: 10px;
+    margin-right: 0;
+}
+
+.d-flex.justify-content-start .rounded-circle { /* Slika na levi za prejeta sporocila */
+    margin-right: 10px;
+    margin-left: 0;
+}
+
+/* Prilagoditev sporocil, da se prilagodijo slikam */
+.d-flex.mb-2 {
+    align-items: flex-end; /* Sporočila in slika poravnana po dnu */
+}
+.sporocilo small {
+    font-size: 0.7em;
+    color: #666;
+}
 .seznam-klepetov-container .list-group-item {
     cursor: pointer;
 }
