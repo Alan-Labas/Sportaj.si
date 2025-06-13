@@ -698,7 +698,6 @@ html, body {
 .poslano { background-color: #0d6efd; color: white; margin-left: auto; border-bottom-right-radius: 0; }
 .prejeto { background-color: #e9ecef; color: #212529; margin-right: auto; border-bottom-left-radius: 0; }
 
-
 .seznam-klepetov-container .list-group-item {
     cursor: pointer;
 }
