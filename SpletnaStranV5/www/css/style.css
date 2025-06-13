@@ -12,6 +12,21 @@ body {
     background-color: #fff;
 }
 
+html, body {
+    height: 100%; /* Pomembno: omogoča, da body zasede celotno višino okna */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Uporabi Flexbox */
+    flex-direction: column; /* Elementi se zlagajo vertikalno */
+}
+
+.main-content { /* Lahko je tudi #main-content ali drug selektor, ki objema glavno vsebino */
+    flex: 1; /* Pomembno: ta del bo zasedel ves preostali prostor */
+    /* Dodaj še morebitne lastne stile za glavno vsebino, npr. padding */
+    padding-bottom: 50px; /* Dodaj padding, da vsebina ne gre pod fiksni footer, če je ta fiksiran */
+}
+
+
 .custom-alert {
     position: fixed;
     top: 20px;
@@ -539,6 +554,7 @@ body {
     background-color: #111827;
     color: white;
     padding: 3rem 0 1rem;
+    flex-shrink: 0;
 }
 
 .footer-grid {
