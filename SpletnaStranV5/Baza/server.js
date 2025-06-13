@@ -2021,11 +2021,19 @@ app.get('/api/klepeti/:klepetId/sporocila', preveriZeton, async (req, res) => {
             return res.status(403).json({ message: 'Nimate dostopa do tega klepeta.' });
         }
 
-        const sporocila = await knex('Sporočila')
-            .where({ klepet_id: klepetId })
-            .orderBy('created_at', 'asc');
+        const sporocila = await knex('Sporočila as s') // Dodaj alias za Sporočila
+            .join('Uporabniki as u', 's.posiljatelj_id', 'u.id') // Pridruži tabelo Uporabniki
+            .where({ 's.klepet_id': klepetId })
+            .select('s.*', 'u.slika as posiljatelj_slika') // Izberi vse iz sporočil in sliko pošiljatelja
+            .orderBy('s.created_at', 'asc');
 
-        res.json(sporocila);
+        // Normaliziraj sliko pošiljatelja
+        const obdelanaSporocila = sporocila.map(s => ({
+            ...s,
+            posiljatelj_slika: normalizirajImgPath(s.posiljatelj_slika, '/slike/default-profile.png')
+        }));
+
+        res.json(obdelanaSporocila); // Pošlji obdelana sporočila
     } catch (error) {
         console.error('Napaka pri pridobivanju sporočil:', error);
         res.status(500).json({ message: 'Napaka na strežniku.' });
