@@ -6,9 +6,11 @@ const knex = require('knex')({
         host: process.env.DB_HOST,
         user: process.env.DB_USER, // Vaš MySQL uporabnik
         password: process.env.DB_PASSWORD, // Vaše MySQL geslo
-        database: process.env.DBDATABASE,
-        PORT: process.env.DB_PORT,
-        timezone: 'UTC',
+        database: process.env.DB_DATABASE, // <-- KLJUČNI DODATEK
+        port: process.env.DB_PORT,         // <-- POPRAVEK V MALO ČRKO
+        multipleStatements: true,
+        timezone: '+00:00'
+    
     }
 });
 const fs = require('fs');
